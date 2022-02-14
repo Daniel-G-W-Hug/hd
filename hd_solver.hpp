@@ -66,7 +66,7 @@ void lu_decomp(mdspan<double, extents<dynamic_extent, dynamic_extent>> a,
        perm is the permutation vector in case of line exchange (pivot elements)
     */
 
-    // check fitness of (symmetric) matrix and permutation vector
+    // check fitness of matrix and permutation vector
     if (a.extent(0) != a.extent(1) ||
         a.extent(0) != perm.extent(0))
     {
@@ -154,8 +154,8 @@ void lu_decomp(mdspan<double, extents<dynamic_extent, dynamic_extent>> a,
 
 } // ludecomp()
 
-void lu_backsubs(const mdspan<double, extents<dynamic_extent, dynamic_extent>> a,
-                 const mdspan<int, extents<dynamic_extent>> perm,
+void lu_backsubs(mdspan<double const, extents<dynamic_extent, dynamic_extent>> a,
+                 mdspan<int const, extents<dynamic_extent>> perm,
                  mdspan<double, extents<dynamic_extent>> b)
 {
     /*
@@ -171,7 +171,7 @@ void lu_backsubs(const mdspan<double, extents<dynamic_extent, dynamic_extent>> a
     lu_backsubs() can be used for arbitrarily many different right hand side vectors
     */
 
-    // check fitness of (symmetric) matrix, permutation vector and right hand side
+    // check fitness of matrix, permutation vector and right hand side
     if (a.extent(0) != a.extent(1) ||
         a.extent(0) != perm.extent(0) ||
         a.extent(0) != b.extent(0))
