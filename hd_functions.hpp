@@ -3,6 +3,7 @@
 
 #include <algorithm> // std::clamp (c++17)
 #include <cmath>     // log, floor
+#include <limits>    // numerical limits
 #include <stdexcept> //std::invalid_argument
 
 namespace hd
@@ -19,6 +20,13 @@ double log_gamma(double xx);
 double fact(int n);
 double log_fact(int n);
 double bico(int n, int k);
+
+enum class split_t
+{
+    arithmetic,
+    geometric
+};
+int oo_magnitude(double x, split_t s = split_t::arithmetic);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Implementation
@@ -159,6 +167,29 @@ double bico(int n, int k)
 {
     // std::floor is for clean up of roundoff errors for smaller values of n and k
     return std::floor(0.5 + std::exp(log_fact(n) - log_fact(k) - log_fact(n - k)));
+}
+
+//******************************************************************************
+// returns the order of magnitude (oom) of a given number as exponent 10^N
+//
+// with N such that 0.5 < abs(x)/10^N <= 5.0  (arithmetric split)
+//
+// with N such that 1/sqrt(10) <= abs(x)/10^N < sqrt(10)  (geometric split)
+//
+//******************************************************************************
+
+int oo_magnitude(double x, split_t s)
+{
+
+    if (abs(x) <= std::numeric_limits<double>::min())
+        return 0;
+
+    if (s == split_t::arithmetic)
+        return std::log10(std::abs(x) / 0.5); //  arithmetric split
+    else if (s == split_t::geometric)
+        return std::floor(std::log10(std::abs(x)) + 0.5); // geometric split
+    else
+        throw std::invalid_argument("hd::oo_magnitude: case in split_t not handled.");
 }
 
 } // namespace hd
