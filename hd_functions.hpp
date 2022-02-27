@@ -23,10 +23,10 @@ double bico(int n, int k);
 
 enum class split_t
 {
-    arithmetic,
-    geometric
+    geometric,
+    arithmetic
 };
-int oo_magnitude(double x, split_t s = split_t::arithmetic);
+int oo_magnitude(double x, split_t s = split_t::geometric);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Implementation
@@ -172,9 +172,15 @@ double bico(int n, int k)
 //******************************************************************************
 // returns the order of magnitude (oom) of a given number as exponent 10^N
 //
-// with N such that 0.5 < abs(x)/10^N <= 5.0  (arithmetric split)
 //
-// with N such that 1/sqrt(10) <= abs(x)/10^N < sqrt(10)  (geometric split)
+// geometric split: with N such that 10^(-1/2) <= abs(x)/10^N < 10^(1/2)
+//
+//   => 10^(N-1/2) <= abs(x) < 10^(N+1/2) with 10^N as geometric midpoint
+//
+//
+// arithmetic split: with N such that 0.5 < abs(x)/10^N <= 5.0
+//
+//   => 0.5*10^N < abs(x) <= 5.0*10^N
 //
 //******************************************************************************
 
@@ -184,10 +190,10 @@ int oo_magnitude(double x, split_t s)
     if (abs(x) <= std::numeric_limits<double>::min())
         return 0;
 
-    if (s == split_t::arithmetic)
-        return std::log10(std::abs(x) / 0.5); //  arithmetric split
-    else if (s == split_t::geometric)
-        return std::floor(std::log10(std::abs(x)) + 0.5); // geometric split
+    if (s == split_t::geometric) // geometric split (default)
+        return std::floor(std::log10(std::abs(x)) + 0.5);
+    else if (s == split_t::arithmetic) //  arithmetric split
+        return std::log10(std::abs(x) / 0.5);
     else
         throw std::invalid_argument("hd::oo_magnitude: case in split_t not handled.");
 }
