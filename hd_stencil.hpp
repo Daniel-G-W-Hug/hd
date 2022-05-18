@@ -34,7 +34,7 @@ struct stencil_t
             (nf1() == 0 && lhs_t == stencil_lhs::f1) ||
             (nf2() == 0 && lhs_t == stencil_lhs::f2))
         {
-            throw std::invalid_argument("Inconsitent specification of stencil in ctor of hd::stencil_t.");
+            throw std::invalid_argument("Inconsistent specification of stencil in ctor of hd::stencil_t.");
         }
 
         // reserve space for weights (does not change wfx.size())
