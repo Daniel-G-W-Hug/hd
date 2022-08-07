@@ -43,11 +43,11 @@ using std::experimental::layout_left;
 using std::experimental::layout_right;
 using std::experimental::mdspan;
 
-void lu_decomp(mdspan<double, extents<dynamic_extent, dynamic_extent>> a,
-               mdspan<int, extents<dynamic_extent>> perm);
-void lu_backsubs(mdspan<double const, extents<dynamic_extent, dynamic_extent>> a,
-                 mdspan<int const, extents<dynamic_extent>> perm,
-                 mdspan<double, extents<dynamic_extent>> b);
+void lu_decomp(mdspan<double, dextents<size_t, 2>> a,
+               mdspan<int, dextents<size_t, 1>> perm);
+void lu_backsubs(mdspan<double const, dextents<size_t, 2>> a,
+                 mdspan<int const, dextents<size_t, 1>> perm,
+                 mdspan<double, dextents<size_t, 1>> b);
 
 //-----------------------------------------------------------------------------
 // Solver error handling
