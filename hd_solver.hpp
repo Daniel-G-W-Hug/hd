@@ -49,18 +49,16 @@ using std::experimental::mdspan;
 struct Solver_error
 {
     std::string name;
-    Solver_error(const char* q) :
-        name(q) {}
-    Solver_error(std::string n) :
-        name(n) {}
+    Solver_error(const char *q) : name(q) {}
+    Solver_error(std::string n) : name(n) {}
 };
 
 //-----------------------------------------------------------------------------
 
-inline void solver_error_msg(const char* p) { throw Solver_error(p); }
+inline void solver_error_msg(const char *p) { throw Solver_error(p); }
 
-void lu_decomp(mdspan<double, extents<dynamic_extent, dynamic_extent>> a,
-               mdspan<int, extents<dynamic_extent>> perm)
+void lu_decomp(mdspan<double, dextents<size_t, 2>> a,
+               mdspan<int, dextents<size_t, 1>> perm)
 {
     /* LU decomposition of matrix a (handed back on a)
        perm is the permutation vector in case of line exchange (pivot elements)
@@ -154,9 +152,9 @@ void lu_decomp(mdspan<double, extents<dynamic_extent, dynamic_extent>> a,
 
 } // ludecomp()
 
-void lu_backsubs(mdspan<double const, extents<dynamic_extent, dynamic_extent>> a,
-                 mdspan<int const, extents<dynamic_extent>> perm,
-                 mdspan<double, extents<dynamic_extent>> b)
+void lu_backsubs(mdspan<double const, dextents<size_t, 2>> a,
+                 mdspan<int const, dextents<size_t, 1>> perm,
+                 mdspan<double, dextents<size_t, 1>> b)
 {
     /*
     backward substitution: a is the LU-decomposed matrix as provided by lu_decomp()
