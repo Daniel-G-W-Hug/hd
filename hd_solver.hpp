@@ -33,21 +33,22 @@
 #include <iostream>
 #include <vector>
 
-namespace hd // Namespace HD to define my types for numerical computation
-{
-
 // make mdspan less verbose
+using std::experimental::dextents;
 using std::experimental::dynamic_extent;
 using std::experimental::extents;
 using std::experimental::layout_left;
 using std::experimental::layout_right;
 using std::experimental::mdspan;
 
-void lu_decomp(mdspan<double, dextents<size_t, 2>> a,
-               mdspan<int, dextents<size_t, 1>> perm);
-void lu_backsubs(mdspan<double const, dextents<size_t, 2>> a,
-                 mdspan<int const, dextents<size_t, 1>> perm,
-                 mdspan<double, dextents<size_t, 1>> b);
+namespace hd // Namespace HD to define my types for numerical computation
+{
+
+void lu_decomp(mdspan<double, dextents<int, 2>> a,
+               mdspan<int, dextents<int, 1>> perm);
+void lu_backsubs(mdspan<double const, dextents<int, 2>> a,
+                 mdspan<int const, dextents<int, 1>> perm,
+                 mdspan<double, dextents<int, 1>> b);
 
 //-----------------------------------------------------------------------------
 // Solver error handling
@@ -55,16 +56,18 @@ void lu_backsubs(mdspan<double const, dextents<size_t, 2>> a,
 struct Solver_error
 {
     std::string name;
-    Solver_error(const char *q) : name(q) {}
-    Solver_error(std::string n) : name(n) {}
+    Solver_error(const char* q) :
+        name(q) {}
+    Solver_error(std::string n) :
+        name(n) {}
 };
 
 //-----------------------------------------------------------------------------
 
-inline void solver_error_msg(const char *p) { throw Solver_error(p); }
+inline void solver_error_msg(const char* p) { throw Solver_error(p); }
 
-void lu_decomp(mdspan<double, dextents<size_t, 2>> a,
-               mdspan<int, dextents<size_t, 1>> perm)
+void lu_decomp(mdspan<double, dextents<int, 2>> a,
+               mdspan<int, dextents<int, 1>> perm)
 {
     /* LU decomposition of matrix a (handed back on a)
        perm is the permutation vector in case of line exchange (pivot elements)
@@ -158,9 +161,9 @@ void lu_decomp(mdspan<double, dextents<size_t, 2>> a,
 
 } // ludecomp()
 
-void lu_backsubs(mdspan<double const, dextents<size_t, 2>> a,
-                 mdspan<int const, dextents<size_t, 1>> perm,
-                 mdspan<double, dextents<size_t, 1>> b)
+void lu_backsubs(mdspan<double const, dextents<int, 2>> a,
+                 mdspan<int const, dextents<int, 1>> perm,
+                 mdspan<double, dextents<int, 1>> b)
 {
     /*
     backward substitution: a is the LU-decomposed matrix as provided by lu_decomp()
