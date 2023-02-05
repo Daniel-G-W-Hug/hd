@@ -4,7 +4,8 @@
 #include "hd/hd_functions.hpp" // hd::fact()
 #include "hd/hd_solver.hpp"    // hd::lu_decomp(), hd::lu_backsubs()
 
-#include "mdspan/mdspan.hpp"
+// #include "mdspan/mdspan.hpp"
+#include <experimental/mdspan>
 
 #include "fmt/format.h"
 #include "fmt/ranges.h"
