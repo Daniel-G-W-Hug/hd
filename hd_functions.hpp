@@ -12,9 +12,9 @@ namespace hd
 // Interface
 ////////////////////////////////////////////////////////////////////////////////
 
-double linear_step(double lo_x, double hi_x, double x);
-double smooth_step(double lo_x, double hi_x, double x);
-double smoother_step(double lo_x, double hi_x, double x);
+double linear_step(double low_x, double high_x, double x);
+double smooth_step(double low_x, double high_x, double x);
+double smoother_step(double low_x, double high_x, double x);
 
 double log_gamma(double xx);
 double fact(int n);
@@ -33,42 +33,44 @@ int oo_magnitude(double x, split_t s = split_t::geometric);
 ////////////////////////////////////////////////////////////////////////////////
 
 //******************************************************************************
-//                  0.                for x < lo_x
-// linear_step(x) = x                 for lo_x <= x <= hi_x
-//                  1.                for x > hi_x
+//                  0.                               for x < low_x
+// linear_step(x) = (x - low_x)/(high_x - low_x)     for low_x <= x <= high_x
+//                  1.                               for x > high_x
 //******************************************************************************
-double linear_step(double lo_x, double hi_x, double x)
+double linear_step(double low_x, double high_x, double x)
 {
     // scale, bias and saturate x to 0..1 range
-    x = std::clamp((x - lo_x) / (hi_x - lo_x), 0.0, 1.0);
+    x = std::clamp((x - low_x) / (high_x - low_x), 0.0, 1.0);
     return x;
 }
 
 //******************************************************************************
-//                  0.                for x < lo_x
-// smooth_step(x) = 3*x^2 - 2*x^3     for lo_x <= x <= hi_x
-//                  1.                for x > hi_x
+//                  0.                for x < low_x
+// smooth_step(x) = 3*x^2 - 2*x^3     for low_x <= x <= high_x
+//                  1.                for x > high_x
 //
-// origin: 3rd order polynomial with df/dx=0 at lo_x and hi_x
+// origin: 3rd order polynomial with df/dx=0 at low_x and high_x
 //******************************************************************************
-double smooth_step(double lo_x, double hi_x, double x)
+double smooth_step(double low_x, double high_x, double x)
 {
     // scale, bias and saturate x to 0..1 range
-    x = std::clamp((x - lo_x) / (hi_x - lo_x), 0.0, 1.0);
+    // with  x = (x-low_x)/(high_x-low_x)    normalize x to range (0.,1.)
+    x = std::clamp((x - low_x) / (high_x - low_x), 0.0, 1.0);
     return x * x * (3.0 - 2.0 * x);
 }
 
 //******************************************************************************
-//                    0.                          for x < lo_x
-// smoother_step(x) = 6*x^5 - 15*x^4 + 10*x^3     for lo_x <= x <= hi_x
-//                    1.                          for x > hi_x
-// origin: 5th order polynomial with df/dx=0 and df/dx2=0 at lo_x and hi_x
+//                    0.                          for x < low_x
+//          with  x = (x-low_x)/(high_x-low_x)    normalize x to range (0.,1.)
+// smoother_step(x) = 6*x^5 - 15*x^4 + 10*x^3     for low_x <= x <= high_x
+//                    1.                          for x > high_x
+// origin: 5th order polynomial with df/dx=0 and df/dx2=0 at low_x and high_x
 //******************************************************************************
-double smoother_step(double lo_x, double hi_x, double x)
+double smoother_step(double low_x, double high_x, double x)
 {
     // scale, bias and saturate x to 0..1 range
-    x = std::clamp((x - lo_x) / (hi_x - lo_x), 0.0, 1.0);
-    return x * x * x * (x * (x * 6.0 - 15.0) + 10.);
+    x = std::clamp((x - low_x) / (high_x - low_x), 0.0, 1.0);
+    return x * x * x * (x * (x * 6.0 - 15.0) + 10.0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
