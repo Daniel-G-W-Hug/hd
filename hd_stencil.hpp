@@ -14,17 +14,14 @@
 #include <stdexcept> //std::invalid_argument
 #include <vector>
 
-namespace hd // Namespace HD to define my types for numerical computation
-{
+namespace hd { // Namespace hd to define my types for numerical computation
 
-enum class stencil_lhs
-{
+enum class stencil_lhs {
     f1, // f'  terms considered to be on lhs of finite difference
     f2  // f'' terms considered to be on lhs of finite difference
 };
 
-struct stencil_t
-{
+struct stencil_t {
     // after calling the ctor, the "output values" can be used
     stencil_t(double x0, stencil_lhs lhs_t, std::vector<double> xf0, std::vector<double> xf1, std::vector<double> xf2) :
         x0{x0}, lhs_t{lhs_t}, xf0{xf0}, xf1{xf1}, xf2{xf2}
@@ -33,8 +30,7 @@ struct stencil_t
         // consistency checks
         if ((nf1() == 0 && nf2() == 0) || n() < 3 ||
             (nf1() == 0 && lhs_t == stencil_lhs::f1) ||
-            (nf2() == 0 && lhs_t == stencil_lhs::f2))
-        {
+            (nf2() == 0 && lhs_t == stencil_lhs::f2)) {
             throw std::invalid_argument("Inconsistent specification of stencil in ctor of hd::stencil_t.");
         }
 
@@ -75,7 +71,6 @@ struct stencil_t
     int n() const { return nf0() + nf1() + nf2(); } // total number of points
 
   private:
-
     void calc_stencil();
 };
 
@@ -101,16 +96,14 @@ void stencil_t::calc_stencil()
     col = j0e;
 
     // f'
-    if (nf1() > 0)
-    {
+    if (nf1() > 0) {
         j1b = col + 1;
         j1e = col + nf1();
         col += nf1();
     }
 
     // f''
-    if (nf2() > 0)
-    {
+    if (nf2() > 0) {
         j2b = col + 1;
         j2e = col + nf2();
         // col += nf2(); // just needed for further extension with f'''
@@ -123,8 +116,7 @@ void stencil_t::calc_stencil()
     // unwanted terms of series expansion of lhs are moved to rhs (sfact)
 
     // f
-    for (int j = j0b; j <= j0e; ++j)
-    {
+    for (int j = j0b; j <= j0e; ++j) {
         matrix(0, j) = 1.0;
         for (int i = 1; i < n(); ++i)
             matrix(i, j) = std::pow(xf0[j - j0b] - x0, i) / hd::fact(i);
@@ -133,20 +125,16 @@ void stencil_t::calc_stencil()
     double sfact; // used to locate terms on lhs (-1.0) or on rhs (+1.0)
 
     // f'
-    if (nf1() > 0)
-    {
-        if (lhs_t == stencil_lhs::f1)
-        {
+    if (nf1() > 0) {
+        if (lhs_t == stencil_lhs::f1) {
             // put terms on lhs
             sfact = -1.0;
         }
-        else
-        {
+        else {
             // put terms on rhs
             sfact = 1.0;
         }
-        for (int j = j1b; j <= j1e; ++j)
-        {
+        for (int j = j1b; j <= j1e; ++j) {
             matrix(0, j) = 0.0;
             matrix(1, j) = 1.0;
             for (int i = 2; i < n(); ++i)
@@ -155,20 +143,16 @@ void stencil_t::calc_stencil()
     }
 
     // f''
-    if (nf2() > 0)
-    {
-        if (lhs_t == stencil_lhs::f2)
-        {
+    if (nf2() > 0) {
+        if (lhs_t == stencil_lhs::f2) {
             // put terms on lhs
             sfact = -1.0;
         }
-        else
-        {
+        else {
             // put terms on rhs
             sfact = 1.0;
         }
-        for (int j = j2b; j <= j2e; ++j)
-        {
+        for (int j = j2b; j <= j2e; ++j) {
             matrix(0, j) = 0.0;
             matrix(1, j) = 0.0;
             matrix(2, j) = 1.0;
@@ -178,13 +162,11 @@ void stencil_t::calc_stencil()
     }
 
     // setup rhs
-    if (lhs_t == stencil_lhs::f1)
-    {
+    if (lhs_t == stencil_lhs::f1) {
         rhs(1) = 1.0;
     }
 
-    if (lhs_t == stencil_lhs::f2)
-    {
+    if (lhs_t == stencil_lhs::f2) {
         rhs(2) = 1.0;
     }
 
@@ -197,18 +179,14 @@ void stencil_t::calc_stencil()
 
     rhs(n() - 1) = 1.0;
 
-    if (lhs_t == stencil_lhs::f1)
-    {
-        for (int j = j1b; j <= j1e; ++j)
-        {
+    if (lhs_t == stencil_lhs::f1) {
+        for (int j = j1b; j <= j1e; ++j) {
             matrix(n() - 1, j) = 1.0;
             matrix(1, j) = 0.0;
         }
     }
-    if (lhs_t == stencil_lhs::f2)
-    {
-        for (int j = j2b; j <= j2e; ++j)
-        {
+    if (lhs_t == stencil_lhs::f2) {
+        for (int j = j2b; j <= j2e; ++j) {
             matrix(n() - 1, j) = 1.0;
             matrix(2, j) = 0.0;
         }
@@ -223,14 +201,12 @@ void stencil_t::calc_stencil()
     for (int j = j0b; j <= j0e; ++j)
         wf0.push_back(rhs(j));
     // f'
-    if (nf1() > 0)
-    {
+    if (nf1() > 0) {
         for (int j = j1b; j <= j1e; ++j)
             wf1.push_back(rhs(j));
     }
     // f''
-    if (nf2() > 0)
-    {
+    if (nf2() > 0) {
         for (int j = j2b; j <= j2e; ++j)
             wf2.push_back(rhs(j));
     }
@@ -238,22 +214,18 @@ void stencil_t::calc_stencil()
     // compute order and truncation error
 
     // f
-    for (int i = nf0(); i <= n(); ++i)
-    {
+    for (int i = nf0(); i <= n(); ++i) {
         double sumte = 0.0;
         for (int j = j0b; j <= j0e; ++j)
             sumte += std::pow(xf0[j - j0b] - x0, i) / hd::fact(i) * rhs(j);
 
         // f'
-        if (nf1() > 0)
-        {
-            if (lhs_t == stencil_lhs::f1)
-            {
+        if (nf1() > 0) {
+            if (lhs_t == stencil_lhs::f1) {
                 // put terms on lhs
                 sfact = -1.0;
             }
-            else
-            {
+            else {
                 // put terms on rhs
                 sfact = 1.0;
             }
@@ -262,15 +234,12 @@ void stencil_t::calc_stencil()
         }
 
         // f''
-        if (nf2() > 0)
-        {
-            if (lhs_t == stencil_lhs::f2)
-            {
+        if (nf2() > 0) {
+            if (lhs_t == stencil_lhs::f2) {
                 // put terms on lhs
                 sfact = -1.0;
             }
-            else
-            {
+            else {
                 // put terms on rhs
                 sfact = 1.0;
             }
@@ -279,16 +248,13 @@ void stencil_t::calc_stencil()
         }
 
         double eps = 1.0e-6;
-        if (std::abs(sumte) > eps)
-        {
+        if (std::abs(sumte) > eps) {
             trunc_err = sumte;
 
-            if (lhs_t == stencil_lhs::f1)
-            {
+            if (lhs_t == stencil_lhs::f1) {
                 order = i - 1;
             }
-            if (lhs_t == stencil_lhs::f2)
-            {
+            if (lhs_t == stencil_lhs::f2) {
                 order = i - 2;
             }
         }

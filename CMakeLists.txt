@@ -9,38 +9,18 @@
 #]]
 #[[ hint: backet comment will not be formated by cmake-format]]
 
-cmake_minimum_required(VERSION 3.25)
-
-# to use gcc-12 and g++-12 instead of default c / c++ (must come before project
-# line [[
-# set(CMAKE_C_COMPILER "gcc-12")
-# set(CMAKE_CXX_COMPILER "g++-12")
-# ]]
-
-# CMAKE_TOOLCHAIN_FILE must be defined BEFORE project(...)!
-if(WIN32)
-  set(CMAKE_TOOLCHAIN_FILE "C:/Users/danie/prg/cpp/vcpkg/scripts/buildsystems/vcpkg.cmake")
-else()
-  set(CMAKE_TOOLCHAIN_FILE "/Users/daniel/prg/cpp/vcpkg/scripts/buildsystems/vcpkg.cmake")
-endif()
+cmake_minimum_required(VERSION 3.27)
 
 #
 # for trial of new features, libs or system values"
 #
 project(
-  experiments
+  hd_lib
   VERSION 0.1
   LANGUAGES CXX)
 
 # set(CMAKE_VERBOSE_MAKEFILE ON)  // alternative: make VERBOSE=1
 # add_definitions(-Dxxx)
-
-# make sure cmake is called with indication of CMAKE_TOOLCHAIN_FILE (vcpkg)
-# e.g. via .zshrc export CMAKE_TOOLCHAIN_FILE="/Users/daniel/prg/cpp/vcpkg/scripts/buildsystems/vcpkg.cmake"
-if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)
-  message(FATAL_ERROR
-          "CMAKE_TOOLCHAIN_FILE must be defined to use vcpkg. Configuration aborted.")
-endif()
 
 # specify the C++ standard
 set(CMAKE_CXX_STANDARD 23)
@@ -63,8 +43,11 @@ if(CMAKE_BUILD_TYPE EQUAL "Debug")
 endif()
 
 find_package(doctest REQUIRED)
+#find_package(date REQUIRED)
+
 
 # incrementally add test files needed
 add_executable(hd_functions_test hd_functions_test.cpp)     #dep: ...
 
 target_link_libraries(hd_functions_test PRIVATE doctest::doctest)
+#target_link_libraries(xyz_test PRIVATE date::date)

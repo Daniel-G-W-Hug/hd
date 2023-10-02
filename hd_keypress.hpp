@@ -3,8 +3,7 @@
 
 #include <iostream>
 
-namespace hd
-{
+namespace hd {
 
 ////////////////////////////////////////////////////////////////////////////////
 // Interface
@@ -18,8 +17,7 @@ void cmdl_wait_for_enter();
 
 void cmdl_wait_for_enter()
 {
-    do
-    {
+    do {
         std::cout << '\n'
                   << "Press ENTER to continue...";
     } while (std::cin.get() != '\n');

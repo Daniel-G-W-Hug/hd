@@ -8,8 +8,7 @@
 #include <source_location>
 #include <string>
 
-namespace hd
-{
+namespace hd {
 
 using namespace std::string_literals;
 
@@ -26,8 +25,7 @@ void file_loc_msg(std::string const& message = ""s,
 // error handling as proposed by
 // Stroustrup, Bjarne. Tour of C++, 3rd edition, p.48. Pearson Education. Kindle-Version.
 
-enum class Error_action
-{
+enum class Error_action {
     ignore,
     throwing,
     terminating,

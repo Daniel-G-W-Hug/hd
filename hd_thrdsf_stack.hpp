@@ -1,5 +1,5 @@
-#pragma once
-
+#ifndef HD_THRDSF_STACK_HPP
+#define HD_THRDSF_STACK_HPP
 //
 // threadsafe stack (based on A. Williams "Concurrency in Action")
 //
@@ -12,13 +12,14 @@
 #include <mutex>
 #include <stack>
 
-namespace HD {
+namespace hd {
 
 struct empty_stack : std::exception {
     const char* what() const throw() { return "HD::thrdsf_stack: Empty stack!"; }
 };
 
-template <typename T> class thrdsf_stack {
+template <typename T>
+class thrdsf_stack {
 
   private:
     std::stack<T> data;
@@ -27,7 +28,8 @@ template <typename T> class thrdsf_stack {
   public:
     thrdsf_stack() {}
 
-    thrdsf_stack(const thrdsf_stack& other) {
+    thrdsf_stack(const thrdsf_stack& other)
+    {
         // copy in ctor body to be able to lock other.m
         std::lock_guard<std::mutex> lock(other.m);
         data = other.data;
@@ -35,35 +37,41 @@ template <typename T> class thrdsf_stack {
 
     thrdsf_stack& operator=(const thrdsf_stack& other) = delete;
 
-    void push(T new_value) {
+    void push(T new_value)
+    {
         std::lock_guard<std::mutex> lock(m);
         data.push(new_value);
     }
 
-    std::shared_ptr<T> pop() {
+    std::shared_ptr<T> pop()
+    {
         std::lock_guard<std::mutex> lock(m);
         if (data.empty())
-            throw empty_stack();    // check for data.empty() before trying to top
+            throw empty_stack(); // check for data.empty() before trying to top
         std::shared_ptr<T> const value(
-            std::make_shared<T>(data.top()));    // allocate return value before modifying
-                                                 // stack (safe in face of exceptions)
+            std::make_shared<T>(data.top())); // allocate return value before modifying
+                                              // stack (safe in face of exceptions)
         data.pop();
         return value;
     }
 
-    void pop(T& value) {
+    void pop(T& value)
+    {
         std::lock_guard<std::mutex> lock(m);
         if (data.empty())
-            throw empty_stack();    // check for data.empty() before trying to top
-        value = data.top();         // storage for value provided by user
+            throw empty_stack(); // check for data.empty() before trying to top
+        value = data.top();      // storage for value provided by user
         data.pop();
     }
 
-    bool empty() const {
+    bool empty() const
+    {
         std::lock_guard<std::mutex> lock(m);
         return data.empty();
     }
 
-};    // class thrdsf_stack
+}; // class thrdsf_stack
 
-}    // namespace HD
+} // namespace hd
+
+#endif // HD_THRDSF_STACK_HPP

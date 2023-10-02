@@ -6,8 +6,7 @@
 #include <limits>    // numerical limits
 #include <stdexcept> //std::invalid_argument
 
-namespace hd
-{
+namespace hd {
 ////////////////////////////////////////////////////////////////////////////////
 // Interface
 ////////////////////////////////////////////////////////////////////////////////
@@ -21,8 +20,7 @@ double fact(int n);
 double log_fact(int n);
 double bico(int n, int k);
 
-enum class split_t
-{
+enum class split_t {
     geometric,
     arithmetic
 };
@@ -95,8 +93,7 @@ double log_gamma(double xx)
     tmp -= (x + 0.5) * std::log(tmp);
     ser = 1.000000000190015;
 
-    for (int j = 0; j <= 5; ++j)
-    {
+    for (int j = 0; j <= 5; ++j) {
         ser += cof[j] / ++y;
     }
     return -tmp + std::log(2.5066282746310005 * ser / x);
@@ -112,19 +109,16 @@ double fact(int n)
     // fill in only as required (static arrays are zero initialized)
     static double a[33] = {1.0, 1.0, 2.0, 6.0, 24.0, 120.0, 720.0};
 
-    if (n < 0)
-    {
+    if (n < 0) {
         throw std::invalid_argument("Negative argument in fact(n).");
     }
 
-    if (n > 32)
-    {
+    if (n > 32) {
         // might overflow depending on n and sizeof(double)
         return std::exp(log_gamma(n + 1.0));
     }
 
-    while (ntop < n)
-    {
+    while (ntop < n) {
         // fill our array further if needed, for potential reuse in static array
         int j = ntop++;
         a[ntop] = a[j] * ntop;
@@ -140,23 +134,19 @@ double log_fact(int n)
     // static arrays are zero initialized
     static double a[101];
 
-    if (n < 0)
-    {
+    if (n < 0) {
         throw std::invalid_argument("Negative argument in log_fact(n).");
     }
 
-    if (n <= 1)
-    {
+    if (n <= 1) {
         return 0.0;
     }
 
-    if (n <= 100)
-    {
+    if (n <= 100) {
         // in range of table
         return a[n] ? a[n] : (a[n] = log_gamma(n + 1.0));
     }
-    else
-    {
+    else {
         // out of range of table
         return log_gamma(n + 1.0);
     }

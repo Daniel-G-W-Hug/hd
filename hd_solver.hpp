@@ -54,8 +54,7 @@ void lu_backsubs(mdspan<double const, dextents<int, 2>> a,
 //-----------------------------------------------------------------------------
 // Solver error handling
 //-----------------------------------------------------------------------------
-struct Solver_error
-{
+struct Solver_error {
     std::string name;
     Solver_error(const char* q) :
         name(q) {}
@@ -76,8 +75,7 @@ void lu_decomp(mdspan<double, dextents<int, 2>> a,
 
     // check fitness of matrix and permutation vector
     if (a.extent(0) != a.extent(1) ||
-        a.extent(0) != perm.extent(0))
-    {
+        a.extent(0) != perm.extent(0)) {
 
         solver_error_msg("hd::lu_decomp(): unsymmetric matrix or permututation vector size incompatible.");
     };
@@ -89,11 +87,9 @@ void lu_decomp(mdspan<double, dextents<int, 2>> a,
     std::vector<double> vv(a.extent(0));
 
     // fill in scaling vector
-    for (int i = 0; i <= ubound; ++i)
-    {
+    for (int i = 0; i <= ubound; ++i) {
         double aamax = 0.;
-        for (int j = 0; j <= ubound; ++j)
-        {
+        for (int j = 0; j <= ubound; ++j) {
             if (abs(a(i, j)) > aamax)
                 aamax = abs(a(i, j));
         }
@@ -105,15 +101,11 @@ void lu_decomp(mdspan<double, dextents<int, 2>> a,
     // LU decomposition
     double sum, aamax, dum;
     int imax;
-    for (int j = 0; j <= ubound; ++j)
-    {
-        if (j > 0)
-        {
-            for (int i = 0; i <= j - 1; ++i)
-            {
+    for (int j = 0; j <= ubound; ++j) {
+        if (j > 0) {
+            for (int i = 0; i <= j - 1; ++i) {
                 sum = a(i, j);
-                if (i > 0)
-                {
+                if (i > 0) {
                     for (int k = 0; k <= i - 1; ++k)
                         sum -= a(i, k) * a(k, j);
                     a(i, j) = sum;
@@ -121,26 +113,21 @@ void lu_decomp(mdspan<double, dextents<int, 2>> a,
             }
         }
         aamax = 0.;
-        for (int i = j; i <= ubound; ++i)
-        {
+        for (int i = j; i <= ubound; ++i) {
             sum = a(i, j);
-            if (j > 0)
-            {
+            if (j > 0) {
                 for (int k = 0; k <= j - 1; ++k)
                     sum -= a(i, k) * a(k, j);
                 a(i, j) = sum;
             }
             dum = vv[i] * abs(sum);
-            if (dum >= aamax)
-            {
+            if (dum >= aamax) {
                 imax = i;
                 aamax = dum;
             }
         }
-        if (j != imax)
-        {
-            for (int k = 0; k <= ubound; ++k)
-            {
+        if (j != imax) {
+            for (int k = 0; k <= ubound; ++k) {
                 dum = a(imax, k);
                 a(imax, k) = a(j, k);
                 a(j, k) = dum;
@@ -148,8 +135,7 @@ void lu_decomp(mdspan<double, dextents<int, 2>> a,
             vv[imax] = vv[j];
         }
         perm(j) = imax;
-        if (j != ubound)
-        {
+        if (j != ubound) {
             if (a(j, j) == 0.)
                 a(j, j) = TINY;
             dum = 1. / a(j, j);
@@ -182,8 +168,7 @@ void lu_backsubs(mdspan<double const, dextents<int, 2>> a,
     // check fitness of matrix, permutation vector and right hand side
     if (a.extent(0) != a.extent(1) ||
         a.extent(0) != perm.extent(0) ||
-        a.extent(0) != b.extent(0))
-    {
+        a.extent(0) != b.extent(0)) {
 
         solver_error_msg("hd::lu_decomp(): unsymmetric matrix, permututation vector size or right hand side size incompatible.");
     };
@@ -194,13 +179,11 @@ void lu_backsubs(mdspan<double const, dextents<int, 2>> a,
     int ll;
 
     int ii = -1; // never occurring index as indicator for first loop
-    for (int i = 0; i <= ubound; ++i)
-    {
+    for (int i = 0; i <= ubound; ++i) {
         ll = perm(i);
         sum = b(ll);
         b(ll) = b(i);
-        if (ii != -1)
-        {
+        if (ii != -1) {
             for (int j = ii; j <= i - 1; ++j)
                 sum -= a(i, j) * b(j);
         }
@@ -209,11 +192,9 @@ void lu_backsubs(mdspan<double const, dextents<int, 2>> a,
         b(i) = sum;
     }
 
-    for (int i = ubound; i >= 0; --i)
-    {
+    for (int i = ubound; i >= 0; --i) {
         sum = b(i);
-        if (i < ubound)
-        {
+        if (i < ubound) {
             for (int j = i + 1; j <= ubound; ++j)
                 sum -= a(i, j) * b(j);
         }

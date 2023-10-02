@@ -3,8 +3,7 @@
 
 #include <algorithm> // std::transform
 #include <string>
-namespace hd
-{
+namespace hd {
 
 // trim from left
 inline std::string& ltrim(std::string& s, const char* t = " \t\n\r\f\v")
@@ -49,8 +48,7 @@ std::string wstring_to_string(const std::wstring& ws)
     std::string outstr;
     std::transform(ws.begin(), ws.end(),
                    std::back_inserter(outstr),
-                   [](wchar_t c)
-                   { return (char)c; });
+                   [](wchar_t c) { return (char)c; });
     return outstr;
 }
 
@@ -59,8 +57,7 @@ std::wstring string_to_wstring(const std::string& s)
     std::wstring outwstr;
     std::transform(s.begin(), s.end(),
                    std::back_inserter(outwstr),
-                   [](char c)
-                   { return (wchar_t)c; });
+                   [](char c) { return (wchar_t)c; });
     return outwstr;
 }
 
