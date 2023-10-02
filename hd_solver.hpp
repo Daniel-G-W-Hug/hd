@@ -27,23 +27,21 @@
 // You can enable both at the same time.
 // #define MDSPAN_USE_PAREN_OPERATOR 1
 
-// #include "mdspan/mdspan.hpp"
-#include <experimental/mdspan>
+#include "mdspan/mdspan.hpp"
 
 #include <cmath>
 #include <iostream>
 #include <vector>
 
 // make mdspan less verbose
-using std::experimental::dextents;
-using std::experimental::dynamic_extent;
-using std::experimental::extents;
-using std::experimental::layout_left;
-using std::experimental::layout_right;
-using std::experimental::mdspan;
+using Kokkos::dextents;
+using Kokkos::dynamic_extent;
+using Kokkos::extents;
+using Kokkos::layout_left;
+using Kokkos::layout_right;
+using Kokkos::mdspan;
 
-namespace hd // Namespace HD to define my types for numerical computation
-{
+namespace hd { // Namespace hd to define my types for numerical computation
 
 void lu_decomp(mdspan<double, dextents<int, 2>> a,
                mdspan<int, dextents<int, 1>> perm);
@@ -90,8 +88,8 @@ void lu_decomp(mdspan<double, dextents<int, 2>> a,
     for (int i = 0; i <= ubound; ++i) {
         double aamax = 0.;
         for (int j = 0; j <= ubound; ++j) {
-            if (abs(a(i, j)) > aamax)
-                aamax = abs(a(i, j));
+            if (abs(a[i, j]) > aamax)
+                aamax = abs(a[i, j]);
         }
         if (aamax == 0.)
             solver_error_msg("hd::lu_decomp(): singular matrix.");
@@ -104,21 +102,21 @@ void lu_decomp(mdspan<double, dextents<int, 2>> a,
     for (int j = 0; j <= ubound; ++j) {
         if (j > 0) {
             for (int i = 0; i <= j - 1; ++i) {
-                sum = a(i, j);
+                sum = a[i, j];
                 if (i > 0) {
                     for (int k = 0; k <= i - 1; ++k)
-                        sum -= a(i, k) * a(k, j);
-                    a(i, j) = sum;
+                        sum -= a[i, k] * a[k, j];
+                    a[i, j] = sum;
                 }
             }
         }
         aamax = 0.;
         for (int i = j; i <= ubound; ++i) {
-            sum = a(i, j);
+            sum = a[i, j];
             if (j > 0) {
                 for (int k = 0; k <= j - 1; ++k)
-                    sum -= a(i, k) * a(k, j);
-                a(i, j) = sum;
+                    sum -= a[i, k] * a[k, j];
+                a[i, j] = sum;
             }
             dum = vv[i] * abs(sum);
             if (dum >= aamax) {
@@ -128,23 +126,23 @@ void lu_decomp(mdspan<double, dextents<int, 2>> a,
         }
         if (j != imax) {
             for (int k = 0; k <= ubound; ++k) {
-                dum = a(imax, k);
-                a(imax, k) = a(j, k);
-                a(j, k) = dum;
+                dum = a[imax, k];
+                a[imax, k] = a[j, k];
+                a[j, k] = dum;
             }
             vv[imax] = vv[j];
         }
-        perm(j) = imax;
+        perm[j] = imax;
         if (j != ubound) {
-            if (a(j, j) == 0.)
-                a(j, j) = TINY;
-            dum = 1. / a(j, j);
+            if (a[j, j] == 0.)
+                a[j, j] = TINY;
+            dum = 1. / a[j, j];
             for (int i = j + 1; i <= ubound; ++i)
-                a(i, j) *= dum;
+                a[i, j] *= dum;
         }
     }
-    if (a(ubound, ubound) == 0.)
-        a(ubound, ubound) = TINY;
+    if (a[ubound, ubound] == 0.)
+        a[ubound, ubound] = TINY;
 
 } // ludecomp()
 
@@ -180,25 +178,25 @@ void lu_backsubs(mdspan<double const, dextents<int, 2>> a,
 
     int ii = -1; // never occurring index as indicator for first loop
     for (int i = 0; i <= ubound; ++i) {
-        ll = perm(i);
-        sum = b(ll);
-        b(ll) = b(i);
+        ll = perm[i];
+        sum = b[ll];
+        b[ll] = b[i];
         if (ii != -1) {
             for (int j = ii; j <= i - 1; ++j)
-                sum -= a(i, j) * b(j);
+                sum -= a[i, j] * b[j];
         }
         else if (sum != 0.)
             ii = i;
-        b(i) = sum;
+        b[i] = sum;
     }
 
     for (int i = ubound; i >= 0; --i) {
-        sum = b(i);
+        sum = b[i];
         if (i < ubound) {
             for (int j = i + 1; j <= ubound; ++j)
-                sum -= a(i, j) * b(j);
+                sum -= a[i, j] * b[j];
         }
-        b(i) = sum / a(i, i);
+        b[i] = sum / a[i, i];
     }
 
 } // lubacksubs()

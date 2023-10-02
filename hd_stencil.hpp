@@ -4,8 +4,7 @@
 #include "hd/hd_functions.hpp" // hd::fact()
 #include "hd/hd_solver.hpp"    // hd::lu_decomp(), hd::lu_backsubs()
 
-// #include "mdspan/mdspan.hpp"
-#include <experimental/mdspan>
+#include "mdspan/mdspan.hpp"
 
 #include "fmt/format.h"
 #include "fmt/ranges.h"
@@ -117,9 +116,9 @@ void stencil_t::calc_stencil()
 
     // f
     for (int j = j0b; j <= j0e; ++j) {
-        matrix(0, j) = 1.0;
+        matrix[0, j] = 1.0;
         for (int i = 1; i < n(); ++i)
-            matrix(i, j) = std::pow(xf0[j - j0b] - x0, i) / hd::fact(i);
+            matrix[i, j] = std::pow(xf0[j - j0b] - x0, i) / hd::fact(i);
     }
 
     double sfact; // used to locate terms on lhs (-1.0) or on rhs (+1.0)
@@ -135,10 +134,10 @@ void stencil_t::calc_stencil()
             sfact = 1.0;
         }
         for (int j = j1b; j <= j1e; ++j) {
-            matrix(0, j) = 0.0;
-            matrix(1, j) = 1.0;
+            matrix[0, j] = 0.0;
+            matrix[1, j] = 1.0;
             for (int i = 2; i < n(); ++i)
-                matrix(i, j) = sfact * std::pow(xf1[j - j1b] - x0, i - 1) / hd::fact(i - 1);
+                matrix[i, j] = sfact * std::pow(xf1[j - j1b] - x0, i - 1) / hd::fact(i - 1);
         }
     }
 
@@ -153,21 +152,21 @@ void stencil_t::calc_stencil()
             sfact = 1.0;
         }
         for (int j = j2b; j <= j2e; ++j) {
-            matrix(0, j) = 0.0;
-            matrix(1, j) = 0.0;
-            matrix(2, j) = 1.0;
+            matrix[0, j] = 0.0;
+            matrix[1, j] = 0.0;
+            matrix[2, j] = 1.0;
             for (int i = 3; i < n(); ++i)
-                matrix(i, j) = sfact * std::pow(xf2[j - j2b] - x0, i - 2) / hd::fact(i - 2);
+                matrix[i, j] = sfact * std::pow(xf2[j - j2b] - x0, i - 2) / hd::fact(i - 2);
         }
     }
 
     // setup rhs
     if (lhs_t == stencil_lhs::f1) {
-        rhs(1) = 1.0;
+        rhs[1] = 1.0;
     }
 
     if (lhs_t == stencil_lhs::f2) {
-        rhs(2) = 1.0;
+        rhs[2] = 1.0;
     }
 
     // normalization: replace last equation with normalization condition (sum of coefficients on lhs = 1)
@@ -175,20 +174,20 @@ void stencil_t::calc_stencil()
     //                and set them to 0.0 in the corresponding matrix line
     //                (remove them from the rhs of the standard system)
     for (int j = 0; j < n(); ++j)
-        matrix(n() - 1, j) = 0.0;
+        matrix[n() - 1, j] = 0.0;
 
-    rhs(n() - 1) = 1.0;
+    rhs[n() - 1] = 1.0;
 
     if (lhs_t == stencil_lhs::f1) {
         for (int j = j1b; j <= j1e; ++j) {
-            matrix(n() - 1, j) = 1.0;
-            matrix(1, j) = 0.0;
+            matrix[n() - 1, j] = 1.0;
+            matrix[1, j] = 0.0;
         }
     }
     if (lhs_t == stencil_lhs::f2) {
         for (int j = j2b; j <= j2e; ++j) {
-            matrix(n() - 1, j) = 1.0;
-            matrix(2, j) = 0.0;
+            matrix[n() - 1, j] = 1.0;
+            matrix[2, j] = 0.0;
         }
     }
 
@@ -199,16 +198,16 @@ void stencil_t::calc_stencil()
     // assign weights to output vectors
     // f
     for (int j = j0b; j <= j0e; ++j)
-        wf0.push_back(rhs(j));
+        wf0.push_back(rhs[j]);
     // f'
     if (nf1() > 0) {
         for (int j = j1b; j <= j1e; ++j)
-            wf1.push_back(rhs(j));
+            wf1.push_back(rhs[j]);
     }
     // f''
     if (nf2() > 0) {
         for (int j = j2b; j <= j2e; ++j)
-            wf2.push_back(rhs(j));
+            wf2.push_back(rhs[j]);
     }
 
     // compute order and truncation error
@@ -217,7 +216,7 @@ void stencil_t::calc_stencil()
     for (int i = nf0(); i <= n(); ++i) {
         double sumte = 0.0;
         for (int j = j0b; j <= j0e; ++j)
-            sumte += std::pow(xf0[j - j0b] - x0, i) / hd::fact(i) * rhs(j);
+            sumte += std::pow(xf0[j - j0b] - x0, i) / hd::fact(i) * rhs[j];
 
         // f'
         if (nf1() > 0) {
@@ -230,7 +229,7 @@ void stencil_t::calc_stencil()
                 sfact = 1.0;
             }
             for (int j = j1b; j <= j1e; ++j)
-                sumte += std::pow(xf1[j - j1b] - x0, i - 1) / hd::fact(i - 1) * rhs(j);
+                sumte += std::pow(xf1[j - j1b] - x0, i - 1) / hd::fact(i - 1) * rhs[j];
         }
 
         // f''
@@ -244,7 +243,7 @@ void stencil_t::calc_stencil()
                 sfact = 1.0;
             }
             for (int j = j2b; j <= j2e; ++j)
-                sumte += std::pow(xf2[j - j2b] - x0, i - 2) / hd::fact(i - 2) * rhs(j);
+                sumte += std::pow(xf2[j - j2b] - x0, i - 2) / hd::fact(i - 2) * rhs[j];
         }
 
         double eps = 1.0e-6;
