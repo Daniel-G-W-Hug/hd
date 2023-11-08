@@ -30,10 +30,7 @@ std::string now_as_str()
     // std::chrono::system_clock::now()};
 }
 
-enum class time_in { seconds,
-                     milliseconds,
-                     microseconds,
-                     nanoseconds };
+enum class time_in { seconds, milliseconds, microseconds, nanoseconds };
 
 // Usage of class stop_watch:
 //
@@ -59,6 +56,7 @@ class stop_watch {
     int stop_cnt{0};
 
   public:
+
     void start(); // start time
     void split(); // split time (interim time between start and stop)
     void stop();  // stop time
@@ -101,34 +99,34 @@ int stop_watch::elapsed_time(time_in t_in)
         int time_difference = 0;
 
         switch (t_in) {
-        case time_in::seconds:
-            for (int i = 0; i < complete_measurements; ++i) {
-                time_difference +=
-                    duration_cast<seconds>(end_time[i] - start_time[i]).count();
-            }
-            return time_difference;
-            break;
-        case time_in::milliseconds:
-            for (int i = 0; i < complete_measurements; ++i) {
-                time_difference +=
-                    duration_cast<milliseconds>(end_time[i] - start_time[i]).count();
-            }
-            return time_difference;
-            break;
-        case time_in::microseconds:
-            for (int i = 0; i < complete_measurements; ++i) {
-                time_difference +=
-                    duration_cast<microseconds>(end_time[i] - start_time[i]).count();
-            }
-            return time_difference;
-            break;
-        case time_in::nanoseconds:
-            for (int i = 0; i < complete_measurements; ++i) {
-                time_difference +=
-                    duration_cast<nanoseconds>(end_time[i] - start_time[i]).count();
-            }
-            return time_difference;
-            break;
+            case time_in::seconds:
+                for (int i = 0; i < complete_measurements; ++i) {
+                    time_difference +=
+                        duration_cast<seconds>(end_time[i] - start_time[i]).count();
+                }
+                return time_difference;
+                break;
+            case time_in::milliseconds:
+                for (int i = 0; i < complete_measurements; ++i) {
+                    time_difference +=
+                        duration_cast<milliseconds>(end_time[i] - start_time[i]).count();
+                }
+                return time_difference;
+                break;
+            case time_in::microseconds:
+                for (int i = 0; i < complete_measurements; ++i) {
+                    time_difference +=
+                        duration_cast<microseconds>(end_time[i] - start_time[i]).count();
+                }
+                return time_difference;
+                break;
+            case time_in::nanoseconds:
+                for (int i = 0; i < complete_measurements; ++i) {
+                    time_difference +=
+                        duration_cast<nanoseconds>(end_time[i] - start_time[i]).count();
+                }
+                return time_difference;
+                break;
         }
     }
     else
