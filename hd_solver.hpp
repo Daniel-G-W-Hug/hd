@@ -43,11 +43,11 @@ using Kokkos::mdspan;
 
 namespace hd { // Namespace hd to define my types for numerical computation
 
-void lu_decomp(mdspan<double, dextents<int, 2>> a,
-               mdspan<int, dextents<int, 1>> perm);
-void lu_backsubs(mdspan<double const, dextents<int, 2>> a,
-                 mdspan<int const, dextents<int, 1>> perm,
-                 mdspan<double, dextents<int, 1>> b);
+void lu_decomp(mdspan<double, dextents<std::size_t, 2>> a,
+               mdspan<int, dextents<std::size_t, 1>> perm);
+void lu_backsubs(mdspan<double const, dextents<std::size_t, 2>> a,
+                 mdspan<int const, dextents<std::size_t, 1>> perm,
+                 mdspan<double, dextents<std::size_t, 1>> b);
 
 //-----------------------------------------------------------------------------
 // Solver error handling
@@ -64,8 +64,8 @@ struct Solver_error {
 
 inline void solver_error_msg(const char* p) { throw Solver_error(p); }
 
-void lu_decomp(mdspan<double, dextents<int, 2>> a,
-               mdspan<int, dextents<int, 1>> perm)
+void lu_decomp(mdspan<double, dextents<std::size_t, 2>> a,
+               mdspan<int, dextents<std::size_t, 1>> perm)
 {
     /* LU decomposition of matrix a (handed back on a)
        perm is the permutation vector in case of line exchange (pivot elements)
@@ -146,9 +146,9 @@ void lu_decomp(mdspan<double, dextents<int, 2>> a,
 
 } // ludecomp()
 
-void lu_backsubs(mdspan<double const, dextents<int, 2>> a,
-                 mdspan<int const, dextents<int, 1>> perm,
-                 mdspan<double, dextents<int, 1>> b)
+void lu_backsubs(mdspan<double const, dextents<std::size_t, 2>> a,
+                 mdspan<int const, dextents<std::size_t, 1>> perm,
+                 mdspan<double, dextents<std::size_t, 1>> b)
 {
     /*
     backward substitution: a is the LU-decomposed matrix as provided by lu_decomp()
