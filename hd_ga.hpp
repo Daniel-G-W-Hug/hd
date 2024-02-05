@@ -20,18 +20,6 @@ namespace hd {
 // Interface
 ////////////////////////////////////////////////////////////////////////////////
 
-const std::vector<std::vector<const uint8_t>> dim_grades{
-    {1, 2, 1}, {1, 3, 3, 1}, {1, 4, 6, 4, 1}};
-
-const std::vector<std::vector<std::vector<const std::string>>> basis_names{
-    {{"1"}, {"e1", "e2"}, {"e12"}},
-    {{"1"}, {"e1", "e2", "e3"}, {"e12", "e23", "e31"}, {"e123"}},
-    {{"1"},
-     {"e1", "e2", "e3", "e4"},
-     {"e12", "e23", "e34", "e41", "e31", "e24"},
-     {"e123", "e234", "e341", "e412"},
-     {"e1234"}}};
-
 // create an algebra with:
 // P generators for numbers that square to +1
 // N generators for numbers that square to -1
@@ -47,9 +35,22 @@ struct algebra {
     const uint8_t dim_space = p + n + z;         // dimension of the space
     const uint8_t components = (1 << dim_space); // the number of basis components
                                                  // = 2^dim_space
-    const std::vector<const uint8_t> dim_grade{dim_grades[P + N + Z - 2]};
-    const std::vector<std::vector<const std::string>> basis_name{
-        basis_names[P + N + Z - 2]};
+
+    const std::vector<const uint8_t> dim_grade = []() -> std::vector<const uint8_t> {
+        if constexpr (P + N + Z == 2) return {1, 2, 1};
+        if constexpr (P + N + Z == 3) return {1, 3, 3, 1};
+        if constexpr (P + N + Z == 4) return {1, 4, 6, 4, 1};
+    }();
+
+    const std::vector<const std::string> basis_name =
+        []() -> std::vector<const std::string> {
+        if constexpr (P + N + Z == 2) return {"1", "e1", "e2", "e12"};
+        if constexpr (P + N + Z == 3)
+            return {"1", "e1", "e2", "e3", "e12", "e23", "e31", "e123"};
+        if constexpr (P + N + Z == 4)
+            return {"1",   "e1",  "e2",  "e3",   "e4",   "e12",  "e23",  "e34",
+                    "e41", "e31", "e24", "e123", "e234", "e341", "e412", "e1234"};
+    }();
 };
 
 ////////////////////////////////////////////////////////////////////////////////
