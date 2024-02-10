@@ -9,43 +9,46 @@
 
 TEST_SUITE("algebra")
 {
-    TEST_CASE("2D algebra")
+    TEST_CASE("2d_ega")
     {
-        hd::algebra<2> alg;
+        // 2d euklidean geometric algebra
+        const hd::algebra<2> alg;
         CHECK(alg.p == 2);
         CHECK(alg.n == 0);
         CHECK(alg.z == 0);
-        CHECK(alg.dim_space == 2);  // dim == p+n+z
-        CHECK(alg.components == 4); // comp == 2^dim
-        CHECK(alg.dim_grade.size() == 3);
-        fmt::println("2D algebra: dim_grade = {}", fmt::join(alg.dim_grade, ","));
-        fmt::println("2D algebra: basis_name = {}", fmt::join(alg.basis_name, ","));
+        CHECK(alg.dim_space == 2);                   // dim_space == p+n+z
+        CHECK(alg.num_components == 4);              // num_components == 2^dim
+        CHECK(alg.num_components_grade.size() == 3); // == dim_space + 1
+        fmt::println("2d_ega: dim_grade = {}", fmt::join(alg.num_components_grade, ", "));
+        fmt::println("2d_ega: basis_name = {}", fmt::join(alg.basis_name, ", "));
     }
 
-    TEST_CASE("3D algebra")
+    TEST_CASE("3d_ega")
     {
-        hd::algebra<3> alg;
+        // 3d euklidean geometric algebra
+        const hd::algebra<3> alg;
         CHECK(alg.p == 3);
         CHECK(alg.n == 0);
         CHECK(alg.z == 0);
-        CHECK(alg.dim_space == 3);  // dim == p+n+z
-        CHECK(alg.components == 8); // comp == 2^dim
-        CHECK(alg.dim_grade.size() == 4);
-        fmt::println("3D algebra: dim_grade = {}", fmt::join(alg.dim_grade, ","));
-        fmt::println("3D algebra: basis_name = {}", fmt::join(alg.basis_name, ","));
+        CHECK(alg.dim_space == 3);                   // dim_space == p+n+z
+        CHECK(alg.num_components == 8);              // num_components == 2^dim
+        CHECK(alg.num_components_grade.size() == 4); // == dim_space + 1
+        fmt::println("3d_ega: dim_grade = {}", fmt::join(alg.num_components_grade, ", "));
+        fmt::println("3d_ega: basis_name = {}", fmt::join(alg.basis_name, ", "));
     }
 
-    TEST_CASE("4D algebra")
+    TEST_CASE("4d_ega")
     {
-        hd::algebra<4> alg;
+        // 4d euklidean geometric algebra
+        const hd::algebra<4> alg;
         CHECK(alg.p == 4);
         CHECK(alg.n == 0);
         CHECK(alg.z == 0);
-        CHECK(alg.dim_space == 4);   // dim == p+n+z
-        CHECK(alg.components == 16); // comp == 2^dim
-        CHECK(alg.dim_grade.size() == 5);
-        fmt::println("4D algebra: dim_grade = {}", fmt::join(alg.dim_grade, ","));
-        fmt::println("4D algebra: basis_name = {}", fmt::join(alg.basis_name, ","));
+        CHECK(alg.dim_space == 4);                   // dim_space == p+n+z
+        CHECK(alg.num_components == 16);             // num_components == 2^dim
+        CHECK(alg.num_components_grade.size() == 5); // == dim_space + 1
+        fmt::println("4d_ega: dim_grade = {}", fmt::join(alg.num_components_grade, ", "));
+        fmt::println("4d_ega: basis_name = {}", fmt::join(alg.basis_name, ", "));
     }
 }
 
