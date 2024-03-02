@@ -1,0 +1,13 @@
+#pragma once
+
+////////////////////////////////////////////////////////////////////////////////
+// consistent type definitions for easy use
+////////////////////////////////////////////////////////////////////////////////
+
+namespace hd::ga {
+
+// select the floating point type used for scalars, vector and bivector components
+using value_t = float;
+// using value_t = double;
+
+} // namespace hd::ga
