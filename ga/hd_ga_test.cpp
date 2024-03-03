@@ -1,11 +1,14 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "doctest/doctest.h"
 
+#include <chrono>
+#include <numbers> // math constants like pi_v
 #include <vector>
 
 // include functions to be tests
 #include "hd_ga.hpp"
 
+#include "fmt/chrono.h" // chrono support
 #include "fmt/format.h"
 #include "fmt/ostream.h"
 #include "fmt/ranges.h" // support printing of (nested) containers & tuples
@@ -174,10 +177,10 @@ TEST_SUITE("Geometric Algebra")
         CHECK(v3d == v1d);             // comparison (eqality)
     }
 
-    TEST_CASE("Vec2d operations")
+    TEST_CASE("Vec2d operations - norm, inverse, dot")
     {
         fmt::println("");
-        fmt::println("Vec2d operations:");
+        fmt::println("Vec2d operations - norm, inverse, dot:");
 
         vec2d v1{2.0, 1.0};
         vec2d v2{normalized(v1)};
@@ -185,22 +188,135 @@ TEST_SUITE("Geometric Algebra")
         vec2d v3{2.0, 6.0};
         vec2d v4{inverse(v3)};
 
-        fmt::println("v1 = {}, norm(v1) = {}", v1, norm(v1));
-        fmt::println("v2 = normalized(v1) = {}, norm(v2) = {}", v2, norm(v2));
+        fmt::println("v1 = {: .5f}, norm(v1) = {: .5f}", v1, norm(v1));
+        fmt::println("v2 = normalized(v1) = {: .5f}, norm(v2) = {: .5f}", v2, norm(v2));
 
-        CHECK(std::abs(sq_norm(v1) - 5.0) < eps); // comparison (equality)
-        CHECK(std::abs(sq_norm(v2) - 1.0) < eps); // comparison (inequality)
+        CHECK(std::abs(sq_norm(v1) - 5.0) < eps);
+        CHECK(std::abs(sq_norm(v2) - 1.0) < eps);
         CHECK(std::abs(dot(v4, v3) - 1.0) < eps);
+    }
 
-        fmt::println("v3 = {}, norm(v3) = {}", v3, norm(v3));
-        fmt::println("v4 = inverse(v3) = {}, norm(v4) = {}", v4, norm(v4));
+    TEST_CASE("Vec2d operations - angle")
+    {
+        fmt::println("");
+        fmt::println("Vec2d operations - angle:");
 
-        vec2d v5{3.0, 0.0};
-        vec2d v6{2.0, 2.0};
-        fmt::println("v5 = {}, norm(v5) = {}", v5, norm(v5));
-        fmt::println("v6 = {}, norm(v6) = {}", v6, norm(v6));
-        fmt::println("dot(v5,v6) = {}", dot(v5, v6));
-        fmt::println("project_onto(v6,v5) = {}", project_onto(v6, v5));
+        vec2d v1{1.0, 0.0};
+        vec2d v2{normalized(vec2d(1.0, 1.0))};
+        vec2d v3{0.0, 1.0};
+        vec2d v4{normalized(vec2d(-1.0, 1.0))};
+        vec2d v5{-1.0, 0.0};
+        vec2d v6{normalized(vec2d(-1.0, -1.0))};
+        vec2d v7{0.0, -1.0};
+        vec2d v8{normalized(vec2d(1.0, -1.0))};
+
+        using std::numbers::pi;
+
+        fmt::println("v1 = {: .5f}, norm(v1) = {: .5f}, angle(v1,v1) = {: .5f}, {: .5f}",
+                     v1, norm(v1), angle(v1, v1), angle(v1, v1) / pi);
+        fmt::println("v2 = {: .5f}, norm(v2) = {: .5f}, angle(v1,v2) = {: .5f}, {: .5f}",
+                     v2, norm(v2), angle(v1, v2), angle(v1, v2) / pi);
+        fmt::println("v3 = {: .5f}, norm(v3) = {: .5f}, angle(v1,v3) = {: .5f}, {: .5f}",
+                     v3, norm(v3), angle(v1, v3), angle(v1, v3) / pi);
+        fmt::println("v4 = {: .5f}, norm(v4) = {: .5f}, angle(v1,v4) = {: .5f}, {: .5f}",
+                     v4, norm(v4), angle(v1, v4), angle(v1, v4) / pi);
+        fmt::println("v5 = {: .5f}, norm(v5) = {: .5f}, angle(v1,v5) = {: .5f}, {: .5f}",
+                     v5, norm(v5), angle(v1, v5), angle(v1, v5) / pi);
+        fmt::println("v6 = {: .5f}, norm(v6) = {: .5f}, angle(v1,v6) = {: .5f}, {: .5f}",
+                     v6, norm(v6), angle(v1, v6), angle(v1, v6) / pi);
+        fmt::println("v7 = {: .5f}, norm(v7) = {: .5f}, angle(v1,v7) = {: .5f}, {: .5f}",
+                     v7, norm(v7), angle(v1, v7), angle(v1, v7) / pi);
+        fmt::println("v8 = {: .5f}, norm(v8) = {: .5f}, angle(v1,v8) = {: .5f}, {: .5f}",
+                     v8, norm(v8), angle(v1, v8), angle(v1, v8) / pi);
+
+        CHECK(std::abs(angle(v1, v1) - 0.0) < eps);
+        CHECK(std::abs(angle(v1, v2) - pi * 0.25) < eps);
+        CHECK(std::abs(angle(v1, v3) - pi * 0.5) < eps);
+        CHECK(std::abs(angle(v1, v4) - pi * 0.75) < eps);
+        CHECK(std::abs(angle(v1, v5) - pi) < eps);
+    }
+
+    TEST_CASE("Vec2d operations - wedge")
+    {
+        fmt::println("");
+        fmt::println("Vec2d operations - wedge:");
+
+        vec2d v1{1.0, 0.0};
+        vec2d v2{normalized(vec2d(1.0, 1.0))};
+        vec2d v3{0.0, 1.0};
+        vec2d v4{normalized(vec2d(-1.0, 1.0))};
+        vec2d v5{-1.0, 0.0};
+        vec2d v6{normalized(vec2d(-1.0, -1.0))};
+        vec2d v7{0.0, -1.0};
+        vec2d v8{normalized(vec2d(1.0, -1.0))};
+
+        using std::numbers::pi;
+
+        fmt::println("v1 = {: .5f}, norm(v1) = {: .5f}, wedge(v1,v1) = {: .5f}, "
+                     "sin(angle) = {: .5f}",
+                     v1, norm(v1), wedge(v1, v1), sin(angle(v1, v1)));
+        fmt::println("v2 = {: .5f}, norm(v2) = {: .5f}, wedge(v1,v2) = {: .5f}, "
+                     "sin(angle) = {: .5f}",
+                     v2, norm(v2), wedge(v1, v2), sin(angle(v1, v2)));
+        fmt::println("v3 = {: .5f}, norm(v3) = {: .5f}, wedge(v1,v3) = {: .5f}, "
+                     "sin(angle) = {: .5f}",
+                     v3, norm(v3), wedge(v1, v3), sin(angle(v1, v3)));
+        fmt::println("v4 = {: .5f}, norm(v4) = {: .5f}, wedge(v1,v4) = {: .5f}, "
+                     "sin(angle) = {: .5f}",
+                     v4, norm(v4), wedge(v1, v4), sin(angle(v1, v4)));
+        fmt::println("v5 = {: .5f}, norm(v5) = {: .5f}, wedge(v1,v5) = {: .5f}, "
+                     "sin(angle) = {: .5f}",
+                     v5, norm(v5), wedge(v1, v5), sin(angle(v1, v5)));
+        fmt::println("v6 = {: .5f}, norm(v6) = {: .5f}, wedge(v1,v6) = {: .5f}, "
+                     "sin(angle) = {: .5f}",
+                     v6, norm(v6), wedge(v1, v6), sin(angle(v1, v6)));
+        fmt::println("v7 = {: .5f}, norm(v7) = {: .5f}, wedge(v1,v7) = {: .5f}, "
+                     "sin(angle) = {: .5f}",
+                     v7, norm(v7), wedge(v1, v7), sin(angle(v1, v7)));
+        fmt::println("v8 = {: .5f}, norm(v8) = {: .5f}, wedge(v1,v8) = {: .5f}, "
+                     "sin(angle) = {: .5f}",
+                     v8, norm(v8), wedge(v1, v8), sin(angle(v1, v8)));
+
+        CHECK(std::abs(wedge(v1, v1) - sin(angle(v1, v1))) < eps);
+        CHECK(std::abs(wedge(v1, v2) - sin(angle(v1, v2))) < eps);
+        CHECK(std::abs(wedge(v1, v3) - sin(angle(v1, v3))) < eps);
+        CHECK(std::abs(wedge(v1, v4) - sin(angle(v1, v4))) < eps);
+        CHECK(std::abs(wedge(v1, v5) - sin(angle(v1, v5))) < eps);
+        CHECK(std::abs(wedge(v1, v6) + sin(angle(v1, v6))) < eps); // other orientation
+        CHECK(std::abs(wedge(v1, v7) + sin(angle(v1, v7))) < eps); // other orientation
+        CHECK(std::abs(wedge(v1, v8) + sin(angle(v1, v8))) < eps); // other orientation
+    }
+
+    TEST_CASE("Vec2d operations - project / reject")
+    {
+        fmt::println("");
+        fmt::println("Vec2d operations - project / reject:");
+
+        vec2d v1{5.0, 1.0};
+        vec2d v2{2.0, 2.0};
+
+        vec2d v3{project_onto(v1, v2)};
+        vec2d v4{reject_from(v1, v2)};
+
+        vec2d v5{v3 + v4};
+
+        fmt::println("v1 = {: .5f}, norm(v1) = {: .5f}", v1, norm(v1));
+        fmt::println("v2 = {: .5f}, norm(v2) = {: .5f}", v2, norm(v2));
+        fmt::println("v3 = {: .5f}, norm(v3) = {: .5f}", v3, norm(v3));
+        fmt::println("v4 = {: .5f}, norm(v4) = {: .5f}", v4, norm(v4));
+        fmt::println("v5 = {: .5f}, norm(v5) = {: .5f}", v5, norm(v5));
+
+        CHECK(v5 == v1);
+
+        // checking time required
+        //
+        // auto start = std::chrono::system_clock::now();
+        // for (size_t i = 0; i < 10000000; ++i) {
+        //     vec2d v = reject_from(v1, v2);
+        // }
+        // auto end = std::chrono::system_clock::now();
+        // auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end -
+        // start); fmt::println("The measurement took {}", elapsed);
     }
 }
 

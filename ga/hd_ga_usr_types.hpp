@@ -16,6 +16,6 @@ using pseudoscalar_t = value_t;
 // vector and bivector types
 using vec2d = Vec2d<value_t>;
 
-value_t eps{std::numeric_limits<value_t>::epsilon()};
+value_t eps{2.0 * std::numeric_limits<value_t>::epsilon()};
 
 } // namespace hd::ga

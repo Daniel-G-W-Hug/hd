@@ -1,7 +1,7 @@
 #pragma once
 
 #include <array>
-#include <cmath>    // abs
+#include <cmath>    // abs, sqrt, acos
 #include <compare>  // <=>
 #include <concepts> // std::floating_point<T>
 #include <iostream>
@@ -104,14 +104,12 @@ template <typename T> inline Vec2d<T> operator/(const Vec2d<T>& v, T s)
 ////////////////////////////////////////////////////////////////////////////////
 
 // return squared magnitude of vector
-// (TODO: extend for non-orthonormal systems using a metric)
 template <typename T> inline T sq_norm(const Vec2d<T>& v)
 {
     return v.x * v.x + v.y * v.y;
 }
 
 // return magnitude of vector
-// (TODO: extend for non-orthonormal systems using a metric)
 template <typename T> inline T norm(const Vec2d<T>& v)
 {
     return std::sqrt(v.x * v.x + v.y * v.y);
@@ -142,14 +140,27 @@ template <typename T> inline Vec2d<T> inverse(const Vec2d<T>& v)
 }
 
 // return dot-product of two vectors
-// (TODO: extend for non-orthonormal systems by using a metric)
 template <typename T> inline T dot(const Vec2d<T>& v1, const Vec2d<T>& v2)
 {
     return v1.x * v2.x + v1.y * v2.y;
 }
 
+// return the angle between of two vectors
+// range of angle: 0 <= angle <= pi
+template <typename T> inline T angle(const Vec2d<T>& v1, const Vec2d<T>& v2)
+{
+    T norm_prod = norm(v1) * norm(v2);
+    if (norm_prod <= std::numeric_limits<T>::epsilon()) {
+        throw std::runtime_error(
+            "vector norm product too small for calculation of angle" +
+            std::to_string(norm_prod) + "\n");
+    }
+    return std::acos(dot(v1, v2) / norm_prod);
+}
+
 // wedge product (returns a bivector, which is the pseudoscalar in 2d)
-// (TODO: extend for non-orthonormal systems by using a metric)
+// wedge(v1,v2) = |v1| |v2| sin(theta)
+// where theta: -pi <= theta <= pi (different to definition of angle for dot product!)
 template <typename T> inline T wedge(const Vec2d<T>& v1, const Vec2d<T>& v2)
 {
     return v1.x * v2.y - v1.y * v2.x;
@@ -164,7 +175,7 @@ template <typename T> inline Vec2d<T> project_onto(const Vec2d<T>& v1, const Vec
 
 // projection of v1 onto v2 (v2 must already be normalized to norm(v2) == 1)
 template <typename T>
-inline Vec2d<T> project_onto_normalized(const Vec2d<T>& v1, const Vec2d<T>& v2)
+inline Vec2d<T> project_onto_n(const Vec2d<T>& v1, const Vec2d<T>& v2)
 {
     return dot(v1, v2) * v2;
 }
@@ -172,8 +183,19 @@ inline Vec2d<T> project_onto_normalized(const Vec2d<T>& v1, const Vec2d<T>& v2)
 // rejection of v1 from v2
 template <typename T> inline Vec2d<T> reject_from(const Vec2d<T>& v1, const Vec2d<T>& v2)
 {
-    Vec2d<T> v2n{normalized(v2)};
-    return v1 - dot(v1, v2n) * v2n;
+    // version using vector substraction
+    // return v1 - project_onto(v1, v2);
+
+    // version using geometric algebra wedge product manually computed
+    // from "wedge(v1,v2)*inverse(v2)"
+    T w = wedge(v1, v2); // bivector with component e12
+    T sq_n = sq_norm(v2);
+    if (sq_n <= std::numeric_limits<T>::epsilon()) {
+        throw std::runtime_error("vector norm too small for inversion" +
+                                 std::to_string(sq_n) + "\n");
+    }
+    T sq_n_inv = 1.0 / sq_n;
+    return Vec2d<T>(v2.y * w * sq_n_inv, -v2.x * w * sq_n_inv);
 }
 
 // rejection of v1 from v2 (v2 must already be normalized to norm(v2) == 1)
