@@ -119,7 +119,7 @@ template <typename T> inline T norm(const Vec2d<T>& v)
 template <typename T> inline Vec2d<T> normalized(const Vec2d<T>& v)
 {
     T n = norm(v);
-    if (n <= std::numeric_limits<T>::epsilon()) {
+    if (n < std::numeric_limits<T>::epsilon()) {
         throw std::runtime_error("vector norm too small for normalization" +
                                  std::to_string(n) + "\n");
     }
@@ -131,7 +131,7 @@ template <typename T> inline Vec2d<T> normalized(const Vec2d<T>& v)
 template <typename T> inline Vec2d<T> inverse(const Vec2d<T>& v)
 {
     T sq_n = sq_norm(v);
-    if (sq_n <= std::numeric_limits<T>::epsilon()) {
+    if (sq_n < std::numeric_limits<T>::epsilon()) {
         throw std::runtime_error("vector norm too small for inversion" +
                                  std::to_string(sq_n) + "\n");
     }
@@ -150,7 +150,7 @@ template <typename T> inline T dot(const Vec2d<T>& v1, const Vec2d<T>& v2)
 template <typename T> inline T angle(const Vec2d<T>& v1, const Vec2d<T>& v2)
 {
     T norm_prod = norm(v1) * norm(v2);
-    if (norm_prod <= std::numeric_limits<T>::epsilon()) {
+    if (norm_prod < std::numeric_limits<T>::epsilon()) {
         throw std::runtime_error(
             "vector norm product too small for calculation of angle" +
             std::to_string(norm_prod) + "\n");
@@ -169,8 +169,7 @@ template <typename T> inline T wedge(const Vec2d<T>& v1, const Vec2d<T>& v2)
 // projection of v1 onto v2
 template <typename T> inline Vec2d<T> project_onto(const Vec2d<T>& v1, const Vec2d<T>& v2)
 {
-    Vec2d<T> v2i{inverse(v2)};
-    return dot(v1, v2) * v2i;
+    return dot(v1, v2) * Vec2d<T>(inverse(v2));
 }
 
 // projection of v1 onto v2 (v2 must already be normalized to norm(v2) == 1)
@@ -190,12 +189,12 @@ template <typename T> inline Vec2d<T> reject_from(const Vec2d<T>& v1, const Vec2
     // from "wedge(v1,v2)*inverse(v2)"
     T w = wedge(v1, v2); // bivector with component e12
     T sq_n = sq_norm(v2);
-    if (sq_n <= std::numeric_limits<T>::epsilon()) {
+    if (sq_n < std::numeric_limits<T>::epsilon()) {
         throw std::runtime_error("vector norm too small for inversion" +
                                  std::to_string(sq_n) + "\n");
     }
-    T sq_n_inv = 1.0 / sq_n;
-    return Vec2d<T>(v2.y * w * sq_n_inv, -v2.x * w * sq_n_inv);
+    T w_sq_n_inv = w / sq_n;
+    return Vec2d<T>(v2.y * w_sq_n_inv, -v2.x * w_sq_n_inv);
 }
 
 // rejection of v1 from v2 (v2 must already be normalized to norm(v2) == 1)
