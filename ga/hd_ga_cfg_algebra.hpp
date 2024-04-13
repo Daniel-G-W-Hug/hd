@@ -1,5 +1,7 @@
 #pragma once
 
+// author: Daniel Hug, 2024
+
 #include <array>
 #include <cstdint> // uint8_t
 

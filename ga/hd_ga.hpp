@@ -10,9 +10,11 @@
 // and corresponding operations
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "hd_ga_cfg_algebra.hpp" // algebra
+#include "hd_ga_cfg_algebra.hpp"  // algebra
+#include "hd_ga_cfg_mvec2d.hpp"   // MVec2d<T>
+#include "hd_ga_cfg_strong_t.hpp" // Strong_t
 #include "hd_ga_cfg_value_t.hpp" // default type for scalars, vector and bivector components
-#include "hd_ga_cfg_vec2d.hpp"   // vec2d<T>
+#include "hd_ga_cfg_vec2d.hpp"   // Vec2d<T>
 #include "hd_ga_usr_types.hpp"   // consistent user types for all compontents
 
 

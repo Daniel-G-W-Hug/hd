@@ -1,7 +1,10 @@
 #pragma once
 
-#include "hd_ga_cfg_value_t.hpp"
-#include "hd_ga_cfg_vec2d.hpp" // vec2d<T>
+// author: Daniel Hug, 2024
+
+#include "hd_ga_cfg_strong_t.hpp"
+#include "hd_ga_cfg_value_t.hpp" // defines value_t either as float oder double
+#include "hd_ga_cfg_vec2d.hpp"   // vec2d<T>
 
 ////////////////////////////////////////////////////////////////////////////////
 // consistent type definitions for easy use
@@ -9,13 +12,24 @@
 
 namespace hd::ga {
 
-// scalar types
-using scalar_t = value_t;
-using pseudoscalar_t = value_t;
+// The scalar type is the same type for all algebras
+// or space dimensions, respectively.
+using scalar_t = Scalar_t<value_t>;
 
-// vector and bivector types
+// The pseudoscalar is a one-dimensional entity, i.e. it has scalar character.
+// The pseudoscalar describes the "unit volume" of the respective space.
+// It is a bivector for 2d space, a trivector for 3d space, etc.
+// It's scalar factor describes a multiple of the unit volume of that space.
+//
+// Thus the pseudoscalar needs a unique type for each space in order to not mix up
+// pseudoscalars from different algebras in the type system.
+//
+using pscalar2d_t = PScalar2d_t<value_t>;
+
+// vector and multivector types
 using vec2d = Vec2d<value_t>;
+using mvec2d = MVec2d<value_t>;
 
-value_t eps{2.0 * std::numeric_limits<value_t>::epsilon()};
+value_t eps{3.0 * std::numeric_limits<value_t>::epsilon()};
 
 } // namespace hd::ga
