@@ -124,13 +124,10 @@ inline constexpr Vec2d<std::common_type_t<T, U>> operator/(const Vec2d<T>& v, U 
 ////////////////////////////////////////////////////////////////////////////////
 
 // return squared magnitude of vector
-template <typename T> inline T sq_norm(const Vec2d<T>& v)
-{
-    return v.x * v.x + v.y * v.y;
-}
+template <typename T> inline T sq_nrm(const Vec2d<T>& v) { return v.x * v.x + v.y * v.y; }
 
 // return magnitude of vector
-template <typename T> inline T norm(const Vec2d<T>& v)
+template <typename T> inline T nrm(const Vec2d<T>& v)
 {
     return std::sqrt(v.x * v.x + v.y * v.y);
 }
@@ -138,7 +135,7 @@ template <typename T> inline T norm(const Vec2d<T>& v)
 // return a vector normalized to norm(v) == 1.0
 template <typename T> inline Vec2d<T> normalized(const Vec2d<T>& v)
 {
-    T n = norm(v);
+    T n = nrm(v);
     if (n < std::numeric_limits<T>::epsilon()) {
         throw std::runtime_error("vector norm too small for normalization" +
                                  std::to_string(n) + "\n");
@@ -148,9 +145,9 @@ template <typename T> inline Vec2d<T> normalized(const Vec2d<T>& v)
 }
 
 // return the multiplicative inverse of the vector
-template <typename T> inline Vec2d<T> inverse(const Vec2d<T>& v)
+template <typename T> inline Vec2d<T> inv(const Vec2d<T>& v)
 {
-    T sq_n = sq_norm(v);
+    T sq_n = sq_nrm(v);
     if (sq_n < std::numeric_limits<T>::epsilon()) {
         throw std::runtime_error("vector norm too small for inversion" +
                                  std::to_string(sq_n) + "\n");
@@ -173,7 +170,7 @@ template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
 inline std::common_type_t<T, U> angle(const Vec2d<T>& v1, const Vec2d<U>& v2)
 {
-    std::common_type_t<T, U> norm_prod = norm(v1) * norm(v2);
+    std::common_type_t<T, U> norm_prod = nrm(v1) * nrm(v2);
     if (norm_prod < std::numeric_limits<std::common_type_t<T, U>>::epsilon()) {
         throw std::runtime_error(
             "vector norm product too small for calculation of angle" +
@@ -187,7 +184,7 @@ inline std::common_type_t<T, U> angle(const Vec2d<T>& v1, const Vec2d<U>& v2)
 // where theta: -pi <= theta <= pi (different to definition of angle for dot product!)
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline std::common_type_t<T, U> wedge(const Vec2d<T>& v1, const Vec2d<U>& v2)
+inline std::common_type_t<T, U> wdg(const Vec2d<T>& v1, const Vec2d<U>& v2)
 {
     return v1.x * v2.y - v1.y * v2.x;
 }
@@ -198,10 +195,10 @@ template <typename T, typename U>
 inline constexpr Vec2d<std::common_type_t<T, U>> project_onto(const Vec2d<T>& v1,
                                                               const Vec2d<U>& v2)
 {
-    return dot(v1, v2) * Vec2d<std::common_type_t<T, U>>(inverse(v2));
+    return dot(v1, v2) * Vec2d<std::common_type_t<T, U>>(inv(v2));
 }
 
-// projection of v1 onto v2 (v2 must already be normalized to norm(v2) == 1)
+// projection of v1 onto v2 (v2 must already be normalized to nrm(v2) == 1)
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
 inline constexpr Vec2d<std::common_type_t<T, U>> project_onto_n(const Vec2d<T>& v1,
@@ -221,9 +218,9 @@ inline constexpr Vec2d<std::common_type_t<T, U>> reject_from(const Vec2d<T>& v1,
 
     using ctype = std::common_type_t<T, U>;
     // version using geometric algebra wedge product manually computed
-    // from "wedge(v1,v2)*inverse(v2)"
-    ctype w = wedge(v1, v2); // bivector with component e12
-    ctype sq_n = sq_norm(v2);
+    // from "wdg(v1,v2)*inv(v2)"
+    ctype w = wdg(v1, v2); // bivector with component e12
+    ctype sq_n = sq_nrm(v2);
     if (sq_n < std::numeric_limits<ctype>::epsilon()) {
         throw std::runtime_error("vector norm too small for inversion" +
                                  std::to_string(sq_n) + "\n");
@@ -232,7 +229,7 @@ inline constexpr Vec2d<std::common_type_t<T, U>> reject_from(const Vec2d<T>& v1,
     return Vec2d<ctype>(v2.y * w_sq_n_inv, -v2.x * w_sq_n_inv);
 }
 
-// rejection of v1 from v2 (v2 must already be normalized to norm(v2) == 1)
+// rejection of v1 from v2 (v2 must already be normalized to nrm(v2) == 1)
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
 inline constexpr Vec2d<std::common_type_t<T, U>> reject_from_n(const Vec2d<T>& v1,

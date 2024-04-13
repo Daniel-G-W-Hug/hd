@@ -30,14 +30,30 @@ template <typename T = value_t>
     requires(std::floating_point<T>)
 struct MVec2d {
 
-    // ctor
+    // ctors
+
+    // (all grades = 0)
     MVec2d() = default;
+
+    // assign all components
     MVec2d(T s, T x, T y, T ps) : c0(s), c1(x), c2(y), c3(ps) {}
-    MVec2d(Vec2d<T> const& v) : c1(v.x), c2(v.y) {}
+
+    // assign a scalar part exclusively (other grades = 0)
     MVec2d(Scalar_t<T> s) : c0(s) {}
+
+    // assign a vector part exclusively (other grades = 0)
+    MVec2d(Vec2d<T> const& v) : c1(v.x), c2(v.y) {}
+
+    // assign a pseudoscalar part exclusively (other grades = 0)
     MVec2d(PScalar2d_t<T> ps) : c3(ps) {}
 
-    T c0{}; // skalar
+    // assign a geometric product resulting from a product of two vectors
+    // via dot(v1,v2) and wdg(v1,v2) directly
+    // (less expensive compared to full geometric product)
+    MVec2d(Scalar_t<T> s, PScalar2d_t<T> ps) : c0(s), c3(ps) {}
+
+
+    T c0{}; // scalar
     T c1{}; // vector 2d, 1st component
     T c2{}; // vector 2d, 2nd component
     T c3{}; // 2d pseudoscalar
@@ -145,28 +161,34 @@ inline constexpr MVec2d<std::common_type_t<T, U>> operator/(const MVec2d<T>& v, 
 // Vec2d<T> geometric operations
 ////////////////////////////////////////////////////////////////////////////////
 
-// returning various grades
-template <typename T> inline Scalar_t<T> gr_0(const MVec2d<T>& v)
+// returning various grades of a multivector
+//
+// grade 0: gr0()
+// grade 1: gr1()
+// grade 2: gr2()
+
+template <typename T> inline Scalar_t<T> gr0(const MVec2d<T>& v)
 {
     return Scalar_t<T>(v.c0);
 }
 
-template <typename T> inline Vec2d<T> gr_1(const MVec2d<T>& v)
+template <typename T> inline Vec2d<T> gr1(const MVec2d<T>& v)
 {
     return Vec2d<T>(v.c1, v.c2);
 }
 
-template <typename T> inline PScalar2d_t<T> gr_2(const MVec2d<T>& v)
+template <typename T> inline PScalar2d_t<T> gr2(const MVec2d<T>& v)
 {
     return PScalar2d_t<T>(v.c3);
 }
 
 
-// full blown geometric product for fully populated 2d multivector (16x mul_add)
+// geometric product for fully populated 2d multivector (16x mul_add)
+// gpr() ... geometric product
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr MVec2d<std::common_type_t<T, U>> wedge_dot(const MVec2d<T>& v1,
-                                                            const MVec2d<U>& v2)
+inline constexpr MVec2d<std::common_type_t<T, U>> gpr(const MVec2d<T>& v1,
+                                                      const MVec2d<U>& v2)
 {
     // geometric product with a fully set multivector with all grades filled
     T c0 = v1.c0 * v2.c0 + v1.c1 * v2.c1 + v1.c2 * v2.c2 - v1.c3 * v2.c3;

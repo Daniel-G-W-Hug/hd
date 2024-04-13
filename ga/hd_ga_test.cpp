@@ -154,11 +154,11 @@ TEST_SUITE("Geometric Algebra")
 
         fmt::println("    fmt: eps = {}", std::numeric_limits<float>::epsilon());
 
-        CHECK(v1f == v4f);             // comparison (equality)
-        CHECK(v1f != v2f);             // comparison (inequality)
-        CHECK(norm(v1f) < norm(v2f));  // comparison (less than)
-        CHECK(norm(v2f) >= norm(v1f)); // comparison (greater than or equal)
-        CHECK(v3f == v1f);             // comparison (eqality)
+        CHECK(v1f == v4f);           // comparison (equality)
+        CHECK(v1f != v2f);           // comparison (inequality)
+        CHECK(nrm(v1f) < nrm(v2f));  // comparison (less than)
+        CHECK(nrm(v2f) >= nrm(v1f)); // comparison (greater than or equal)
+        CHECK(v3f == v1f);           // comparison (eqality)
     }
 
     TEST_CASE("Vec2d comparison double")
@@ -178,11 +178,11 @@ TEST_SUITE("Geometric Algebra")
 
         fmt::println("    fmt: eps = {}", std::numeric_limits<double>::epsilon());
 
-        CHECK(v1d == v4d);             // comparison (equality)
-        CHECK(v1d != v2d);             // comparison (inequality)
-        CHECK(norm(v1d) < norm(v2d));  // comparison norm
-        CHECK(norm(v2d) >= norm(v1d)); // comparison norm
-        CHECK(v3d == v1d);             // comparison (eqality)
+        CHECK(v1d == v4d);           // comparison (equality)
+        CHECK(v1d != v2d);           // comparison (inequality)
+        CHECK(nrm(v1d) < nrm(v2d));  // comparison norm
+        CHECK(nrm(v2d) >= nrm(v1d)); // comparison norm
+        CHECK(v3d == v1d);           // comparison (eqality)
     }
 
     TEST_CASE("Vec2d vector space and linearity tests")
@@ -191,9 +191,7 @@ TEST_SUITE("Geometric Algebra")
         fmt::println("Vec2d vector space and linearity tests:");
 
         // a vector space has scalar multiplication and vector addition defined
-        // a (linear) vector space fulfills following operations:
-        //
-        //
+        // a (linear) vector space fulfills operations tested against below:
 
         Vec2d p0;
         // Vec2d<double> p0;
@@ -239,13 +237,13 @@ TEST_SUITE("Geometric Algebra")
         vec2d v2{normalized(v1)};
 
         vec2d v3{2.0, 6.0};
-        vec2d v4{inverse(v3)};
+        vec2d v4{inv(v3)};
 
-        fmt::println("v1 = {: .5f}, norm(v1) = {: .5f}", v1, norm(v1));
-        fmt::println("v2 = normalized(v1) = {: .5f}, norm(v2) = {: .5f}", v2, norm(v2));
+        fmt::println("v1 = {: .5f}, nrm(v1) = {: .5f}", v1, nrm(v1));
+        fmt::println("v2 = normalized(v1) = {: .5f}, nrm(v2) = {: .5f}", v2, nrm(v2));
 
-        CHECK(std::abs(sq_norm(v1) - 5.0) < eps);
-        CHECK(std::abs(sq_norm(v2) - 1.0) < eps);
+        CHECK(std::abs(sq_nrm(v1) - 5.0) < eps);
+        CHECK(std::abs(sq_nrm(v2) - 1.0) < eps);
         CHECK(std::abs(dot(v4, v3) - 1.0) < eps);
     }
 
@@ -265,22 +263,22 @@ TEST_SUITE("Geometric Algebra")
 
         using std::numbers::pi;
 
-        fmt::println("v1 = {: .5f}, norm(v1) = {: .5f}, angle(v1,v1) = {: .5f}, {: .5f}",
-                     v1, norm(v1), angle(v1, v1), angle(v1, v1) / pi);
-        fmt::println("v2 = {: .5f}, norm(v2) = {: .5f}, angle(v1,v2) = {: .5f}, {: .5f}",
-                     v2, norm(v2), angle(v1, v2), angle(v1, v2) / pi);
-        fmt::println("v3 = {: .5f}, norm(v3) = {: .5f}, angle(v1,v3) = {: .5f}, {: .5f}",
-                     v3, norm(v3), angle(v1, v3), angle(v1, v3) / pi);
-        fmt::println("v4 = {: .5f}, norm(v4) = {: .5f}, angle(v1,v4) = {: .5f}, {: .5f}",
-                     v4, norm(v4), angle(v1, v4), angle(v1, v4) / pi);
-        fmt::println("v5 = {: .5f}, norm(v5) = {: .5f}, angle(v1,v5) = {: .5f}, {: .5f}",
-                     v5, norm(v5), angle(v1, v5), angle(v1, v5) / pi);
-        fmt::println("v6 = {: .5f}, norm(v6) = {: .5f}, angle(v1,v6) = {: .5f}, {: .5f}",
-                     v6, norm(v6), angle(v1, v6), angle(v1, v6) / pi);
-        fmt::println("v7 = {: .5f}, norm(v7) = {: .5f}, angle(v1,v7) = {: .5f}, {: .5f}",
-                     v7, norm(v7), angle(v1, v7), angle(v1, v7) / pi);
-        fmt::println("v8 = {: .5f}, norm(v8) = {: .5f}, angle(v1,v8) = {: .5f}, {: .5f}",
-                     v8, norm(v8), angle(v1, v8), angle(v1, v8) / pi);
+        fmt::println("v1 = {: .5f}, nrm(v1) = {: .5f}, angle(v1,v1) = {: .5f}, {: .5f}",
+                     v1, nrm(v1), angle(v1, v1), angle(v1, v1) / pi);
+        fmt::println("v2 = {: .5f}, nrm(v2) = {: .5f}, angle(v1,v2) = {: .5f}, {: .5f}",
+                     v2, nrm(v2), angle(v1, v2), angle(v1, v2) / pi);
+        fmt::println("v3 = {: .5f}, nrm(v3) = {: .5f}, angle(v1,v3) = {: .5f}, {: .5f}",
+                     v3, nrm(v3), angle(v1, v3), angle(v1, v3) / pi);
+        fmt::println("v4 = {: .5f}, nrm(v4) = {: .5f}, angle(v1,v4) = {: .5f}, {: .5f}",
+                     v4, nrm(v4), angle(v1, v4), angle(v1, v4) / pi);
+        fmt::println("v5 = {: .5f}, nrm(v5) = {: .5f}, angle(v1,v5) = {: .5f}, {: .5f}",
+                     v5, nrm(v5), angle(v1, v5), angle(v1, v5) / pi);
+        fmt::println("v6 = {: .5f}, nrm(v6) = {: .5f}, angle(v1,v6) = {: .5f}, {: .5f}",
+                     v6, nrm(v6), angle(v1, v6), angle(v1, v6) / pi);
+        fmt::println("v7 = {: .5f}, nrm(v7) = {: .5f}, angle(v1,v7) = {: .5f}, {: .5f}",
+                     v7, nrm(v7), angle(v1, v7), angle(v1, v7) / pi);
+        fmt::println("v8 = {: .5f}, nrm(v8) = {: .5f}, angle(v1,v8) = {: .5f}, {: .5f}",
+                     v8, nrm(v8), angle(v1, v8), angle(v1, v8) / pi);
 
         CHECK(std::abs(angle(v1, v1) - 0.0) < eps);
         CHECK(std::abs(angle(v1, v2) - pi * 0.25) < eps);
@@ -305,39 +303,39 @@ TEST_SUITE("Geometric Algebra")
 
         using std::numbers::pi;
 
-        fmt::println("v1 = {: .5f}, norm(v1) = {: .5f}, wedge(v1,v1) = {: .5f}, "
+        fmt::println("v1 = {: .5f}, nrm(v1) = {: .5f}, wdg(v1,v1) = {: .5f}, "
                      "sin(angle) = {: .5f}",
-                     v1, norm(v1), wedge(v1, v1), sin(angle(v1, v1)));
-        fmt::println("v2 = {: .5f}, norm(v2) = {: .5f}, wedge(v1,v2) = {: .5f}, "
+                     v1, nrm(v1), wdg(v1, v1), sin(angle(v1, v1)));
+        fmt::println("v2 = {: .5f}, nrm(v2) = {: .5f}, wdg(v1,v2) = {: .5f}, "
                      "sin(angle) = {: .5f}",
-                     v2, norm(v2), wedge(v1, v2), sin(angle(v1, v2)));
-        fmt::println("v3 = {: .5f}, norm(v3) = {: .5f}, wedge(v1,v3) = {: .5f}, "
+                     v2, nrm(v2), wdg(v1, v2), sin(angle(v1, v2)));
+        fmt::println("v3 = {: .5f}, nrm(v3) = {: .5f}, wdg(v1,v3) = {: .5f}, "
                      "sin(angle) = {: .5f}",
-                     v3, norm(v3), wedge(v1, v3), sin(angle(v1, v3)));
-        fmt::println("v4 = {: .5f}, norm(v4) = {: .5f}, wedge(v1,v4) = {: .5f}, "
+                     v3, nrm(v3), wdg(v1, v3), sin(angle(v1, v3)));
+        fmt::println("v4 = {: .5f}, nrm(v4) = {: .5f}, wdg(v1,v4) = {: .5f}, "
                      "sin(angle) = {: .5f}",
-                     v4, norm(v4), wedge(v1, v4), sin(angle(v1, v4)));
-        fmt::println("v5 = {: .5f}, norm(v5) = {: .5f}, wedge(v1,v5) = {: .5f}, "
+                     v4, nrm(v4), wdg(v1, v4), sin(angle(v1, v4)));
+        fmt::println("v5 = {: .5f}, nrm(v5) = {: .5f}, wdg(v1,v5) = {: .5f}, "
                      "sin(angle) = {: .5f}",
-                     v5, norm(v5), wedge(v1, v5), sin(angle(v1, v5)));
-        fmt::println("v6 = {: .5f}, norm(v6) = {: .5f}, wedge(v1,v6) = {: .5f}, "
+                     v5, nrm(v5), wdg(v1, v5), sin(angle(v1, v5)));
+        fmt::println("v6 = {: .5f}, nrm(v6) = {: .5f}, wdg(v1,v6) = {: .5f}, "
                      "sin(angle) = {: .5f}",
-                     v6, norm(v6), wedge(v1, v6), sin(angle(v1, v6)));
-        fmt::println("v7 = {: .5f}, norm(v7) = {: .5f}, wedge(v1,v7) = {: .5f}, "
+                     v6, nrm(v6), wdg(v1, v6), sin(angle(v1, v6)));
+        fmt::println("v7 = {: .5f}, nrm(v7) = {: .5f}, wdg(v1,v7) = {: .5f}, "
                      "sin(angle) = {: .5f}",
-                     v7, norm(v7), wedge(v1, v7), sin(angle(v1, v7)));
-        fmt::println("v8 = {: .5f}, norm(v8) = {: .5f}, wedge(v1,v8) = {: .5f}, "
+                     v7, nrm(v7), wdg(v1, v7), sin(angle(v1, v7)));
+        fmt::println("v8 = {: .5f}, nrm(v8) = {: .5f}, wdg(v1,v8) = {: .5f}, "
                      "sin(angle) = {: .5f}",
-                     v8, norm(v8), wedge(v1, v8), sin(angle(v1, v8)));
+                     v8, nrm(v8), wdg(v1, v8), sin(angle(v1, v8)));
 
-        CHECK(std::abs(wedge(v1, v1) - sin(angle(v1, v1))) < eps);
-        CHECK(std::abs(wedge(v1, v2) - sin(angle(v1, v2))) < eps);
-        CHECK(std::abs(wedge(v1, v3) - sin(angle(v1, v3))) < eps);
-        CHECK(std::abs(wedge(v1, v4) - sin(angle(v1, v4))) < eps);
-        CHECK(std::abs(wedge(v1, v5) - sin(angle(v1, v5))) < eps);
-        CHECK(std::abs(wedge(v1, v6) + sin(angle(v1, v6))) < eps); // other orientation
-        CHECK(std::abs(wedge(v1, v7) + sin(angle(v1, v7))) < eps); // other orientation
-        CHECK(std::abs(wedge(v1, v8) + sin(angle(v1, v8))) < eps); // other orientation
+        CHECK(std::abs(wdg(v1, v1) - sin(angle(v1, v1))) < eps);
+        CHECK(std::abs(wdg(v1, v2) - sin(angle(v1, v2))) < eps);
+        CHECK(std::abs(wdg(v1, v3) - sin(angle(v1, v3))) < eps);
+        CHECK(std::abs(wdg(v1, v4) - sin(angle(v1, v4))) < eps);
+        CHECK(std::abs(wdg(v1, v5) - sin(angle(v1, v5))) < eps);
+        CHECK(std::abs(wdg(v1, v6) + sin(angle(v1, v6))) < eps); // other orientation
+        CHECK(std::abs(wdg(v1, v7) + sin(angle(v1, v7))) < eps); // other orientation
+        CHECK(std::abs(wdg(v1, v8) + sin(angle(v1, v8))) < eps); // other orientation
     }
 
     TEST_CASE("Vec2d operations - project / reject")
@@ -353,11 +351,11 @@ TEST_SUITE("Geometric Algebra")
 
         vec2d v5{v3 + v4};
 
-        fmt::println("v1 = {: .5f}, norm(v1) = {: .5f}", v1, norm(v1));
-        fmt::println("v2 = {: .5f}, norm(v2) = {: .5f}", v2, norm(v2));
-        fmt::println("v3 = {: .5f}, norm(v3) = {: .5f}", v3, norm(v3));
-        fmt::println("v4 = {: .5f}, norm(v4) = {: .5f}", v4, norm(v4));
-        fmt::println("v5 = {: .5f}, norm(v5) = {: .5f}", v5, norm(v5));
+        fmt::println("v1 = {: .5f}, nrm(v1) = {: .5f}", v1, nrm(v1));
+        fmt::println("v2 = {: .5f}, nrm(v2) = {: .5f}", v2, nrm(v2));
+        fmt::println("v3 = {: .5f}, nrm(v3) = {: .5f}", v3, nrm(v3));
+        fmt::println("v4 = {: .5f}, nrm(v4) = {: .5f}", v4, nrm(v4));
+        fmt::println("v5 = {: .5f}, nrm(v5) = {: .5f}", v5, nrm(v5));
 
         CHECK(v5 == v1);
 
@@ -453,9 +451,7 @@ TEST_SUITE("Geometric Algebra")
         fmt::println("MVec2d vector space and linearity tests:");
 
         // a vector space has scalar multiplication and vector addition defined
-        // a (linear) vector space fulfills following operations:
-        //
-        //
+        // a (linear) vector space fulfills operations tested against below
 
         MVec2d p0;
         // MVec2d<double> p0;
@@ -511,8 +507,8 @@ TEST_SUITE("Geometric Algebra")
 
     //     CHECK(v1f == v4f);             // comparison (equality)
     //     CHECK(v1f != v2f);             // comparison (inequality)
-    //     CHECK(norm(v1f) < norm(v2f));  // comparison (less than)
-    //     CHECK(norm(v2f) >= norm(v1f)); // comparison (greater than or equal)
+    //     CHECK(nrm(v1f) < nrm(v2f));  // comparison (less than)
+    //     CHECK(nrm(v2f) >= nrm(v1f)); // comparison (greater than or equal)
     //     CHECK(v3f == v1f);             // comparison (eqality)
     // }
 
@@ -535,8 +531,8 @@ TEST_SUITE("Geometric Algebra")
 
     //     CHECK(v1d == v4d);             // comparison (equality)
     //     CHECK(v1d != v2d);             // comparison (inequality)
-    //     CHECK(norm(v1d) < norm(v2d));  // comparison norm
-    //     CHECK(norm(v2d) >= norm(v1d)); // comparison norm
+    //     CHECK(nrm(v1d) < nrm(v2d));  // comparison norm
+    //     CHECK(nrm(v2d) >= nrm(v1d)); // comparison norm
     //     CHECK(v3d == v1d);             // comparison (eqality)
     // }
 
@@ -548,34 +544,98 @@ TEST_SUITE("Geometric Algebra")
         Vec2d v1{1.0, 2.0};
         Vec2d v2{0.5, 3.0};
         auto d12 = dot(v1, v2);
-        auto w12 = wedge(v1, v2);
+        auto w12 = wdg(v1, v2);
 
         MVec2d<double> mv0;
         MVec2d mv1{0.0, 1.0, 2.0, 0.0};
         MVec2d mv2{0.0, 0.5, 3.0, 0.0};
-        auto wdp_mv12 = 0.5 * (wedge_dot(mv1, mv2) + wedge_dot(mv2, mv1));
-        auto wdm_mv12 = 0.5 * (wedge_dot(mv1, mv2) - wedge_dot(mv2, mv1));
+        auto wdp_mv12 = 0.5 * (gpr(mv1, mv2) + gpr(mv2, mv1));
+        auto wdm_mv12 = 0.5 * (gpr(mv1, mv2) - gpr(mv2, mv1));
 
         fmt::println("   v1 = {}", v1);
         fmt::println("   v2 = {}", v2);
         fmt::println("   dot(v1,v2) = {}", d12);
-        fmt::println("   wedge(v1,v2) = {}", w12);
+        fmt::println("   wdg(v1,v2) = {}", w12);
         fmt::println("");
         fmt::println("   mv1 = {}", mv1);
         fmt::println("   mv2 = {}", mv2);
         fmt::println("   wdp_mv12 = 0.5*(mv1 mv2 + mv2 mv1) = {}", wdp_mv12);
         fmt::println("   wdm_mv12 = 0.5*(mv1 mv2 - mv2 mv1) = {}", wdm_mv12);
         fmt::println("");
-        fmt::println("   gr_0(wdp_mv12) = {}", gr_0(wdp_mv12));
-        fmt::println("   gr_1(wdp_mv12) = {}", gr_1(wdp_mv12));
-        fmt::println("   gr_2(wdp_mv12) = {}", gr_2(wdp_mv12));
+        fmt::println("   gr0(wdp_mv12) = {}", gr0(wdp_mv12));
+        fmt::println("   gr1(wdp_mv12) = {}", gr1(wdp_mv12));
+        fmt::println("   gr2(wdp_mv12) = {}", gr2(wdp_mv12));
         fmt::println("");
-        fmt::println("   gr_0(wdm_mv12) = {}", gr_0(wdm_mv12));
-        fmt::println("   gr_1(wdm_mv12) = {}", gr_1(wdm_mv12));
-        fmt::println("   gr_2(wdm_mv12) = {}", gr_2(wdm_mv12));
+        fmt::println("   gr0(wdm_mv12) = {}", gr0(wdm_mv12));
+        fmt::println("   gr1(wdm_mv12) = {}", gr1(wdm_mv12));
+        fmt::println("   gr2(wdm_mv12) = {}", gr2(wdm_mv12));
 
-        CHECK(d12 == gr_0(wdp_mv12));
-        CHECK(w12 == gr_2(wdm_mv12));
+        CHECK(d12 == gr0(wdp_mv12));
+        CHECK(w12 == gr2(wdm_mv12));
+    }
+
+    TEST_CASE(
+        "MVec2d geometric product tests - recovering vectors from the geometric product")
+    {
+        fmt::println("");
+        fmt::println("MVec2d geometric product tests - recovering vectors from the "
+                     "geometric product:");
+
+        // with mv1(v1)*mv2(v2) = C
+        // two multivectors mv1 and mv2 formed from vectors v1 and v2
+        // are multiplied by the geometric product lead to form a multivector C
+        // (gr0(mv1)==0 && gr1 != 0 && gr2(mv1)==0 && gr0(mv2)==0 && gr1(mv2)!= 0 &&
+        // gr2(mv2)==0 )
+        //
+        // C contains a scalar part and a bivector part only, the remaining components are
+        // zero (gr0(C) != 0 && gr1(C)==0 && gr2(C) !=0)
+        //
+        // the scalar part of C represents the parts of v1 and v2 that are parallel to
+        // each other the bivector part represents the parts of v1 and v2 thar are
+        // perpendicular to each other
+        //
+        // multiply C from the right with the inv of v2 recovers v1
+        // multiply C from the left the the inv of v1 recovers v2
+
+        Vec2d v1{1.0, 2.0};
+        Vec2d v2{0.5, 3.0};
+        MVec2d mv1{v1};
+        MVec2d mv2{v2};
+
+        auto d12 = dot(v1, v2);
+        auto w12 = wdg(v1, v2);
+        auto mv12 = gpr(mv1, mv2);
+        MVec2d mv12a{scalar_t(d12), pscalar2d_t(w12)};
+
+        auto v2i = inv(v2);
+        auto nv2 = nrm(v2);
+        auto nv2i = nrm(v2i);
+        auto mv2i{MVec2d(v2i)};
+        auto mv1i{MVec2d(inv(v1))};
+
+        fmt::println("   v1  = {}", v1);
+        fmt::println("   v2  = {}", v2);
+        fmt::println("   mv1 = {}", mv1);
+        fmt::println("   mv2 = {}", mv2);
+        fmt::println("");
+        fmt::println("   dot(v1,v2)   = {}", d12);
+        fmt::println("   wdg(v1,v2)   = {}", w12);
+        fmt::println("   gpr(mv1,mv2) = {}", mv12);
+        fmt::println("   mv12a        = {}", mv12a);
+        fmt::println("");
+        fmt::println("   nv2  = {}", nv2);
+        fmt::println("   v2i  = {}", v2i);
+        fmt::println("   nv2i = {}", nv2i);
+        fmt::println("   mv2i = {}", mv2i);
+        fmt::println("");
+        fmt::println("   gpr(mv12,mv2i) = {}", gpr(mv12, mv2i));
+        fmt::println("   gpr(mv1i,mv12) = {}", gpr(mv1i, mv12));
+
+        Vec2d a{1.0, 2.0};
+        Vec2d b{0.5, 3.0};
+        MVec2d C{scalar_t(dot(a, b)), pscalar2d_t(wdg(a, b))};
+        fmt::println("   gpr(C,mv2i) = {}", gpr(C, MVec2d{inv(b)}));
+        fmt::println("   gpr(mv1i,C) = {}", gpr(MVec2d{inv(a)}, C));
     }
 
     TEST_CASE("MVec2d assignment tests")
@@ -586,7 +646,7 @@ TEST_SUITE("Geometric Algebra")
         Vec2d v1{1.0, 2.0};
         Vec2d v2{0.5, 3.0};
         auto d12 = dot(v1, v2);
-        auto w12 = wedge(v1, v2);
+        auto w12 = wdg(v1, v2);
 
         MVec2d<double> mv0;
         MVec2d mv1{0.0, 1.0, 2.0, 0.0};
@@ -607,16 +667,16 @@ TEST_SUITE("Geometric Algebra")
         fmt::println("   mv5 = {}", mv5);
         fmt::println("   mv6 = {}", mv6);
         fmt::println("");
-        fmt::println("   gr_1(mv1) = {}", gr_1(mv1));
-        fmt::println("   gr_1(mv2) = {}", gr_1(mv2));
-        fmt::println("   gr_1(mv3) = {}", gr_1(mv3));
-        fmt::println("   gr_1(mv3) = {}", gr_1(mv4));
+        fmt::println("   gr1(mv1) = {}", gr1(mv1));
+        fmt::println("   gr1(mv2) = {}", gr1(mv2));
+        fmt::println("   gr1(mv3) = {}", gr1(mv3));
+        fmt::println("   gr1(mv3) = {}", gr1(mv4));
 
 
-        CHECK(gr_1(mv1) == v1);
-        CHECK(gr_1(mv2) == v2);
-        CHECK(gr_1(mv3) == v1);
-        CHECK(gr_1(mv4) == v2);
+        CHECK(gr1(mv1) == v1);
+        CHECK(gr1(mv2) == v2);
+        CHECK(gr1(mv3) == v1);
+        CHECK(gr1(mv4) == v2);
         CHECK(mv1 == mv3);
         CHECK(mv4 == mv2);
     }
