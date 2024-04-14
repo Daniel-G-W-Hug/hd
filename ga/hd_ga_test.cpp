@@ -191,6 +191,8 @@ TEST_SUITE("Geometric Algebra")
         fmt::println("Vec2d vector space and linearity tests:");
 
         // a vector space has scalar multiplication and vector addition defined
+        // and is closed under these operations
+        //
         // a (linear) vector space fulfills operations tested against below:
 
         Vec2d p0;
@@ -202,24 +204,25 @@ TEST_SUITE("Geometric Algebra")
         double s = 2.35;
         double t = -1.3;
 
+        CHECK(p1 + p1 == p2); // addition is defined
+
         // vector addition
-        CHECK(p1 + p1 == p2);                    // addition is defined
         CHECK(p2 + p1 == p1 + p2);               // addition is commutative
         CHECK((p1 + p2) + p3 == p1 + (p2 + p3)); // addition is associative
-        CHECK(p1 + p0 == p1);                    // neutral element of vector addition
-        CHECK(p1 + (-p1) == p0); // inverse element with respect to addition
-
-        // scalar products
-        CHECK(p1 * 1.0 == p1); // 1.0 is the neutral element of scalar multiplication
+        CHECK(p1 + p0 == p1);                    // zero is the additive identity
         CHECK(p1 * 0.0 == p0); // scalar multplication with null creates the null vector
+
+        // scalar multiplication
+        CHECK(p1 * 1.0 == p1);                   // 1.0 is the multiplicative identity
         CHECK((s * t) * p1 == s * (t * p1));     // is associative w.r.t. multiplication
-        CHECK(s * (p1 + p2) == s * p1 + s * p2); // scalar multiplication is associative
-        CHECK((p1 + p2) * s == p1 * s + p2 * s); // (and implemented in both sequences)
-        CHECK((s + t) * p1 == s * p1 + t * p1);  // is associative w.r.t. addition
+        CHECK(s * (p1 + p2) == s * p1 + s * p2); // scalar multiplication distributes
+        CHECK((p1 + p2) * s == p1 * s + p2 * s); // over vector addition
+        CHECK((s + t) * p1 == s * p1 + t * p1);  // and is associative w.r.t. addition
 
         // additional tests
-        CHECK(p1 + p2 == p3);  // component wise addition
-        CHECK(p1 * 2.0 == p2); // component wise multiplication
+        CHECK(p1 + (-p1) == p0); // there is an inverse element with respect to addition
+        CHECK(p1 + p2 == p3);    // component wise addition
+        CHECK(p1 * 2.0 == p2);   // component wise multiplication
 
         fmt::println("Passed.");
     }
@@ -451,7 +454,9 @@ TEST_SUITE("Geometric Algebra")
         fmt::println("MVec2d vector space and linearity tests:");
 
         // a vector space has scalar multiplication and vector addition defined
-        // a (linear) vector space fulfills operations tested against below
+        // and is closed under these operations
+        //
+        // a (linear) vector space fulfills operations tested against below:
 
         MVec2d p0;
         // MVec2d<double> p0;
@@ -462,24 +467,25 @@ TEST_SUITE("Geometric Algebra")
         double s = 2.35;
         double t = -1.3;
 
-        // multivecotor addition
-        CHECK(p1 + p1 == p2);                    // addition is defined
+        CHECK(p1 + p1 == p2); // addition is defined
+
+        // vector addition
         CHECK(p2 + p1 == p1 + p2);               // addition is commutative
         CHECK((p1 + p2) + p3 == p1 + (p2 + p3)); // addition is associative
-        CHECK(p1 + p0 == p1);                    // neutral element of vector addition
-        CHECK(p1 + (-p1) == p0); // inverse element with respect to addition
-
-        // scalar products
-        CHECK(p1 * 1.0 == p1); // 1.0 is the neutral element of scalar multiplication
+        CHECK(p1 + p0 == p1);                    // zero is the additive identity
         CHECK(p1 * 0.0 == p0); // scalar multplication with null creates the null vector
+
+        // scalar multiplication
+        CHECK(p1 * 1.0 == p1);                   // 1.0 is the multiplicative identity
         CHECK((s * t) * p1 == s * (t * p1));     // is associative w.r.t. multiplication
-        CHECK(s * (p1 + p2) == s * p1 + s * p2); // scalar multiplication is associative
-        CHECK((p1 + p2) * s == p1 * s + p2 * s); // (and implemented in both sequences)
-        CHECK((s + t) * p1 == s * p1 + t * p1);  // is associative w.r.t. addition
+        CHECK(s * (p1 + p2) == s * p1 + s * p2); // scalar multiplication distributes
+        CHECK((p1 + p2) * s == p1 * s + p2 * s); // over vector addition
+        CHECK((s + t) * p1 == s * p1 + t * p1);  // and is associative w.r.t. addition
 
         // additional tests
-        CHECK(p1 + p2 == p3);  // component wise addition
-        CHECK(p1 * 2.0 == p2); // component wise multiplication
+        CHECK(p1 + (-p1) == p0); // there is an inverse element with respect to addition
+        CHECK(p1 + p2 == p3);    // component wise addition
+        CHECK(p1 * 2.0 == p2);   // component wise multiplication
 
         fmt::println("Passed.");
     }
@@ -487,54 +493,6 @@ TEST_SUITE("Geometric Algebra")
     ////////////////////////////////////////////////////////////////////////////////
     // MVec2d<T> operations test cases
     ////////////////////////////////////////////////////////////////////////////////
-
-    // TEST_CASE("MVec2d comparison float")
-    // {
-    //     fmt::println("");
-    //     fmt::println("MVec2d comparison float:");
-
-    //     MVec2d<float> v1f{0.0f, 1.0f, 2.0f, 3.0f};
-    //     MVec2d<float> v2f{0.0f, 2.0f, 4.0f, 6.0f};
-    //     MVec2d<float> v3f{0.0f, 1.0f, 2.0000001f, 3.0f};
-    //     MVec2d<float> v4f{v1f};
-
-    //     fmt::println("   v1f = {}", v1f);
-    //     fmt::println("   v2f = {}", v2f);
-    //     fmt::println("   v3f = {}", v3f);
-    //     fmt::println("   v4f = {}", v4f);
-
-    //     fmt::println("    fmt: eps = {}", std::numeric_limits<float>::epsilon());
-
-    //     CHECK(v1f == v4f);             // comparison (equality)
-    //     CHECK(v1f != v2f);             // comparison (inequality)
-    //     CHECK(nrm(v1f) < nrm(v2f));  // comparison (less than)
-    //     CHECK(nrm(v2f) >= nrm(v1f)); // comparison (greater than or equal)
-    //     CHECK(v3f == v1f);             // comparison (eqality)
-    // }
-
-    // TEST_CASE("Vec2d comparison double")
-    // {
-    //     fmt::println("");
-    //     fmt::println("Vec2d comparison double:");
-
-    //     Vec2d<double> v1d{1.0, 2.0};
-    //     Vec2d<double> v2d{2.0, 4.0};
-    //     Vec2d<double> v3d{1.0, 2.0000000000000001};
-    //     Vec2d<double> v4d{v1d};
-
-    //     fmt::println("   v1d = {}", v1d);
-    //     fmt::println("   v2d = {}", v2d);
-    //     fmt::println("   v3d = {}", v3d);
-    //     fmt::println("   v4d = {}", v4d);
-
-    //     fmt::println("    fmt: eps = {}", std::numeric_limits<double>::epsilon());
-
-    //     CHECK(v1d == v4d);             // comparison (equality)
-    //     CHECK(v1d != v2d);             // comparison (inequality)
-    //     CHECK(nrm(v1d) < nrm(v2d));  // comparison norm
-    //     CHECK(nrm(v2d) >= nrm(v1d)); // comparison norm
-    //     CHECK(v3d == v1d);             // comparison (eqality)
-    // }
 
     TEST_CASE("MVec2d geometric product tests")
     {
@@ -615,6 +573,7 @@ TEST_SUITE("Geometric Algebra")
 
         fmt::println("   v1  = {}", v1);
         fmt::println("   v2  = {}", v2);
+        fmt::println("");
         fmt::println("   mv1 = {}", mv1);
         fmt::println("   mv2 = {}", mv2);
         fmt::println("");
@@ -630,12 +589,24 @@ TEST_SUITE("Geometric Algebra")
         fmt::println("");
         fmt::println("   gpr(mv12,mv2i) = {}", gpr(mv12, mv2i));
         fmt::println("   gpr(mv1i,mv12) = {}", gpr(mv1i, mv12));
+        fmt::println("");
 
+        // shorter version w/o intermediate results
         Vec2d a{1.0, 2.0};
         Vec2d b{0.5, 3.0};
         MVec2d C{scalar_t(dot(a, b)), pscalar2d_t(wdg(a, b))};
-        fmt::println("   gpr(C,mv2i) = {}", gpr(C, MVec2d{inv(b)}));
-        fmt::println("   gpr(mv1i,C) = {}", gpr(MVec2d{inv(a)}, C));
+        MVec2d gpr_right = gpr(C, MVec2d{inv(b)});
+        MVec2d gpr_left = gpr(MVec2d{inv(a)}, C);
+        fmt::println("   a  = {}", a);
+        fmt::println("   b  = {}", b);
+        fmt::println("   C = gpr(a,b) = {}", C);
+        fmt::println("");
+        fmt::println("   gpr(C,bi) = gpr_right = {}", gpr_right);
+        fmt::println("   gpr(ai,C) = gpr_left = {}", gpr_left);
+        fmt::println("   gr1(gpr_right) = a = {}", gr1(gpr_right));
+        fmt::println("   gr1(gpr_left) = b = {}", gr1(gpr_left));
+        CHECK(a == gr1(gpr_right));
+        CHECK(b == gr1(gpr_left));
     }
 
     TEST_CASE("MVec2d assignment tests")

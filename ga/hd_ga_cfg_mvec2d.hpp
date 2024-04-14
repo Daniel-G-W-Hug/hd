@@ -3,9 +3,7 @@
 // author: Daniel Hug, 2024
 
 #include <algorithm>
-#include <array>
 #include <cmath>    // abs, sqrt, acos
-#include <compare>  // <=>
 #include <concepts> // std::floating_point<T>
 #include <iostream>
 #include <limits>
