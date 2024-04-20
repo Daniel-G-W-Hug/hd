@@ -69,7 +69,7 @@ struct MVec3d {
     // floating point type conversion
     template <typename U>
         requires(std::floating_point<U>)
-    MVec3d<T>(MVec3d<U> const& v) :
+    MVec3d(MVec3d<U> const& v) :
         c0(v.c0), c1(v.c1), c2(v.c2), c3(v.c3), c4(v.c4), c5(v.c5), c6(v.c6), c7(v.c7)
     {
     }

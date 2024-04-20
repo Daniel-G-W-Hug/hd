@@ -9,7 +9,7 @@
 #]]
 #[[ hint: backet comment will not be formated by cmake-format]]
 
-cmake_minimum_required(VERSION 3.27)
+cmake_minimum_required(VERSION 3.29)
 
 #
 # for trial of new features, libs or system values"

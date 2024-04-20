@@ -51,13 +51,13 @@ struct BiVec3d : public Vec3d<T> {
 
     // => everything is directly re-used from Vec3d<T> w/o modification.
 
-    BiVec3d<T>() = default;
+    BiVec3d() = default;
 
-    BiVec3d<T>(T x_in, T y_in, T z_in) : Vec3d<T>(x_in, y_in, z_in) {}
+    BiVec3d(T x_in, T y_in, T z_in) : Vec3d<T>(x_in, y_in, z_in) {}
 
     template <typename U>
         requires(std::floating_point<U>)
-    BiVec3d<T>(BiVec3d<U> const& v) : Vec3d<U>(reinterpret_cast<Vec3d<U> const&>(v))
+    BiVec3d(BiVec3d<U> const& v) : Vec3d<U>(reinterpret_cast<Vec3d<U> const&>(v))
     {
     }
 };

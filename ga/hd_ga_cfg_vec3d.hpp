@@ -30,13 +30,13 @@ struct Vec3d {
     // v = x * e1 + y * e2 + z * e3
 
     // ctors
-    Vec3d<T>() = default;
+    Vec3d() = default;
 
-    Vec3d<T>(T x_in, T y_in, T z_in) : x(x_in), y(y_in), z(z_in) {}
+    Vec3d(T x_in, T y_in, T z_in) : x(x_in), y(y_in), z(z_in) {}
 
     template <typename U>
         requires(std::floating_point<U>)
-    Vec3d<T>(Vec3d<U> const& v) : x(v.x), y(v.y), z(v.z)
+    Vec3d(Vec3d<U> const& v) : x(v.x), y(v.y), z(v.z)
     {
     }
 

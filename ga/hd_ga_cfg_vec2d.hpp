@@ -30,13 +30,13 @@ struct Vec2d {
     // v = x * e1 + y * e2
 
     // ctors
-    Vec2d<T>() = default;
+    Vec2d() = default;
 
-    Vec2d<T>(T x_in, T y_in) : x(x_in), y(y_in) {}
+    Vec2d(T x_in, T y_in) : x(x_in), y(y_in) {}
 
     template <typename U>
         requires(std::floating_point<U>)
-    Vec2d<T>(Vec2d<U> const& v) : x(v.x), y(v.y)
+    Vec2d(Vec2d<U> const& v) : x(v.x), y(v.y)
     {
     }
 
