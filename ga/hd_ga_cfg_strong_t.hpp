@@ -9,7 +9,10 @@
 // https://www.foonathan.net/2016/10/strong-typedefs/
 
 
-#include <concepts>
+#include <concepts> // std::floating_point
+
+#include "fmt/format.h"
+#include "fmt/ranges.h" // support printing of (nested) containers & tuples
 
 namespace hd::ga {
 

@@ -10,21 +10,18 @@
 // and corresponding operations
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "hd_ga_cfg_algebra.hpp"  // algebra
-#include "hd_ga_cfg_mvec2d.hpp"   // MVec2d<T>
-#include "hd_ga_cfg_strong_t.hpp" // Strong_t
-#include "hd_ga_cfg_value_t.hpp" // default type for scalars, vector and bivector components
+#include "hd_ga_cfg_algebra.hpp" // algebra
+
+#include "hd_ga_cfg_strong_t.hpp" // strong types for scalars & pseudoscalars
+#include "hd_ga_cfg_value_t.hpp"  // default type for scalar, vector & bivector components
+
+#include "hd_ga_cfg_bivec3d.hpp" // BiVec3d<T>
+#include "hd_ga_cfg_mvec2d.hpp"  // MVec2d<T>
+#include "hd_ga_cfg_mvec3d.hpp"  // MVec3d<T>
 #include "hd_ga_cfg_vec2d.hpp"   // Vec2d<T>
-#include "hd_ga_usr_types.hpp"   // consistent user types for all compontents
+#include "hd_ga_cfg_vec3d.hpp"   // Vec3d<T>
 
+#include "hd_ga_cfg_2d_ops.hpp" // 2d operations
+#include "hd_ga_cfg_3d_ops.hpp" // 3d operations
 
-// struct Frame {
-//     Frame(const Vector2d& v1, const Vector2d& v2) : e1(v1), e2(v2) {}
-//     Vector2d e1;
-//     Vector2d e2;
-// };
-
-// T& s{&c[0]};   // scalar part
-// T& x{&c[1]};   // vector part, basis vector e1
-// T& y{&c[2]};   // vector part, basis vector e2
-// T& ps{&c[3]}; // pseudo scalar part
+#include "hd_ga_usr_types.hpp" // consistent user types
