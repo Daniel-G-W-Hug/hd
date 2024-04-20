@@ -18,14 +18,21 @@ namespace hd::ga {
 // Vec2d<T> geometric operations
 ////////////////////////////////////////////////////////////////////////////////
 
+// return dot-product of two vectors
+// dot(v1,v2) = nrm(v1)*nrm(v2)*cos(angle)
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline std::common_type_t<T, U> dot(const Vec2d<T>& v1, const Vec2d<U>& v2)
+{
+    // this implementation is only valid in an orthonormal basis
+    return v1.x * v2.x + v1.y * v2.y;
+}
+
 // return squared magnitude of vector
-template <typename T> inline T sq_nrm(const Vec2d<T>& v) { return v.x * v.x + v.y * v.y; }
+template <typename T> inline T sq_nrm(const Vec2d<T>& v) { return dot(v, v); }
 
 // return magnitude of vector
-template <typename T> inline T nrm(const Vec2d<T>& v)
-{
-    return std::sqrt(v.x * v.x + v.y * v.y);
-}
+template <typename T> inline T nrm(const Vec2d<T>& v) { return std::sqrt(dot(v, v)); }
 
 // return a vector unitized to nrm(v) == 1.0
 template <typename T> inline Vec2d<T> unitized(const Vec2d<T>& v)
@@ -51,24 +58,15 @@ template <typename T> inline Vec2d<T> inv(const Vec2d<T>& v)
     return Vec2d<T>(v.x * inv, v.y * inv);
 }
 
-// return dot-product of two vectors
-// dot(v1,v2) = nrm(v1)*nrm(v2)*cos(angle)
-template <typename T, typename U>
-    requires(std::floating_point<T> && std::floating_point<U>)
-inline std::common_type_t<T, U> dot(const Vec2d<T>& v1, const Vec2d<U>& v2)
-{
-    // this implementation is only valid in an orthonormal basis
-    return v1.x * v2.x + v1.y * v2.y;
-}
-
 // return the angle between of two vectors
 // range of angle: 0 <= angle <= pi
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
 inline std::common_type_t<T, U> angle(const Vec2d<T>& v1, const Vec2d<U>& v2)
 {
-    std::common_type_t<T, U> nrm_prod = nrm(v1) * nrm(v2);
-    if (nrm_prod < std::numeric_limits<std::common_type_t<T, U>>::epsilon()) {
+    using ctype = std::common_type_t<T, U>;
+    ctype nrm_prod = nrm(v1) * nrm(v2);
+    if (nrm_prod < std::numeric_limits<ctype>::epsilon()) {
         throw std::runtime_error(
             "vector norm product too small for calculation of angle" +
             std::to_string(nrm_prod) + "\n");
@@ -77,9 +75,6 @@ inline std::common_type_t<T, U> angle(const Vec2d<T>& v1, const Vec2d<U>& v2)
 }
 
 // wedge product (returns a bivector, which is the pseudoscalar in 2d)
-//
-// TODO: replace scalar returntype by pseudoscalar
-//
 // wdg(v1,v2) = |v1| |v2| sin(theta)
 // where theta: -pi <= theta <= pi (different to definition of angle for dot product!)
 template <typename T, typename U>

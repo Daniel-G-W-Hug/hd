@@ -20,22 +20,58 @@ namespace hd::ga {
 // Vec3d<T> & BiVec3d<T> geometric operations
 ////////////////////////////////////////////////////////////////////////////////
 
-// return squared magnitude of vector
-template <typename T> inline T sq_nrm(const Vec3d<T>& v)
+// return the dot product of two vectors (= a scalar)
+// coordinate free definition: dot(v1,v2) = nrm(v1)*nrm(v2)*cos(angle)
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline std::common_type_t<T, U> dot(const Vec3d<T>& v1, const Vec3d<U>& v2)
 {
-    return v.x * v.x + v.y * v.y + v.z * v.z;
+    // this implementation is only valid in an orthonormal basis
+    return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
 }
+
+// return the dot product of a bivector and a vector (= a vector)
+// dot(A,b) = gr0( gpr(A,b) )
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline Vec3d<std::common_type_t<T, U>> dot(const BiVec3d<T>& v1, const Vec3d<U>& v2)
+{
+    // this implementation is only valid in an orthonormal basis
+    return Vec3d<std::common_type_t<T, U>>(
+        v1.z * v2.y - v1.y * v2.z, v1.x * v2.z - v1.z * v2.x, v1.y * v2.x - v1.x * v2.y);
+}
+
+// return the dot product of a vector and a bivector (= a vector)
+// dot(a,B) = gr1( gpr(a,B) )
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline Vec3d<std::common_type_t<T, U>> dot(const Vec3d<T>& v1, const BiVec3d<U>& v2)
+{
+    // this implementation is only valid in an orthonormal basis
+    return Vec3d<std::common_type_t<T, U>>(
+        v1.z * v2.y - v1.y * v2.z, v1.x * v2.z - v1.z * v2.x, v1.y * v2.x - v1.x * v2.y);
+}
+
+// return dot product of two bivectors A and B (= a scalar)
+// dot(A,B) = gr0( gpr(A,B) )
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline std::common_type_t<T, U> dot(const BiVec3d<T>& v1, const BiVec3d<U>& v2)
+{
+    // this implementation is only valid in an orthonormal basis
+    return -v1.x * v2.x - v1.y * v2.y - v1.z * v2.z;
+}
+
+// return squared magnitude of vector
+template <typename T> inline T sq_nrm(const Vec3d<T>& v) { return dot(v, v); }
+
+// return magnitude of vector
+template <typename T> inline T nrm(const Vec3d<T>& v) { return std::sqrt(dot(v, v)); }
 
 // return squared magnitude of bivector
 template <typename T> inline T sq_nrm(const BiVec3d<T>& v)
 {
     return v.x * v.x + v.y * v.y + v.z * v.z;
-}
-
-// return magnitude of vector
-template <typename T> inline T nrm(const Vec3d<T>& v)
-{
-    return std::sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
 }
 
 // return magnitude of bivector
@@ -90,48 +126,6 @@ template <typename T> inline BiVec3d<T> inv(const BiVec3d<T>& v)
     }
     T inv = -1.0 / sq_n; // negative inverse of squared norm for a bivector
     return BiVec3d<T>(v.x * inv, v.y * inv, v.z * inv);
-}
-
-// return the dot product of two vectors (= a scalar)
-// coordinate free definition: dot(v1,v2) = nrm(v1)*nrm(v2)*cos(angle)
-template <typename T, typename U>
-    requires(std::floating_point<T> && std::floating_point<U>)
-inline std::common_type_t<T, U> dot(const Vec3d<T>& v1, const Vec3d<U>& v2)
-{
-    // this implementation is only valid in an orthonormal basis
-    return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
-}
-
-// return the dot product of a bivector and a vector (= a vector)
-// dot(A,b) = gr0( gpr(A,b) )
-template <typename T, typename U>
-    requires(std::floating_point<T> && std::floating_point<U>)
-inline Vec3d<std::common_type_t<T, U>> dot(const BiVec3d<T>& v1, const Vec3d<U>& v2)
-{
-    // this implementation is only valid in an orthonormal basis
-    return Vec3d<std::common_type_t<T, U>>(
-        v1.z * v2.y - v1.y * v2.z, v1.x * v2.z - v1.z * v2.x, v1.y * v2.x - v1.x * v2.y);
-}
-
-// return the dot product of a vector and a bivector (= a vector)
-// dot(a,B) = gr1( gpr(a,B) )
-template <typename T, typename U>
-    requires(std::floating_point<T> && std::floating_point<U>)
-inline Vec3d<std::common_type_t<T, U>> dot(const Vec3d<T>& v1, const BiVec3d<U>& v2)
-{
-    // this implementation is only valid in an orthonormal basis
-    return Vec3d<std::common_type_t<T, U>>(
-        v1.z * v2.y - v1.y * v2.z, v1.x * v2.z - v1.z * v2.x, v1.y * v2.x - v1.x * v2.y);
-}
-
-// return dot product of two bivectors A and B (= a scalar)
-// dot(A,B) = gr0( gpr(A,B) )
-template <typename T, typename U>
-    requires(std::floating_point<T> && std::floating_point<U>)
-inline std::common_type_t<T, U> dot(const BiVec3d<T>& v1, const BiVec3d<U>& v2)
-{
-    // this implementation is only valid in an orthonormal basis
-    return -v1.x * v2.x - v1.y * v2.y - v1.z * v2.z;
 }
 
 // return the angle between of two vectors
