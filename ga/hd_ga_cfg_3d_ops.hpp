@@ -30,6 +30,12 @@ inline std::common_type_t<T, U> dot(const Vec3d<T>& v1, const Vec3d<U>& v2)
     return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
 }
 
+// return squared magnitude of vector
+template <typename T> inline T sq_nrm(const Vec3d<T>& v) { return dot(v, v); }
+
+// return magnitude of vector
+template <typename T> inline T nrm(const Vec3d<T>& v) { return std::sqrt(dot(v, v)); }
+
 // return the dot product of a bivector and a vector (= a vector)
 // dot(A,b) = gr0( gpr(A,b) )
 template <typename T, typename U>
@@ -62,13 +68,10 @@ inline std::common_type_t<T, U> dot(const BiVec3d<T>& v1, const BiVec3d<U>& v2)
     return -v1.x * v2.x - v1.y * v2.y - v1.z * v2.z;
 }
 
-// return squared magnitude of vector
-template <typename T> inline T sq_nrm(const Vec3d<T>& v) { return dot(v, v); }
-
-// return magnitude of vector
-template <typename T> inline T nrm(const Vec3d<T>& v) { return std::sqrt(dot(v, v)); }
-
 // return squared magnitude of bivector
+//
+// TODO: Check whether this the right way to calculate the magnitude
+//
 template <typename T> inline T sq_nrm(const BiVec3d<T>& v)
 {
     return v.x * v.x + v.y * v.y + v.z * v.z;
