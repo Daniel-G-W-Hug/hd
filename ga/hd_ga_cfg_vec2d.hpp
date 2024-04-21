@@ -46,26 +46,29 @@ struct Vec2d {
     // equality
     template <typename U>
         requires(std::floating_point<U>)
-    bool operator==(const Vec2d<U>& rhs) const
+    bool operator==(Vec2d<U> const& rhs) const
     {
+        using ctype = std::common_type_t<T, U>;
         // componentwise comparison
         // equality implies same magnitude and direction
         // comparison is not exact, but accepts epsilon deviations
         auto abs_delta_x = std::abs(rhs.x - x);
         auto abs_delta_y = std::abs(rhs.y - y);
         auto constexpr delta_eps =
-            std::common_type_t<T, U>(5.0) *
-            std::max<std::common_type_t<T, U>>(std::numeric_limits<T>::epsilon(),
-                                               std::numeric_limits<U>::epsilon());
+            ctype(5.0) * std::max<ctype>(std::numeric_limits<T>::epsilon(),
+                                         std::numeric_limits<U>::epsilon());
         if (abs_delta_x < delta_eps && abs_delta_y < delta_eps) return true;
         return false;
     }
 
     // unary minus (must be declared a friend otherwise doesn't work)
-    friend inline Vec2d<T> operator-(const Vec2d<T>& v) { return Vec2d<T>(-v.x, -v.y); }
+    friend inline constexpr Vec2d<T> operator-(Vec2d<T> const& v)
+    {
+        return Vec2d<T>(-v.x, -v.y);
+    }
 
     template <typename U>
-    friend std::ostream& operator<<(std::ostream& os, const Vec2d<U>& v);
+    friend std::ostream& operator<<(std::ostream& os, Vec2d<U> const& v);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -75,8 +78,8 @@ struct Vec2d {
 // adding vectors
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr Vec2d<std::common_type_t<T, U>> operator+(const Vec2d<T>& v1,
-                                                           const Vec2d<U>& v2)
+inline constexpr Vec2d<std::common_type_t<T, U>> operator+(Vec2d<T> const& v1,
+                                                           Vec2d<U> const& v2)
 {
     return Vec2d<std::common_type_t<T, U>>(v1.x + v2.x, v1.y + v2.y);
 }
@@ -84,8 +87,8 @@ inline constexpr Vec2d<std::common_type_t<T, U>> operator+(const Vec2d<T>& v1,
 // substracting vectors
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr Vec2d<std::common_type_t<T, U>> operator-(const Vec2d<T>& v1,
-                                                           const Vec2d<U>& v2)
+inline constexpr Vec2d<std::common_type_t<T, U>> operator-(Vec2d<T> const& v1,
+                                                           Vec2d<U> const& v2)
 {
     return Vec2d<std::common_type_t<T, U>>(v1.x - v2.x, v1.y - v2.y);
 }
@@ -94,14 +97,14 @@ inline constexpr Vec2d<std::common_type_t<T, U>> operator-(const Vec2d<T>& v1,
 // multiply a vector with a scalar (in both constellations)
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr Vec2d<std::common_type_t<T, U>> operator*(const Vec2d<T>& v, U s)
+inline constexpr Vec2d<std::common_type_t<T, U>> operator*(Vec2d<T> const& v, U s)
 {
     return Vec2d<std::common_type_t<T, U>>(v.x * s, v.y * s);
 }
 
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr Vec2d<std::common_type_t<T, U>> operator*(T s, const Vec2d<U>& v)
+inline constexpr Vec2d<std::common_type_t<T, U>> operator*(T s, Vec2d<U> const& v)
 {
     return Vec2d<std::common_type_t<T, U>>(v.x * s, v.y * s);
 }
@@ -109,7 +112,7 @@ inline constexpr Vec2d<std::common_type_t<T, U>> operator*(T s, const Vec2d<U>& 
 // devide a vector by a scalar
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr Vec2d<std::common_type_t<T, U>> operator/(const Vec2d<T>& v, U s)
+inline constexpr Vec2d<std::common_type_t<T, U>> operator/(Vec2d<T> const& v, U s)
 {
     if (s == 0.0) {
         throw std::runtime_error("scalar too small, division by zero" +
@@ -125,7 +128,7 @@ inline constexpr Vec2d<std::common_type_t<T, U>> operator/(const Vec2d<T>& v, U 
 
 template <typename T>
     requires(std::floating_point<T>)
-std::ostream& operator<<(std::ostream& os, const Vec2d<T>& v)
+std::ostream& operator<<(std::ostream& os, Vec2d<T> const& v)
 {
     os << "(" << v.x << ", " << v.y << ")";
     return os;

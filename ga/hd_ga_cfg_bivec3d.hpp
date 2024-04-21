@@ -69,8 +69,8 @@ struct BiVec3d : public Vec3d<T> {
 // adding vectors
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr BiVec3d<std::common_type_t<T, U>> operator+(const BiVec3d<T>& v1,
-                                                             const BiVec3d<U>& v2)
+inline constexpr BiVec3d<std::common_type_t<T, U>> operator+(BiVec3d<T> const& v1,
+                                                             BiVec3d<U> const& v2)
 {
     return BiVec3d<std::common_type_t<T, U>>(v1.x + v2.x, v1.y + v2.y, v1.z + v2.z);
 }
@@ -78,8 +78,8 @@ inline constexpr BiVec3d<std::common_type_t<T, U>> operator+(const BiVec3d<T>& v
 // substracting vectors
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr BiVec3d<std::common_type_t<T, U>> operator-(const BiVec3d<T>& v1,
-                                                             const BiVec3d<U>& v2)
+inline constexpr BiVec3d<std::common_type_t<T, U>> operator-(BiVec3d<T> const& v1,
+                                                             BiVec3d<U> const& v2)
 {
     return BiVec3d<std::common_type_t<T, U>>(v1.x - v2.x, v1.y - v2.y, v1.z - v2.z);
 }
@@ -88,14 +88,14 @@ inline constexpr BiVec3d<std::common_type_t<T, U>> operator-(const BiVec3d<T>& v
 // multiply a vector with a scalar (in both constellations)
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr BiVec3d<std::common_type_t<T, U>> operator*(const BiVec3d<T>& v, U s)
+inline constexpr BiVec3d<std::common_type_t<T, U>> operator*(BiVec3d<T> const& v, U s)
 {
     return BiVec3d<std::common_type_t<T, U>>(v.x * s, v.y * s, v.z * s);
 }
 
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr BiVec3d<std::common_type_t<T, U>> operator*(T s, const BiVec3d<U>& v)
+inline constexpr BiVec3d<std::common_type_t<T, U>> operator*(T s, BiVec3d<U> const& v)
 {
     return BiVec3d<std::common_type_t<T, U>>(v.x * s, v.y * s, v.z * s);
 }
@@ -103,7 +103,7 @@ inline constexpr BiVec3d<std::common_type_t<T, U>> operator*(T s, const BiVec3d<
 // devide a vector by a scalar
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr BiVec3d<std::common_type_t<T, U>> operator/(const BiVec3d<T>& v, U s)
+inline constexpr BiVec3d<std::common_type_t<T, U>> operator/(BiVec3d<T> const& v, U s)
 {
     if (s == 0.0) {
         throw std::runtime_error("scalar too small, division by zero" +
@@ -119,7 +119,7 @@ inline constexpr BiVec3d<std::common_type_t<T, U>> operator/(const BiVec3d<T>& v
 
 template <typename T>
     requires(std::floating_point<T>)
-std::ostream& operator<<(std::ostream& os, const BiVec3d<T>& v)
+std::ostream& operator<<(std::ostream& os, BiVec3d<T> const& v)
 {
     os << "(" << v.x << ", " << v.y << ", " << v.z << ")";
     return os;

@@ -37,18 +37,18 @@ struct MVec2d {
     MVec2d(T s, T x, T y, T ps) : c0(s), c1(x), c2(y), c3(ps) {}
 
     // assign a scalar part exclusively (other grades = 0)
-    MVec2d(Scalar_t<T> s) : c0(s) {}
+    MVec2d(Scalar<T> s) : c0(s) {}
 
     // assign a vector part exclusively (other grades = 0)
     MVec2d(Vec2d<T> const& v) : c1(v.x), c2(v.y) {}
 
     // assign a pseudoscalar part exclusively (other grades = 0)
-    MVec2d(PScalar2d_t<T> ps) : c3(ps) {}
+    MVec2d(PScalar2d<T> ps) : c3(ps) {}
 
     // assign a geometric product resulting from a product of two vectors
     // via dot(v1,v2) and wdg(v1,v2) directly (other grades = 0)
     // (less expensive compared to full geometric product)
-    MVec2d(Scalar_t<T> s, PScalar2d_t<T> ps) : c0(s), c3(ps) {}
+    MVec2d(Scalar<T> s, PScalar2d<T> ps) : c0(s), c3(ps) {}
 
     // floating point type conversion
     template <typename U>
@@ -86,7 +86,7 @@ struct MVec2d {
     }
 
     // unary minus (must be declared a friend otherwise doesn't work)
-    friend inline MVec2d<T> operator-(const MVec2d<T>& v)
+    friend inline constexpr MVec2d<T> operator-(const MVec2d<T>& v)
     {
         return MVec2d<T>(-v.c0, -v.c1, -v.c2, -v.c3);
     }
@@ -158,60 +158,25 @@ inline constexpr MVec2d<std::common_type_t<T, U>> operator/(const MVec2d<T>& v, 
                                             v.c3 * inv);
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// MVec2d<T> geometric operations
-////////////////////////////////////////////////////////////////////////////////
-
 // returning various grades of a multivector
 //
 // grade 0: gr0() - scalar
 // grade 1: gr1() - vector
 // grade 2: gr2() - bivector (= pseudoscalar in 2d)
 
-template <typename T> inline constexpr Scalar_t<T> gr0(const MVec2d<T>& v)
+template <typename T> inline constexpr Scalar<T> gr0(MVec2d<T> const& v)
 {
-    return Scalar_t<T>(v.c0);
+    return Scalar<T>(v.c0);
 }
 
-template <typename T> inline constexpr Vec2d<T> gr1(const MVec2d<T>& v)
+template <typename T> inline constexpr Vec2d<T> gr1(MVec2d<T> const& v)
 {
     return Vec2d<T>(v.c1, v.c2);
 }
 
-template <typename T> inline constexpr PScalar2d_t<T> gr2(const MVec2d<T>& v)
+template <typename T> inline constexpr PScalar2d<T> gr2(MVec2d<T> const& v)
 {
-    return PScalar2d_t<T>(v.c3);
-}
-
-
-// geometric product ab for fully populated 2d multivector
-// gpr() ... geometric product
-// Expensive! - Don't use if you don't have to! (16x mul_add)
-//
-// Use equivalent formulae instead for not fully populated multivectors:
-// ab = dot(a,b) + wdg(a,b) = gr0(ab) + gr2(ab) (vector vector = scalar + bivector)
-template <typename T, typename U>
-    requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr MVec2d<std::common_type_t<T, U>> gpr(const MVec2d<T>& v1,
-                                                      const MVec2d<U>& v2)
-{
-    // geometric product with a fully populated 2d multivector
-    T c0 = v1.c0 * v2.c0 + v1.c1 * v2.c1 + v1.c2 * v2.c2 - v1.c3 * v2.c3;
-    T c1 = v1.c0 * v2.c1 + v1.c1 * v2.c0 - v1.c2 * v2.c3 + v1.c3 * v2.c2;
-    T c2 = v1.c0 * v2.c2 + v1.c1 * v2.c3 + v1.c2 * v2.c0 - v1.c3 * v2.c1;
-    T c3 = v1.c0 * v2.c3 + v1.c1 * v2.c2 - v1.c2 * v2.c1 + v1.c3 * v2.c0;
-    return MVec2d<std::common_type_t<T, U>>(c0, c1, c2, c3);
-}
-
-// geometric product ab for two vectors (returns a multivector)
-// ab = dot(a,b) + wdg(a,b) = gr0(ab) + gr2(ab) (vector vector = scalar + bivector)
-template <typename T, typename U>
-    requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr MVec2d<std::common_type_t<T, U>> gpr(const Vec2d<T>& a,
-                                                      const Vec2d<U>& b)
-{
-    using ctype = std::common_type_t<T, U>;
-    return MVec2d<ctype>(Scalar_t<ctype>(dot(a, b)), wdg(a, b));
+    return PScalar2d<T>(v.c3);
 }
 
 } // namespace hd::ga

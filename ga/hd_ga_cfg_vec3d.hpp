@@ -47,7 +47,7 @@ struct Vec3d {
     // equality
     template <typename U>
         requires(std::floating_point<U>)
-    bool operator==(const Vec3d<U>& rhs) const
+    bool operator==(Vec3d<U> const& rhs) const
     {
         // componentwise comparison
         // equality implies same magnitude and direction
@@ -65,13 +65,13 @@ struct Vec3d {
     }
 
     // unary minus (must be declared a friend otherwise doesn't work)
-    friend inline Vec3d<T> operator-(const Vec3d<T>& v)
+    friend inline constexpr Vec3d<T> operator-(Vec3d<T> const& v)
     {
         return Vec3d<T>(-v.x, -v.y, -v.z);
     }
 
     template <typename U>
-    friend std::ostream& operator<<(std::ostream& os, const Vec3d<U>& v);
+    friend std::ostream& operator<<(std::ostream& os, Vec3d<U> const& v);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -81,8 +81,8 @@ struct Vec3d {
 // adding vectors
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr Vec3d<std::common_type_t<T, U>> operator+(const Vec3d<T>& v1,
-                                                           const Vec3d<U>& v2)
+inline constexpr Vec3d<std::common_type_t<T, U>> operator+(Vec3d<T> const& v1,
+                                                           Vec3d<U> const& v2)
 {
     return Vec3d<std::common_type_t<T, U>>(v1.x + v2.x, v1.y + v2.y, v1.z + v2.z);
 }
@@ -90,8 +90,8 @@ inline constexpr Vec3d<std::common_type_t<T, U>> operator+(const Vec3d<T>& v1,
 // substracting vectors
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr Vec3d<std::common_type_t<T, U>> operator-(const Vec3d<T>& v1,
-                                                           const Vec3d<U>& v2)
+inline constexpr Vec3d<std::common_type_t<T, U>> operator-(Vec3d<T> const& v1,
+                                                           Vec3d<U> const& v2)
 {
     return Vec3d<std::common_type_t<T, U>>(v1.x - v2.x, v1.y - v2.y, v1.z - v2.z);
 }
@@ -100,14 +100,14 @@ inline constexpr Vec3d<std::common_type_t<T, U>> operator-(const Vec3d<T>& v1,
 // multiply a vector with a scalar (in both constellations)
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr Vec3d<std::common_type_t<T, U>> operator*(const Vec3d<T>& v, U s)
+inline constexpr Vec3d<std::common_type_t<T, U>> operator*(Vec3d<T> const& v, U s)
 {
     return Vec3d<std::common_type_t<T, U>>(v.x * s, v.y * s, v.z * s);
 }
 
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr Vec3d<std::common_type_t<T, U>> operator*(T s, const Vec3d<U>& v)
+inline constexpr Vec3d<std::common_type_t<T, U>> operator*(T s, Vec3d<U> const& v)
 {
     return Vec3d<std::common_type_t<T, U>>(v.x * s, v.y * s, v.z * s);
 }
@@ -115,7 +115,7 @@ inline constexpr Vec3d<std::common_type_t<T, U>> operator*(T s, const Vec3d<U>& 
 // devide a vector by a scalar
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr Vec3d<std::common_type_t<T, U>> operator/(const Vec3d<T>& v, U s)
+inline constexpr Vec3d<std::common_type_t<T, U>> operator/(Vec3d<T> const& v, U s)
 {
     if (s == 0.0) {
         throw std::runtime_error("scalar too small, division by zero" +
@@ -131,7 +131,7 @@ inline constexpr Vec3d<std::common_type_t<T, U>> operator/(const Vec3d<T>& v, U 
 
 template <typename T>
     requires(std::floating_point<T>)
-std::ostream& operator<<(std::ostream& os, const Vec3d<T>& v)
+std::ostream& operator<<(std::ostream& os, Vec3d<T> const& v)
 {
     os << "(" << v.x << ", " << v.y << ", " << v.z << ")";
     return os;

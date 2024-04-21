@@ -10,13 +10,13 @@
 #include <stdexcept>
 #include <string>
 
-
 #include "fmt/format.h"
 #include "fmt/ranges.h" // support printing of (nested) containers & tuples
 
 #include "hd_ga_cfg_value_t.hpp"
-#include "hd_ga_cfg_vec2d.hpp"
 
+#include "hd_ga_cfg_bivec3d.hpp"
+#include "hd_ga_cfg_vec3d.hpp"
 
 namespace hd::ga {
 
@@ -40,7 +40,7 @@ struct MVec3d {
     }
 
     // assign a scalar part exclusively (other grades = 0)
-    MVec3d(Scalar_t<T> s) : c0(s) {}
+    MVec3d(Scalar<T> s) : c0(s) {}
 
     // assign a vector part exclusively (other grades = 0)
     MVec3d(Vec3d<T> const& v) : c1(v.x), c2(v.y), c3(v.z) {}
@@ -49,22 +49,23 @@ struct MVec3d {
     MVec3d(BiVec3d<T> const& v) : c4(v.x), c5(v.y), c6(v.z) {}
 
     // assign a geometric product resulting from a product of two vectors
-    // via dot(v1,v2) and wdg(v1,v2) directly (other grades = 0)
+    // via dot(v1,v2) and wdg(v1,v2) or via dot(v1,v2) and cmt(v1,v2)
+    // directly (other grades = 0)
     // (less expensive compared to computing the full geometric product)
-    MVec3d(Scalar_t<T> s, BiVec3d<T> const& v) : c0(s), c4(v.x), c5(v.y), c6(v.z) {}
+    MVec3d(Scalar<T> s, BiVec3d<T> const& v) : c0(s), c4(v.x), c5(v.y), c6(v.z) {}
 
     // assign a geometric product resulting from a product of a vector and a bivector
     // via dot(v1,v2) and wdg(v1,v2) directly (other grades = 0)
     // (less expensive compared to computing the full geometric product)
-    MVec3d(Vec3d<T> const& v, PScalar3d_t<T> ps) : c1(v.x), c2(v.y), c3(v.z), c7(ps) {}
+    MVec3d(Vec3d<T> const& v, PScalar3d<T> ps) : c1(v.x), c2(v.y), c3(v.z), c7(ps) {}
 
     // this constructor must be explicitly deleted,
     // otherwise a BiVec3d<T> could implicitly convert to Vec3d<T>
     // reason: Vec3d<T> is a base class of BiVec3d<T>
-    MVec3d(BiVec3d<T> const& v, PScalar3d_t<T> ps) = delete;
+    MVec3d(BiVec3d<T> const& v, PScalar3d<T> ps) = delete;
 
     // assign a pseudoscalar part exclusively (other grades = 0)
-    MVec3d(PScalar3d_t<T> ps) : c7(ps) {}
+    MVec3d(PScalar3d<T> ps) : c7(ps) {}
 
     // floating point type conversion
     template <typename U>
@@ -73,7 +74,6 @@ struct MVec3d {
         c0(v.c0), c1(v.c1), c2(v.c2), c3(v.c3), c4(v.c4), c5(v.c5), c6(v.c6), c7(v.c7)
     {
     }
-
 
     T c0{}; // scalar
     T c1{}; // vector 3d, 1st component   (x)  - maps to basis bivector  e1
@@ -87,8 +87,9 @@ struct MVec3d {
     // equality
     template <typename U>
         requires(std::floating_point<U>)
-    bool operator==(const MVec3d<U>& rhs) const
+    bool operator==(MVec3d<U> const& rhs) const
     {
+        using ctype = std::common_type_t<T, U>;
         // componentwise comparison
         // equality implies same magnitude and direction
         // comparison is not exact, but accepts epsilon deviations
@@ -101,9 +102,8 @@ struct MVec3d {
         auto abs_delta_c6 = std::abs(rhs.c6 - c6);
         auto abs_delta_c7 = std::abs(rhs.c7 - c7);
         auto constexpr delta_eps =
-            std::common_type_t<T, U>(5.0) *
-            std::max<std::common_type_t<T, U>>(std::numeric_limits<T>::epsilon(),
-                                               std::numeric_limits<U>::epsilon());
+            ctype(5.0) * std::max<ctype>(std::numeric_limits<T>::epsilon(),
+                                         std::numeric_limits<U>::epsilon());
         if (abs_delta_c0 < delta_eps && abs_delta_c1 < delta_eps &&
             abs_delta_c2 < delta_eps && abs_delta_c3 < delta_eps &&
             abs_delta_c4 < delta_eps && abs_delta_c5 < delta_eps &&
@@ -113,19 +113,19 @@ struct MVec3d {
     }
 
     // unary minus (must be declared a friend otherwise doesn't work)
-    friend inline MVec3d<T> operator-(const MVec3d<T>& v)
+    friend inline constexpr MVec3d<T> operator-(MVec3d<T> const& v)
     {
         return MVec3d<T>(-v.c0, -v.c1, -v.c2, -v.c3, -v.c4, -v.c5, -v.c6, -v.c7);
     }
 
     template <typename U>
-    friend std::ostream& operator<<(std::ostream& os, const MVec3d<U>& v);
+    friend std::ostream& operator<<(std::ostream& os, MVec3d<U> const& v);
 };
 
 // for printing via iostream
 template <typename T>
     requires(std::floating_point<T>)
-std::ostream& operator<<(std::ostream& os, const MVec3d<T>& v)
+std::ostream& operator<<(std::ostream& os, MVec3d<T> const& v)
 {
     os << "(" << v.c0 << ", " << v.c1 << ", " << v.c2 << ", " << v.c3 << ", " << v.c4
        << ", " << v.c5 << ", " << v.c6 << ", " << v.c7 << ")";
@@ -139,8 +139,8 @@ std::ostream& operator<<(std::ostream& os, const MVec3d<T>& v)
 // add multivectors
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr MVec3d<std::common_type_t<T, U>> operator+(const MVec3d<T>& v1,
-                                                            const MVec3d<U>& v2)
+inline constexpr MVec3d<std::common_type_t<T, U>> operator+(MVec3d<T> const& v1,
+                                                            MVec3d<U> const& v2)
 {
     return MVec3d<std::common_type_t<T, U>>(v1.c0 + v2.c0, v1.c1 + v2.c1, v1.c2 + v2.c2,
                                             v1.c3 + v2.c3, v1.c4 + v2.c4, v1.c5 + v2.c5,
@@ -150,19 +150,18 @@ inline constexpr MVec3d<std::common_type_t<T, U>> operator+(const MVec3d<T>& v1,
 // substract multivectors
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr MVec3d<std::common_type_t<T, U>> operator-(const MVec3d<T>& v1,
-                                                            const MVec3d<U>& v2)
+inline constexpr MVec3d<std::common_type_t<T, U>> operator-(MVec3d<T> const& v1,
+                                                            MVec3d<U> const& v2)
 {
     return MVec3d<std::common_type_t<T, U>>(v1.c0 - v2.c0, v1.c1 - v2.c1, v1.c2 - v2.c2,
                                             v1.c3 - v2.c3, v1.c4 - v2.c4, v1.c5 - v2.c5,
                                             v1.c6 - v2.c6, v1.c7 - v2.c7);
 }
 
-
 // multiply a multivector with a scalar
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr MVec3d<std::common_type_t<T, U>> operator*(const MVec3d<T>& v, U s)
+inline constexpr MVec3d<std::common_type_t<T, U>> operator*(MVec3d<T> const& v, U s)
 {
     return MVec3d<std::common_type_t<T, U>>(v.c0 * s, v.c1 * s, v.c2 * s, v.c3 * s,
                                             v.c4 * s, v.c5 * s, v.c6 * s, v.c7 * s);
@@ -170,7 +169,7 @@ inline constexpr MVec3d<std::common_type_t<T, U>> operator*(const MVec3d<T>& v, 
 
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr MVec3d<std::common_type_t<T, U>> operator*(T s, const MVec3d<U>& v)
+inline constexpr MVec3d<std::common_type_t<T, U>> operator*(T s, MVec3d<U> const& v)
 {
     return MVec3d<std::common_type_t<T, U>>(v.c0 * s, v.c1 * s, v.c2 * s, v.c3 * s,
                                             v.c4 * s, v.c5 * s, v.c6 * s, v.c7 * s);
@@ -179,7 +178,7 @@ inline constexpr MVec3d<std::common_type_t<T, U>> operator*(T s, const MVec3d<U>
 // devide a multivector by a scalar
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr MVec3d<std::common_type_t<T, U>> operator/(const MVec3d<T>& v, U s)
+inline constexpr MVec3d<std::common_type_t<T, U>> operator/(MVec3d<T> const& v, U s)
 {
     if (s == 0.0) {
         throw std::runtime_error("scalar too small, division by zero" +
@@ -191,10 +190,6 @@ inline constexpr MVec3d<std::common_type_t<T, U>> operator/(const MVec3d<T>& v, 
                                             v.c6 * inv, v.c7 * inv);
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// MVec3d<T> geometric operations
-////////////////////////////////////////////////////////////////////////////////
-
 // returning various grades of a multivector
 //
 // grade 0: gr0() - scalar
@@ -202,91 +197,23 @@ inline constexpr MVec3d<std::common_type_t<T, U>> operator/(const MVec3d<T>& v, 
 // grade 2: gr2() - bivector
 // grade 3: gr3() - trivector (= pseudoscalar in 3d)
 
-template <typename T> inline constexpr Scalar_t<T> gr0(const MVec3d<T>& v)
+template <typename T> inline constexpr Scalar<T> gr0(MVec3d<T> const& v)
 {
-    return Scalar_t<T>(v.c0);
+    return Scalar<T>(v.c0);
 }
 
-template <typename T> inline constexpr Vec3d<T> gr1(const MVec3d<T>& v)
+template <typename T> inline constexpr Vec3d<T> gr1(MVec3d<T> const& v)
 {
     return Vec3d<T>(v.c1, v.c2, v.c3);
 }
-template <typename T> inline constexpr BiVec3d<T> gr2(const MVec3d<T>& v)
+template <typename T> inline constexpr BiVec3d<T> gr2(MVec3d<T> const& v)
 {
     return BiVec3d<T>(v.c4, v.c5, v.c6);
 }
 
-template <typename T> inline constexpr PScalar3d_t<T> gr3(const MVec3d<T>& v)
+template <typename T> inline constexpr PScalar3d<T> gr3(MVec3d<T> const& v)
 {
-    return PScalar3d_t<T>(v.c7);
-}
-
-
-// geometric product AB for fully populated 3d multivector
-// gpr() ... geometric product
-// Expensive! - Don't use if you don't have to! (64x mul_add)
-//
-// Use equivalent formulae instead for not fully populated multivectors:
-// ab = dot(a,b) + wdg(a,b) = gr0(ab) + gr2(ab)  (vector vector = scalar + bivector)
-// Ab = dot(A,b) + wdg(A,b) = gr1(Ab) + gr3(Ab)  (bivector vector = vector + trivector)
-// aB = dot(a,B) + wdg(a,B) = gr1(aB) + gr3(aB)  (bivector vector = vector + trivector)
-// => see overloaded versions of gpr
-template <typename T, typename U>
-    requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr MVec3d<std::common_type_t<T, U>> gpr(const MVec3d<T>& v1,
-                                                      const MVec3d<U>& v2)
-{
-    // geometric product with a fully populated 3d multivector
-    T c0 = v1.c0 * v2.c0 + v1.c1 * v2.c1 + v1.c2 * v2.c2 + v1.c3 * v2.c3 - v1.c4 * v2.c4 -
-           v1.c5 * v2.c5 - v1.c6 * v2.c6 - v1.c7 * v2.c7;
-    T c1 = v1.c0 * v2.c1 + v1.c1 * v2.c0 - v1.c2 * v2.c6 + v1.c3 * v2.c5 - v1.c4 * v2.c7 -
-           v1.c5 * v2.c3 + v1.c6 * v2.c2 - v1.c7 * v2.c4;
-    T c2 = v1.c0 * v2.c2 + v1.c1 * v2.c6 + v1.c2 * v2.c0 - v1.c3 * v2.c4 + v1.c4 * v2.c3 -
-           v1.c5 * v2.c7 - v1.c6 * v2.c1 - v1.c7 * v2.c5;
-    T c3 = v1.c0 * v2.c3 - v1.c1 * v2.c5 + v1.c2 * v2.c4 + v1.c3 * v2.c0 - v1.c4 * v2.c2 +
-           v1.c5 * v2.c1 - v1.c6 * v2.c7 - v1.c7 * v2.c6;
-    T c4 = v1.c0 * v2.c4 + v1.c1 * v2.c7 + v1.c2 * v2.c3 - v1.c3 * v2.c2 + v1.c4 * v2.c0 -
-           v1.c5 * v2.c6 + v1.c6 * v2.c5 + v1.c7 * v2.c1;
-    T c5 = v1.c0 * v2.c5 - v1.c1 * v2.c3 + v1.c2 * v2.c7 + v1.c3 * v2.c1 + v1.c4 * v2.c6 +
-           v1.c5 * v2.c0 - v1.c6 * v2.c4 + v1.c7 * v2.c2;
-    T c6 = v1.c0 * v2.c6 + v1.c1 * v2.c2 - v1.c2 * v2.c1 + v1.c3 * v2.c7 - v1.c4 * v2.c5 +
-           v1.c5 * v2.c4 + v1.c6 * v2.c0 + v1.c7 * v2.c3;
-    T c7 = v1.c0 * v2.c7 + v1.c1 * v2.c4 + v1.c2 * v2.c5 + v1.c3 * v2.c6 + v1.c4 * v2.c1 +
-           v1.c5 * v2.c2 + v1.c6 * v2.c3 + v1.c7 * v2.c0;
-    return MVec3d<std::common_type_t<T, U>>(c0, c1, c2, c3, c4, c5, c6, c7);
-}
-
-// geometric product ab between two vectors (returns a multivector)
-// ab = dot(a,b) + wdg(a,b) = gr0(ab) + gr2(ab)  (vector vector = scalar + bivector)
-template <typename T, typename U>
-    requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr MVec3d<std::common_type_t<T, U>> gpr(const Vec3d<T>& a,
-                                                      const Vec3d<U>& b)
-{
-    using ctype = std::common_type_t<T, U>;
-    return MVec3d<ctype>(Scalar_t<ctype>(dot(a, b)), wdg(a, b));
-}
-
-// geometric product Ab for a bivector and a vector (returns a multivector)
-// Ab = dot(A,b) + wdg(A,b) = gr1(Ab) + gr3(Ab)  (bivector vector = vector + trivector)
-template <typename T, typename U>
-    requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr MVec3d<std::common_type_t<T, U>> gpr(const BiVec3d<T>& A,
-                                                      const Vec3d<U>& b)
-{
-    using ctype = std::common_type_t<T, U>;
-    return MVec3d<ctype>(dot(A, b), wdg(A, b));
-}
-
-// geometric product Ab for a bivector and a vector (returns a multivector)
-// aB = dot(a,B) + wdg(a,B) = gr1(aB) + gr3(aB)  (bivector vector = vector + trivector)
-template <typename T, typename U>
-    requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr MVec3d<std::common_type_t<T, U>> gpr(const Vec3d<T>& a,
-                                                      const BiVec3d<U>& B)
-{
-    using ctype = std::common_type_t<T, U>;
-    return MVec3d<ctype>(dot(a, B), wdg(a, B));
+    return PScalar3d<T>(v.c7);
 }
 
 } // namespace hd::ga
