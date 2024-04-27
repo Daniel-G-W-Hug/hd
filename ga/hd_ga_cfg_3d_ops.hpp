@@ -6,14 +6,18 @@
 #include <concepts> // std::floating_point<T>
 #include <iostream>
 #include <limits>
+#include <numbers> // math constants like pi
 #include <stdexcept>
 #include <string>
 
 #include "hd_ga_cfg_value_t.hpp"
 
-#include "hd_ga_cfg_bivec3d.hpp"
-#include "hd_ga_cfg_mvec3d.hpp"
 #include "hd_ga_cfg_vec3d.hpp"
+
+#include "hd_ga_cfg_bivec3d.hpp"
+
+#include "hd_ga_cfg_mcplx2d.hpp"
+#include "hd_ga_cfg_mvec3d.hpp"
 
 
 namespace hd::ga {
@@ -520,6 +524,61 @@ inline constexpr std::common_type_t<T, U> gpr(PScalar3d<T> A, PScalar3d<U> B)
 {
     using ctype = std::common_type_t<T, U>;
     return -ctype(A) * ctype(B); // trivectors square to -1
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// MCplx3d<T> operations
+////////////////////////////////////////////////////////////////////////////////
+
+// geometric product ab for two multivectors from the even subalgebra (3d case)
+// a  = gr0(a)  + gr2(a)  (scalar + bivector)
+// b  = gr0(b)  + gr2(b)  (scalar + bivector)
+// ab = gr0(ab) + gr2(ab) (scalar + bivector)
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline constexpr MCplx3d<std::common_type_t<T, U>> gpr(MCplx3d<T> const& a,
+                                                       MCplx3d<U> const& b)
+{
+    using ctype = std::common_type_t<T, U>;
+    return MCplx3d<ctype>(a.c0 * b.c0 - a.c1 * b.c1 - a.c2 * b.c2 - a.c3 * b.c3,
+                          a.c0 * b.c1 + a.c1 * b.c0 - a.c2 * b.c3 + a.c3 * b.c2,
+                          a.c0 * b.c2 + a.c1 * b.c3 + a.c2 * b.c0 - a.c3 * b.c1,
+                          a.c0 * b.c3 - a.c1 * b.c2 + a.c2 * b.c1 + a.c3 * b.c0);
+}
+
+// define complex multiplication with operator*(a,b) as an alias for gpr(a,b)
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline constexpr MCplx3d<std::common_type_t<T, U>> operator*(MCplx3d<T> const& a,
+                                                             MCplx3d<U> const& b)
+{
+    using ctype = std::common_type_t<T, U>;
+    return gpr<ctype>(a, b);
+}
+
+// exponential function with bivector as argument for setup of quaternions
+// as geometric multivector with a scalar and a bivector part
+// MCplx3d<T> M = c0 + (c1 e2^e3 + c2 e3^e1 + c3 e1^e2)
+//
+// quaternion: q = a + b I with I being the bivector in brackets above
+//             representing a plane in the algebra G^3
+//
+//             a rotation in 3D is represented by the plane and the
+//             size of the rotation, the later is given by the angle
+//             theta, which is the magnitude of the bivector
+//
+template <typename T>
+    requires(std::floating_point<T>)
+inline constexpr MCplx3d<T> exp(BiVec3d<T> theta)
+{
+    return MCplx3d<T>(Scalar<T>(std::cos(theta)), unitized(theta) * std::sin(nrm(theta)));
+}
+
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline constexpr Vec3d<std::common_type_t<T, U>> rot(Vec3d<T> u, BiVec3d<U> theta)
+{
+    Vec3d<std::common_type_t<T, U>> gr1(gpr(gpr(exp(-0.5 * theta), u), exp(0.5 * theta)));
 }
 
 } // namespace hd::ga

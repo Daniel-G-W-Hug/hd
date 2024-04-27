@@ -15,8 +15,11 @@
 
 #include "hd_ga_cfg_value_t.hpp"
 
-#include "hd_ga_cfg_bivec3d.hpp"
 #include "hd_ga_cfg_vec3d.hpp"
+
+#include "hd_ga_cfg_bivec3d.hpp"
+
+#include "hd_ga_cfg_mcplx2d.hpp"
 
 namespace hd::ga {
 
@@ -53,6 +56,9 @@ struct MVec3d {
     // directly (other grades = 0)
     // (less expensive compared to computing the full geometric product)
     MVec3d(Scalar<T> s, BiVec3d<T> const& v) : c0(s), c4(v.x), c5(v.y), c6(v.z) {}
+
+    // assign from a quaternion, i.e. from the even subalgebra
+    MVec3d(MCplx3d<T> v) : c0(v.c0), c4(v.c1), c5(v.c2), c6(v.c3) {}
 
     // assign a geometric product resulting from a product of a vector and a bivector
     // via dot(v1,v2) and wdg(v1,v2) directly (other grades = 0)
@@ -127,8 +133,8 @@ template <typename T>
     requires(std::floating_point<T>)
 std::ostream& operator<<(std::ostream& os, MVec3d<T> const& v)
 {
-    os << "(" << v.c0 << ", " << v.c1 << ", " << v.c2 << ", " << v.c3 << ", " << v.c4
-       << ", " << v.c5 << ", " << v.c6 << ", " << v.c7 << ")";
+    os << "(" << v.c0 << "," << v.c1 << "," << v.c2 << "," << v.c3 << "," << v.c4 << ","
+       << v.c5 << "," << v.c6 << "," << v.c7 << ")";
     return os;
 }
 
@@ -227,7 +233,7 @@ struct fmt::formatter<hd::ga::MVec3d<T>> : nested_formatter<double> {
     template <typename FormatContext>
     auto format(const hd::ga::MVec3d<T>& v, FormatContext& ctx) const
     {
-        return fmt::format_to(ctx.out(), "({}, {}, {}, {}, {}, {}, {}, {})", nested(v.c0),
+        return fmt::format_to(ctx.out(), "({},{},{},{},{},{},{},{})", nested(v.c0),
                               nested(v.c1), nested(v.c2), nested(v.c3), nested(v.c4),
                               nested(v.c5), nested(v.c6), nested(v.c7));
     }

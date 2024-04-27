@@ -121,7 +121,7 @@ template <typename T>
     requires(std::floating_point<T>)
 std::ostream& operator<<(std::ostream& os, BiVec3d<T> const& v)
 {
-    os << "(" << v.x << ", " << v.y << ", " << v.z << ")";
+    os << "(" << v.x << "," << v.y << "," << v.z << ")";
     return os;
 }
 
@@ -136,7 +136,7 @@ struct fmt::formatter<hd::ga::BiVec3d<T>> : nested_formatter<double> {
     template <typename FormatContext>
     auto format(const hd::ga::BiVec3d<T>& v, FormatContext& ctx) const
     {
-        return fmt::format_to(ctx.out(), "({}, {}, {})", nested(v.x), nested(v.y),
+        return fmt::format_to(ctx.out(), "({},{},{})", nested(v.x), nested(v.y),
                               nested(v.z));
     }
 };

@@ -130,7 +130,7 @@ template <typename T>
     requires(std::floating_point<T>)
 std::ostream& operator<<(std::ostream& os, Vec2d<T> const& v)
 {
-    os << "(" << v.x << ", " << v.y << ")";
+    os << "(" << v.x << "," << v.y << ")";
     return os;
 }
 
@@ -144,7 +144,7 @@ template <typename T> struct fmt::formatter<hd::ga::Vec2d<T>> : nested_formatter
     template <typename FormatContext>
     auto format(const hd::ga::Vec2d<T>& v, FormatContext& ctx) const
     {
-        return fmt::format_to(ctx.out(), "({}, {})", nested(v.x), nested(v.y));
+        return fmt::format_to(ctx.out(), "({},{})", nested(v.x), nested(v.y));
     }
 };
 

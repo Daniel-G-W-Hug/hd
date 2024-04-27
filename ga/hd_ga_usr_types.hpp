@@ -36,7 +36,9 @@ using vec2d = Vec2d<value_t>;
 using vec3d = Vec3d<value_t>;
 using bivec3d = BiVec3d<value_t>;
 using mvec2d = MVec2d<value_t>;
+using mcplx2d = MCplx2d<value_t>;
 using mvec3d = MVec3d<value_t>;
+using mcplx3d = MCplx3d<value_t>;
 
 value_t eps{5.0 * std::numeric_limits<value_t>::epsilon()};
 
