@@ -1744,6 +1744,10 @@ TEST_SUITE("Geometric Algebra")
               gpr(h, b)); // in 2d the pseudoscalar commutes commutes with complex numbers
         CHECK(i == j);
         CHECK(l == m);
+        CHECK(rev(b + c) == rev(b) + rev(c));
+        CHECK(rev(b * c) == rev(b) * rev(c));
+        CHECK(nrm(b * c) == nrm(b) * nrm(c));
+        CHECK(b * c == c * b);
 
         CHECK(sq_nrm(MCplx2d{1.0, 1.0}) == 2.0);
         CHECK(nrm(MCplx2d{1.0, 1.0}) == std::sqrt(2.0));
