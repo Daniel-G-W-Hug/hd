@@ -11,8 +11,8 @@
 namespace hd::ga {
 
 // select the floating point type used for scalars, vector and bivector components
-using value_t = float;
-// using value_t = double;
+// using value_t = float;
+using value_t = double;
 
 struct scalar_tag {};
 struct pscalar2d_tag {};

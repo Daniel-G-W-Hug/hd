@@ -1653,12 +1653,12 @@ TEST_SUITE("Geometric Algebra")
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    // MCplx2d<T> operations test cases
+    // MVec2d_E<T> operations test cases
     ////////////////////////////////////////////////////////////////////////////////
 
-    TEST_CASE("MCplx2d: modelling complex numbers - basics")
+    TEST_CASE("MVec2d_E: modelling complex numbers - basics")
     {
-        fmt::println("MCplx2d: modelling complex numbers - basics");
+        fmt::println("MVec2d_E: modelling complex numbers - basics");
 
         // defining a complex number in all three forms as multivector
         using std::numbers::pi;
@@ -1673,22 +1673,22 @@ TEST_SUITE("Geometric Algebra")
         auto im = gr2(uv);
         auto r = sqrt(re * re + im * im);
 
-        MCplx2d a{1.0, 0.0};
-        MCplx2d b{1.0, 1.0};
-        MCplx2d c{a + b};
-        MCplx2d d{a - b};
-        MCplx2d e{2.0 * b};
-        MCplx2d f{b * 2.0};
-        MCplx2d g{-e};
-        MCplx2d h{0.0, 1.0};
-        MCplx2d as = gpr(a, a);
-        MCplx2d hs = gpr(h, h);
+        MVec2d_E a{1.0, 0.0};
+        MVec2d_E b{1.0, 1.0};
+        MVec2d_E c{a + b};
+        MVec2d_E d{a - b};
+        MVec2d_E e{2.0 * b};
+        MVec2d_E f{b * 2.0};
+        MVec2d_E g{-e};
+        MVec2d_E h{0.0, 1.0};
+        MVec2d_E as = gpr(a, a);
+        MVec2d_E hs = gpr(h, h);
 
-        MCplx2d i = gpr(b, c);
-        MCplx2d j = b * c; // defined operator*(MCplx2d,MCplx2d) as gpr(a,b)
+        MVec2d_E i = gpr(b, c);
+        MVec2d_E j = b * c; // defined operator*(MVec2d_E,MVec2d_E) as gpr(a,b)
         auto k = I_2d;
-        MCplx2d l = exp(PScalar2d<double>(pi / 2));
-        MCplx2d m = Ic_2d;
+        MVec2d_E l = exp(PScalar2d<double>(pi / 2));
+        MVec2d_E m = Ic_2d;
         MVec2d n = Im_2d;
         // fmt::println("   Multivector form of complex numbers:");
         // fmt::println("   u                     = {}", u);
@@ -1737,7 +1737,7 @@ TEST_SUITE("Geometric Algebra")
         CHECK(f == b * 2.0);
         CHECK(g == -e);
         CHECK(as == a);
-        CHECK(hs == MCplx2d(-1.0, 0.0));
+        CHECK(hs == MVec2d_E(-1.0, 0.0));
         CHECK(v.x == v2.c0);
         CHECK(v.y == v2.c1);
         CHECK(gpr(b, h) ==
@@ -1749,24 +1749,24 @@ TEST_SUITE("Geometric Algebra")
         CHECK(nrm(b * c) == nrm(b) * nrm(c));
         CHECK(b * c == c * b);
 
-        CHECK(sq_nrm(MCplx2d{1.0, 1.0}) == 2.0);
-        CHECK(nrm(MCplx2d{1.0, 1.0}) == std::sqrt(2.0));
-        CHECK(rev(MCplx2d{1.0, 1.0}) == MCplx2d{1.0, -1.0});
-        CHECK(std::abs(nrm(unitized(MCplx2d{1.0, 1.0})) - 1.0) < eps);
+        CHECK(sq_nrm(MVec2d_E{1.0, 1.0}) == 2.0);
+        CHECK(nrm(MVec2d_E{1.0, 1.0}) == std::sqrt(2.0));
+        CHECK(rev(MVec2d_E{1.0, 1.0}) == MVec2d_E{1.0, -1.0});
+        CHECK(std::abs(nrm(unitized(MVec2d_E{1.0, 1.0})) - 1.0) < eps);
 
-        CHECK(MCplx2d{-1.0, 1.0} * inv(MCplx2d{-1.0, 1.0}) == MCplx2d{1.0, 0.0});
-        CHECK(gr0(MCplx2d{-1.0, 1.0} * rev(MCplx2d{-1.0, 1.0})) ==
-              sq_nrm(MCplx2d{-1.0, 1.0}));
-        CHECK(std::abs(gr2(MCplx2d{-1.0, 1.0} * rev(MCplx2d{-1.0, 1.0}))) < eps);
+        CHECK(MVec2d_E{-1.0, 1.0} * inv(MVec2d_E{-1.0, 1.0}) == MVec2d_E{1.0, 0.0});
+        CHECK(gr0(MVec2d_E{-1.0, 1.0} * rev(MVec2d_E{-1.0, 1.0})) ==
+              sq_nrm(MVec2d_E{-1.0, 1.0}));
+        CHECK(std::abs(gr2(MVec2d_E{-1.0, 1.0} * rev(MVec2d_E{-1.0, 1.0}))) < eps);
 
-        CHECK(angle(MCplx2d{1.0, 0.0}) == 0);
-        CHECK(angle(MCplx2d{1.0, 1.0}) == pi / 4.0);
-        CHECK(angle(MCplx2d{0.0, 1.0}) == pi / 2.0);
-        CHECK(angle(MCplx2d{-1.0, 1.0}) == pi * 3.0 / 4.0);
-        CHECK(angle(MCplx2d{-1.0, 0.0}) == pi);
-        CHECK(angle(MCplx2d{1.0, -1.0}) == -pi / 4.0);
-        CHECK(angle(MCplx2d{0.0, -1.0}) == -pi / 2.0);
-        CHECK(angle(MCplx2d{-1.0, -1.0}) == -pi * 3.0 / 4.0);
+        CHECK(angle(MVec2d_E{1.0, 0.0}) == 0);
+        CHECK(angle(MVec2d_E{1.0, 1.0}) == pi / 4.0);
+        CHECK(angle(MVec2d_E{0.0, 1.0}) == pi / 2.0);
+        CHECK(angle(MVec2d_E{-1.0, 1.0}) == pi * 3.0 / 4.0);
+        CHECK(angle(MVec2d_E{-1.0, 0.0}) == pi);
+        CHECK(angle(MVec2d_E{1.0, -1.0}) == -pi / 4.0);
+        CHECK(angle(MVec2d_E{0.0, -1.0}) == -pi / 2.0);
+        CHECK(angle(MVec2d_E{-1.0, -1.0}) == -pi * 3.0 / 4.0);
 
         CHECK(Vec2d{1.0, 0.0} * Vec2d{1.1, 1.1} ==
               rev(Vec2d{1.1, 1.1} * Vec2d{1.0, 0.0}));
@@ -1774,16 +1774,16 @@ TEST_SUITE("Geometric Algebra")
     }
 
 
-    TEST_CASE("MCplx2d: modelling complex numbers - products")
+    TEST_CASE("MVec2d_E: modelling complex numbers - products")
     {
-        fmt::println("MCplx2d: modelling complex numbers - products");
+        fmt::println("MVec2d_E: modelling complex numbers - products");
 
         using std::numbers::pi;
 
-        // std::vector<std::tuple<double, MCplx2d<double>>> c_v;
+        // std::vector<std::tuple<double, MVec2d_E<double>>> c_v;
         // for (int i = -12; i <= 12; ++i) {
         //     double phi = i * pi / 12;
-        //     MCplx2d c = exp(PScalar2d<double>(phi));
+        //     MVec2d_E c = exp(PScalar2d<double>(phi));
         //     c_v.push_back(std::make_tuple(phi, c));
         //     fmt::println("   i={: 3}: phi={: .4f}, phi={: 4.0f}°, c={: .3f},"
         //                  " angle={: .4f}",
@@ -1803,9 +1803,9 @@ TEST_SUITE("Geometric Algebra")
         // fmt::println("");
 
 
-        CHECK(MCplx2d{2.0, 3.0} * MVec2d{-1.0, 1.5, -2.0, -3.0} ==
+        CHECK(MVec2d_E{2.0, 3.0} * MVec2d{-1.0, 1.5, -2.0, -3.0} ==
               MVec2d{2.0, 0.0, 0.0, 3.0} * MVec2d{-1.0, 1.5, -2.0, -3.0});
-        CHECK(MCplx2d{2.0, 3.0} * Vec2d{1.5, -2.0} ==
+        CHECK(MVec2d_E{2.0, 3.0} * Vec2d{1.5, -2.0} ==
               gr1(MVec2d{2.0, 0.0, 0.0, 3.0} * MVec2d{0.0, 1.5, -2.0, 0.0}));
 
         CHECK(gr0(Vec2d{1.5, -2.0} * Vec2d{2.0, 3.0}) ==
@@ -1817,7 +1817,7 @@ TEST_SUITE("Geometric Algebra")
         CHECK(PScalar2d<double>(1.5) * MVec2d{-1.0, 1.5, -2.0, -3.0} ==
               MVec2d{0.0, 0.0, 0.0, 1.5} * MVec2d{-1.0, 1.5, -2.0, -3.0});
 
-        CHECK(MVec2d(PScalar2d<double>(1.5) * MCplx2d{-1.0, -3.0}) ==
+        CHECK(MVec2d(PScalar2d<double>(1.5) * MVec2d_E{-1.0, -3.0}) ==
               MVec2d{0.0, 0.0, 0.0, 1.5} * MVec2d{-1.0, 0.0, 0.0, -3.0});
 
         CHECK(MVec2d(PScalar2d<double>(1.5) * Vec2d{-1.0, -3.0}) ==
@@ -1827,7 +1827,7 @@ TEST_SUITE("Geometric Algebra")
         CHECK(MVec2d{-1.0, 1.5, -2.0, -3.0} * PScalar2d<double>(1.5) ==
               MVec2d{-1.0, 1.5, -2.0, -3.0} * MVec2d{0.0, 0.0, 0.0, 1.5});
 
-        CHECK(MCplx2d{-1.0, -3.0} * MVec2d(PScalar2d<double>(1.5)) ==
+        CHECK(MVec2d_E{-1.0, -3.0} * MVec2d(PScalar2d<double>(1.5)) ==
               MVec2d{-1.0, 0.0, 0.0, -3.0} * MVec2d{0.0, 0.0, 0.0, 1.5});
 
         CHECK(MVec2d(Vec2d{-1.0, -3.0} * PScalar2d<double>(1.5)) ==
@@ -1837,25 +1837,76 @@ TEST_SUITE("Geometric Algebra")
         CHECK(MVec2d(Scalar<double>(PScalar2d<double>(1.5) * PScalar2d<double>(3.0))) ==
               MVec2d{0.0, 0.0, 0.0, 1.5} * MVec2d{0.0, 0.0, 0.0, 3.0});
 
-        // MCplx2d tests multiply from left
-        CHECK(MCplx2d{-1.0, -3.0} * MVec2d(-1.0, 1.5, -2.0, -3.0) ==
+        // MVec2d_E tests multiply from left
+        CHECK(MVec2d_E{-1.0, -3.0} * MVec2d(-1.0, 1.5, -2.0, -3.0) ==
               MVec2d{-1.0, 0.0, 0.0, -3.0} * MVec2d{-1.0, 1.5, -2.0, -3.0});
 
-        CHECK(MVec2d(MCplx2d{-1.0, -3.0} * Vec2d(1.5, -2.0)) ==
+        CHECK(MVec2d(MVec2d_E{-1.0, -3.0} * Vec2d(1.5, -2.0)) ==
               MVec2d{-1.0, 0.0, 0.0, -3.0} * MVec2d{0.0, 1.5, -2.0, 0.0});
 
-        // MCplx2d tests multiply from right
-        CHECK(MVec2d(-1.0, 1.5, -2.0, -3.0) * MCplx2d{-1.0, -3.0} ==
+        // MVec2d_E tests multiply from right
+        CHECK(MVec2d(-1.0, 1.5, -2.0, -3.0) * MVec2d_E{-1.0, -3.0} ==
               MVec2d{-1.0, 1.5, -2.0, -3.0} * MVec2d{-1.0, 0.0, 0.0, -3.0});
 
-        CHECK(MVec2d(Vec2d(1.5, -2.0) * MCplx2d{-1.0, -3.0}) ==
+        CHECK(MVec2d(Vec2d(1.5, -2.0) * MVec2d_E{-1.0, -3.0}) ==
               MVec2d{0.0, 1.5, -2.0, 0.0} * MVec2d{-1.0, 0.0, 0.0, -3.0});
 
-        // multiply two MCplx2d
-        CHECK(MVec2d(MCplx2d(-3.0, 2.0) * MCplx2d{-1.0, -3.0}) ==
+        // multiply two MVec2d_E
+        CHECK(MVec2d(MVec2d_E(-3.0, 2.0) * MVec2d_E{-1.0, -3.0}) ==
               MVec2d{-3.0, 0.0, 0.0, 2.0} * MVec2d{-1.0, 0.0, 0.0, -3.0});
     }
 
-    // TODO: test MCplx3d
+    ////////////////////////////////////////////////////////////////////////////////
+    // MCplx23<T> operations test cases
+    ////////////////////////////////////////////////////////////////////////////////
+
+    TEST_CASE("MVec3d_E/_U: modelling even and uneven parts of 3d algebra - basics")
+    {
+        fmt::println(
+            "MVec3d_E/_U: modelling even and uneven parts of 3d algebra - basics");
+
+        // defining a complex number in all three forms as multivector
+        using std::numbers::pi;
+        auto u = Vec3d{1.0, 0.0, 0.0};
+        auto v = Vec3d{std::cos(pi / 12), std::sin(pi / 12), 0.0}; // unit vec +15%
+        auto angle_uv = angle(u, v);
+
+        auto R_m = MVec3d(u * v);     // Rotor formed by u and v
+        auto Rr_m = MVec3d(rev(R_m)); // and its reverse
+
+        auto c = Vec3d{1.0, 0.0, 0.0};
+        auto c_m = MVec3d{c};
+
+        auto c_tmp_m = R_m * c_m;
+        auto c_rot_m = c_tmp_m * Rr_m;
+
+        auto R = u * v;   // Rotor formed by u and v
+        auto Rr = rev(R); // and its reverse
+
+        auto c_tmp = R * c;
+        auto c_rot_u = c_tmp * Rr;
+        auto c_rot = gr1(c_rot_u);
+        // due to symmetry of R and Rr the gr3(c_rot) part will be zero
+        // and thus can be neglected for further computations
+
+        auto angle_c_c_rot = angle(c, c_rot);
+
+        fmt::println("   u                     = {: .3}", u);
+        fmt::println("   v                     = {: .3}", v);
+        fmt::println("   angle(u,v)            = {: .3}°", angle_uv * 180 / pi);
+        fmt::println("   R_m  = u*v            = {: .3}", R_m);
+        fmt::println("   Rr_m = rev(u*v)       = {: .3}", Rr_m);
+        fmt::println("   c_m                   = {: .3}", c_m);
+        fmt::println("   c_tmp_m = R_m*c_m     = {: .3}", c_tmp_m);
+        fmt::println("   c_rot_m = c_tmp_m*R_m = {: .3}", c_rot_m);
+        fmt::println("");
+        fmt::println("   R  = u*v              = {: .3}", R);
+        fmt::println("   Rr = rev(u*v)         = {: .3}", Rr);
+        fmt::println("   c                     = {: .3}", c);
+        fmt::println("   c_tmp = R*c           = {: .3}", c_tmp);
+        fmt::println("   c_rot_u = c_tmp*R     = {: .3}", c_rot_u);
+        fmt::println("   c_rot = gr1(c_rot_u)  = {: .3}", c_rot);
+        fmt::println("   angle(c, c_rot)       = {: .3}°", angle_c_c_rot * 180 / pi);
+    }
 
 } // TEST_SUITE("Geometric Algebra")

@@ -18,11 +18,12 @@
 #include "hd_ga_cfg_vec2d.hpp" // Vec2d<T>
 #include "hd_ga_cfg_vec3d.hpp" // Vec3d<T>
 
-#include "hd_ga_cfg_bivec3d.hpp" // BiVec3d<T>
-#include "hd_ga_cfg_mcplx2d.hpp" // MCplx2d<T>
-#include "hd_ga_cfg_mcplx3d.hpp" // MCplx3d<T>
-#include "hd_ga_cfg_mvec2d.hpp"  // MVec2d<T>
-#include "hd_ga_cfg_mvec3d.hpp"  // MVec3d<T>
+#include "hd_ga_cfg_bivec3d.hpp"  // BiVec3d<T>
+#include "hd_ga_cfg_mvec2d.hpp"   // MVec2d<T>
+#include "hd_ga_cfg_mvec2d_e.hpp" // MVec2d_E<T>
+#include "hd_ga_cfg_mvec3d.hpp"   // MVec3d<T>
+#include "hd_ga_cfg_mvec3d_e.hpp" // MVec3d_E<T>
+#include "hd_ga_cfg_mvec3d_u.hpp" // MVec3d_U<T>
 
 #include "hd_ga_cfg_2d_ops.hpp" // 2d operations
 #include "hd_ga_cfg_3d_ops.hpp" // 3d operations

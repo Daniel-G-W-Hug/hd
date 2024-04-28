@@ -35,10 +35,10 @@ using pscalar3d = PScalar3d<value_t>;
 using vec2d = Vec2d<value_t>;
 using vec3d = Vec3d<value_t>;
 using bivec3d = BiVec3d<value_t>;
-using mvec2d = MVec2d<value_t>;
-using mcplx2d = MCplx2d<value_t>;
-using mvec3d = MVec3d<value_t>;
-using mcplx3d = MCplx3d<value_t>;
+using mvec2d = MVec2d<value_t>;     // fully populated 2d multivector
+using mvec2d_e = MVec2d_E<value_t>; // multivector 2d of even subalgebra
+using mvec3d = MVec3d<value_t>;     // fully populated 3d multivector
+using mvec3d_e = MVec3d_E<value_t>; // multivector 3d of even subalgebra
 
 value_t eps{5.0 * std::numeric_limits<value_t>::epsilon()};
 

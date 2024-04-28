@@ -14,21 +14,17 @@
 #include "fmt/ranges.h" // support printing of (nested) containers & tuples
 
 #include "hd_ga_cfg_value_t.hpp"
-
-#include "hd_ga_cfg_bivec3d.hpp"
+#include "hd_ga_cfg_vec2d.hpp"
 
 
 namespace hd::ga {
 
 ////////////////////////////////////////////////////////////////////////////////
-// MCplx3d<T> M = c0 + (c1 e2^e3 + c2 e3^e1 + c3 e1^e2)
+// MVec2d_E<T> M = c0 + c1 I (with I being the bivector of the plane e1^e2)
 //
-// with the term in brackets being the bivector c1 e2^e3 + c2 e3^e1 + c3 e1^e2
-// that models a plane in 3D defined by the bivector coordinates (c1, c2, c3)
-//
-// This is the definition of a multivector in the even subalgebra of G<3,0,0>,
-// i.e. it models only multivectors with even grades 0 and 2
-// which are quaternions.
+// This is the definition of a multivector in the even subalgebra of G<2,0,0>,
+// i.e. it models only multivectors with even grades 0 and 2 in the plane e1^e2
+// (complex numbers).
 // This subalgebra is closed under addition and multiplication.
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -40,146 +36,139 @@ namespace hd::ga {
 
 template <typename T = value_t>
     requires(std::floating_point<T>)
-struct MCplx3d {
+struct MVec2d_E {
 
     // ctors
 
     // (all grades = 0)
-    MCplx3d() = default;
+    MVec2d_E() = default;
 
     // assign all components
-    MCplx3d(T s, T yz, T zx, T xy) : c0(s), c1(yz), c2(zx), c3(xy) {}
+    MVec2d_E(T s, T ps) : c0(s), c1(ps) {}
 
     // assign a scalar part exclusively (other grades = 0)
-    MCplx3d(Scalar<T> s) : c0(s) {}
+    MVec2d_E(Scalar<T> s) : c0(s) {}
 
-    // assign a bivector part exclusively (other grades = 0)
-    MCplx3d(BiVec3d<T> b) : c1(b.x), c2(b.y), c3(b.z) {}
+    // assign a pseudoscalar part exclusively (other grades = 0)
+    MVec2d_E(PScalar2d<T> ps) : c1(ps) {}
 
-    // assign scalar and bivector parts
-    MCplx3d(Scalar<T> s, BiVec3d<T> b) : c0(s), c1(b.x), c2(b.y), c3(b.z) {}
+    // assign a geometric product resulting from a product of two vectors
+    // via dot(v1,v2) and wdg(v1,v2) directly (other grades = 0)
+    // (less expensive compared to full geometric product)
+    MVec2d_E(Scalar<T> s, PScalar2d<T> ps) : c0(s), c1(ps) {}
 
     // floating point type conversion
     template <typename U>
         requires(std::floating_point<U>)
-    MCplx3d(MCplx3d<U> const& v) : c0(v.c0), c1(v.c1), c2(v.c2), c3(v.c3)
+    MVec2d_E(MVec2d_E<U> const& v) : c0(v.c0), c1(v.c1)
     {
     }
 
 
     T c0{}; // scalar component
-    T c1{}; // bivector x component (maps to e2^e3 = yz)
-    T c2{}; // bivector y component (maps to e3^e1 = zy)
-    T c3{}; // bivector z component (maps to e1^e2 = xy)
+    T c1{}; // bivector component (2d pseudoscalar)
 
     // equality
     template <typename U>
         requires(std::floating_point<U>)
-    bool operator==(MCplx3d<U> const& rhs) const
+    bool operator==(MVec2d_E<U> const& rhs) const
     {
         // componentwise comparison
         // equality implies same magnitude and direction
         // comparison is not exact, but accepts epsilon deviations
         auto abs_delta_c0 = std::abs(rhs.c0 - c0);
         auto abs_delta_c1 = std::abs(rhs.c1 - c1);
-        auto abs_delta_c2 = std::abs(rhs.c2 - c2);
-        auto abs_delta_c3 = std::abs(rhs.c3 - c3);
         auto constexpr delta_eps =
             std::common_type_t<T, U>(5.0) *
             std::max<std::common_type_t<T, U>>(std::numeric_limits<T>::epsilon(),
                                                std::numeric_limits<U>::epsilon());
-        if (abs_delta_c0 < delta_eps && abs_delta_c1 < delta_eps &&
-            abs_delta_c2 < delta_eps && abs_delta_c3 < delta_eps)
-            return true;
+        if (abs_delta_c0 < delta_eps && abs_delta_c1 < delta_eps) return true;
         return false;
     }
 
     // unary minus (must be declared a friend otherwise doesn't work)
-    friend inline constexpr MCplx3d<T> operator-(MCplx3d<T> const& v)
+    friend inline constexpr MVec2d_E<T> operator-(MVec2d_E<T> const& v)
     {
-        return MCplx3d<T>(-v.c0, -v.c1, -v.c2, -v.c3);
+        return MVec2d_E<T>(-v.c0, -v.c1);
     }
 
     template <typename U>
-    friend std::ostream& operator<<(std::ostream& os, MCplx3d<U> const& v);
+    friend std::ostream& operator<<(std::ostream& os, MVec2d_E<U> const& v);
 };
 
 // for printing via iostream
 template <typename T>
     requires(std::floating_point<T>)
-std::ostream& operator<<(std::ostream& os, MCplx3d<T> const& v)
+std::ostream& operator<<(std::ostream& os, MVec2d_E<T> const& v)
 {
-    os << "(" << v.c0 << "," << v.c1 << "," << v.c2 << "," << v.c3 << ")";
+    os << "(" << v.c0 << "," << v.c1 << ")";
     return os;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// MCplx3d<T> core operations
+// MVec2d_E<T> core operations
 ////////////////////////////////////////////////////////////////////////////////
 
 // add multivectors
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr MCplx3d<std::common_type_t<T, U>> operator+(MCplx3d<T> const& v1,
-                                                             MCplx3d<U> const& v2)
+inline constexpr MVec2d_E<std::common_type_t<T, U>> operator+(MVec2d_E<T> const& v1,
+                                                              MVec2d_E<U> const& v2)
 {
-    return MCplx3d<std::common_type_t<T, U>>(v1.c0 + v2.c0, v1.c1 + v2.c1, v1.c2 + v2.c2,
-                                             v1.c3 + v2.c3);
+    return MVec2d_E<std::common_type_t<T, U>>(v1.c0 + v2.c0, v1.c1 + v2.c1);
 }
 
 // substract multivectors
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr MCplx3d<std::common_type_t<T, U>> operator-(MCplx3d<T> const& v1,
-                                                             MCplx3d<U> const& v2)
+inline constexpr MVec2d_E<std::common_type_t<T, U>> operator-(MVec2d_E<T> const& v1,
+                                                              MVec2d_E<U> const& v2)
 {
-    return MCplx3d<std::common_type_t<T, U>>(v1.c0 - v2.c0, v1.c1 - v2.c1, v1.c2 - v2.c2,
-                                             v1.c3 - v2.c3);
+    return MVec2d_E<std::common_type_t<T, U>>(v1.c0 - v2.c0, v1.c1 - v2.c1);
 }
 
 
 // multiply a multivector with a scalar
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr MCplx3d<std::common_type_t<T, U>> operator*(MCplx3d<T> const& v, U s)
+inline constexpr MVec2d_E<std::common_type_t<T, U>> operator*(MVec2d_E<T> const& v, U s)
 {
-    return MCplx3d<std::common_type_t<T, U>>(v.c0 * s, v.c1 * s, v.c2 * s, v.c3 * s);
+    return MVec2d_E<std::common_type_t<T, U>>(v.c0 * s, v.c1 * s);
 }
 
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr MCplx3d<std::common_type_t<T, U>> operator*(T s, MCplx3d<U> const& v)
+inline constexpr MVec2d_E<std::common_type_t<T, U>> operator*(T s, MVec2d_E<U> const& v)
 {
-    return MCplx3d<std::common_type_t<T, U>>(v.c0 * s, v.c1 * s, v.c2 * s, v.c3 * s);
+    return MVec2d_E<std::common_type_t<T, U>>(v.c0 * s, v.c1 * s);
 }
 
 // devide a multivector by a scalar
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr MCplx3d<std::common_type_t<T, U>> operator/(MCplx3d<T> const& v, U s)
+inline constexpr MVec2d_E<std::common_type_t<T, U>> operator/(MVec2d_E<T> const& v, U s)
 {
     if (s == 0.0) {
         throw std::runtime_error("scalar too small, division by zero" +
                                  std::to_string(s) + "\n");
     }
     U inv = 1.0 / s; // for multiplicaton with inverse value
-    return MCplx3d<std::common_type_t<T, U>>(v.c0 * inv, v.c1 * inv, v.c2 * inv,
-                                             v.c3 * inv);
+    return MVec2d_E<std::common_type_t<T, U>>(v.c0 * inv, v.c1 * inv);
 }
 
 // returning various grades of a multivector
 //
 // grade 0: gr0() - scalar
-// grade 2: gr2() - bivector
+// grade 2: gr2() - bivector (= pseudoscalar in 2d)
 
-template <typename T> inline constexpr Scalar<T> gr0(MCplx3d<T> const& v)
+template <typename T> inline constexpr Scalar<T> gr0(MVec2d_E<T> const& v)
 {
     return Scalar<T>(v.c0);
 }
 
-template <typename T> inline constexpr BiVec3d<T> gr2(MCplx3d<T> const& v)
+template <typename T> inline constexpr PScalar2d<T> gr2(MVec2d_E<T> const& v)
 {
-    return BiVec3d<T>(v.c1, v.c2, v.c3);
+    return PScalar2d<T>(v.c1);
 }
 
 } // namespace hd::ga
@@ -189,11 +178,10 @@ template <typename T> inline constexpr BiVec3d<T> gr2(MCplx3d<T> const& v)
 // // printing support via fmt library
 // ////////////////////////////////////////////////////////////////////////////////
 template <typename T>
-struct fmt::formatter<hd::ga::MCplx3d<T>> : nested_formatter<double> {
+struct fmt::formatter<hd::ga::MVec2d_E<T>> : nested_formatter<double> {
     template <typename FormatContext>
-    auto format(const hd::ga::MCplx3d<T>& v, FormatContext& ctx) const
+    auto format(const hd::ga::MVec2d_E<T>& v, FormatContext& ctx) const
     {
-        return fmt::format_to(ctx.out(), "({},{},{},{})", nested(v.c0), nested(v.c1),
-                              nested(v.c2), nested(v.c3));
+        return fmt::format_to(ctx.out(), "({},{})", nested(v.c0), nested(v.c1));
     }
 };

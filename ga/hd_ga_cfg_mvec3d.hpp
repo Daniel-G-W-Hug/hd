@@ -19,7 +19,7 @@
 
 #include "hd_ga_cfg_bivec3d.hpp"
 
-#include "hd_ga_cfg_mcplx2d.hpp"
+#include "hd_ga_cfg_mvec3d_e.hpp"
 
 namespace hd::ga {
 
@@ -57,7 +57,7 @@ struct MVec3d {
     MVec3d(Scalar<T> s, BiVec3d<T> const& v) : c0(s), c4(v.x), c5(v.y), c6(v.z) {}
 
     // assign from a quaternion, i.e. from the even subalgebra
-    MVec3d(MCplx3d<T> v) : c0(v.c0), c4(v.c1), c5(v.c2), c6(v.c3) {}
+    MVec3d(MVec3d_E<T> v) : c0(v.c0), c4(v.c1), c5(v.c2), c6(v.c3) {}
 
     // assign a geometric product resulting from a product of a vector and a bivector
     MVec3d(Vec3d<T> const& v, PScalar3d<T> ps) : c1(v.x), c2(v.y), c3(v.z), c7(ps) {}
