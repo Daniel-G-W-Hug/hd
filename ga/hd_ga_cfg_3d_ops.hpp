@@ -16,7 +16,7 @@
 
 #include "hd_ga_cfg_bivec3d.hpp"
 
-#include "hd_ga_cfg_mcplx2d.hpp"
+#include "hd_ga_cfg_mcplx3d.hpp"
 #include "hd_ga_cfg_mvec3d.hpp"
 
 
@@ -30,23 +30,23 @@ namespace hd::ga {
 // coordinate free definition: dot(v1,v2) = nrm(v1)*nrm(v2)*cos(angle)
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline std::common_type_t<T, U> dot(const Vec3d<T>& v1, const Vec3d<U>& v2)
+inline std::common_type_t<T, U> dot(Vec3d<T> const& v1, Vec3d<U> const& v2)
 {
     // this implementation is only valid in an orthonormal basis
     return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
 }
 
 // return squared magnitude of vector
-template <typename T> inline T sq_nrm(const Vec3d<T>& v) { return dot(v, v); }
+template <typename T> inline T sq_nrm(Vec3d<T> const& v) { return dot(v, v); }
 
 // return magnitude of vector
-template <typename T> inline T nrm(const Vec3d<T>& v) { return std::sqrt(dot(v, v)); }
+template <typename T> inline T nrm(Vec3d<T> const& v) { return std::sqrt(dot(v, v)); }
 
 // return the dot product of a bivector and a vector (= a vector)
 // dot(A,b) = gr0( gpr(A,b) )
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline Vec3d<std::common_type_t<T, U>> dot(const BiVec3d<T>& v1, const Vec3d<U>& v2)
+inline Vec3d<std::common_type_t<T, U>> dot(BiVec3d<T> const& v1, Vec3d<U> const& v2)
 {
     // this implementation is only valid in an orthonormal basis
     return Vec3d<std::common_type_t<T, U>>(
@@ -57,7 +57,7 @@ inline Vec3d<std::common_type_t<T, U>> dot(const BiVec3d<T>& v1, const Vec3d<U>&
 // dot(a,B) = gr1( gpr(a,B) )
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline Vec3d<std::common_type_t<T, U>> dot(const Vec3d<T>& v1, const BiVec3d<U>& v2)
+inline Vec3d<std::common_type_t<T, U>> dot(Vec3d<T> const& v1, BiVec3d<U> const& v2)
 {
     // this implementation is only valid in an orthonormal basis
     return Vec3d<std::common_type_t<T, U>>(
@@ -68,7 +68,7 @@ inline Vec3d<std::common_type_t<T, U>> dot(const Vec3d<T>& v1, const BiVec3d<U>&
 // dot(A,B) = gr0( gpr(A,B) )
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline std::common_type_t<T, U> dot(const BiVec3d<T>& A, const BiVec3d<U>& B)
+inline std::common_type_t<T, U> dot(BiVec3d<T> const& A, BiVec3d<U> const& B)
 {
     // this implementation is only valid in an orthonormal basis
     return -A.x * B.x - A.y * B.y - A.z * B.z;
@@ -81,7 +81,7 @@ inline std::common_type_t<T, U> dot(const BiVec3d<T>& A, const BiVec3d<U>& B)
 // as the symmetric part
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline BiVec3d<std::common_type_t<T, U>> cmt(const BiVec3d<T>& A, const BiVec3d<U>& B)
+inline BiVec3d<std::common_type_t<T, U>> cmt(BiVec3d<T> const& A, BiVec3d<U> const& B)
 {
     // this implementation is only valid in an orthonormal basis
     using ctype = std::common_type_t<T, U>;
@@ -93,19 +93,19 @@ inline BiVec3d<std::common_type_t<T, U>> cmt(const BiVec3d<T>& A, const BiVec3d<
 //
 // TODO: Check whether this the right way to calculate the magnitude
 //
-template <typename T> inline T sq_nrm(const BiVec3d<T>& v)
+template <typename T> inline T sq_nrm(BiVec3d<T> const& v)
 {
     return v.x * v.x + v.y * v.y + v.z * v.z;
 }
 
 // return magnitude of bivector
-template <typename T> inline T nrm(const BiVec3d<T>& v)
+template <typename T> inline T nrm(BiVec3d<T> const& v)
 {
     return std::sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
 }
 
 // return a vector unitized to nrm(v) == 1.0
-template <typename T> inline Vec3d<T> unitized(const Vec3d<T>& v)
+template <typename T> inline Vec3d<T> unitized(Vec3d<T> const& v)
 {
     T n = nrm(v);
     if (n < std::numeric_limits<T>::epsilon()) {
@@ -117,7 +117,7 @@ template <typename T> inline Vec3d<T> unitized(const Vec3d<T>& v)
 }
 
 // return a bivector unitized to nrm(v) == 1.0
-template <typename T> inline BiVec3d<T> unitized(const BiVec3d<T>& v)
+template <typename T> inline BiVec3d<T> unitized(BiVec3d<T> const& v)
 {
     T n = nrm(v);
     if (n < std::numeric_limits<T>::epsilon()) {
@@ -129,7 +129,7 @@ template <typename T> inline BiVec3d<T> unitized(const BiVec3d<T>& v)
 }
 
 // return the multiplicative inverse of the vector
-template <typename T> inline Vec3d<T> inv(const Vec3d<T>& v)
+template <typename T> inline Vec3d<T> inv(Vec3d<T> const& v)
 {
     T sq_n = sq_nrm(v);
     if (sq_n < std::numeric_limits<T>::epsilon()) {
@@ -141,7 +141,7 @@ template <typename T> inline Vec3d<T> inv(const Vec3d<T>& v)
 }
 
 // return the multiplicative inverse of the bivector
-template <typename T> inline BiVec3d<T> inv(const BiVec3d<T>& v)
+template <typename T> inline BiVec3d<T> inv(BiVec3d<T> const& v)
 {
     T sq_n = sq_nrm(v);
     if (sq_n < std::numeric_limits<T>::epsilon()) {
@@ -156,7 +156,7 @@ template <typename T> inline BiVec3d<T> inv(const BiVec3d<T>& v)
 // range of angle: 0 <= angle <= pi
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline std::common_type_t<T, U> angle(const Vec3d<T>& v1, const Vec3d<U>& v2)
+inline std::common_type_t<T, U> angle(Vec3d<T> const& v1, Vec3d<U> const& v2)
 {
     std::common_type_t<T, U> nrm_prod = nrm(v1) * nrm(v2);
     if (nrm_prod < std::numeric_limits<std::common_type_t<T, U>>::epsilon()) {
@@ -171,7 +171,7 @@ inline std::common_type_t<T, U> angle(const Vec3d<T>& v1, const Vec3d<U>& v2)
 // range of angle: 0 <= angle <= pi
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline std::common_type_t<T, U> angle(const Vec3d<T>& v1, const BiVec3d<U>& v2)
+inline std::common_type_t<T, U> angle(Vec3d<T> const& v1, BiVec3d<U> const& v2)
 {
     std::common_type_t<T, U> nrm_prod = nrm(v1) * nrm(v2);
     if (nrm_prod < std::numeric_limits<std::common_type_t<T, U>>::epsilon()) {
@@ -184,7 +184,7 @@ inline std::common_type_t<T, U> angle(const Vec3d<T>& v1, const BiVec3d<U>& v2)
 
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline std::common_type_t<T, U> angle(const BiVec3d<T>& v1, const Vec3d<U>& v2)
+inline std::common_type_t<T, U> angle(BiVec3d<T> const& v1, Vec3d<U> const& v2)
 {
     std::common_type_t<T, U> nrm_prod = nrm(v1) * nrm(v2);
     if (nrm_prod < std::numeric_limits<std::common_type_t<T, U>>::epsilon()) {
@@ -199,7 +199,7 @@ inline std::common_type_t<T, U> angle(const BiVec3d<T>& v1, const Vec3d<U>& v2)
 // range of angle: 0 <= angle <= pi
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline std::common_type_t<T, U> angle(const BiVec3d<T>& v1, const BiVec3d<U>& v2)
+inline std::common_type_t<T, U> angle(BiVec3d<T> const& v1, BiVec3d<U> const& v2)
 {
     std::common_type_t<T, U> nrm_prod = nrm(v1) * nrm(v2);
     if (nrm_prod < std::numeric_limits<std::common_type_t<T, U>>::epsilon()) {
@@ -213,7 +213,7 @@ inline std::common_type_t<T, U> angle(const BiVec3d<T>& v1, const BiVec3d<U>& v2
 // cross-product between two vectors (returns a vector in 3d)
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline BiVec3d<std::common_type_t<T, U>> cross(const Vec3d<T>& v1, const Vec3d<U>& v2)
+inline BiVec3d<std::common_type_t<T, U>> cross(Vec3d<T> const& v1, Vec3d<U> const& v2)
 {
     return Vec3d<std::common_type_t<T, U>>(
         v1.y * v2.z - v1.z * v2.y, v1.z * v2.x - v1.x * v2.z, v1.x * v2.y - v1.y * v2.x);
@@ -224,7 +224,7 @@ inline BiVec3d<std::common_type_t<T, U>> cross(const Vec3d<T>& v1, const Vec3d<U
 // where theta: -pi <= theta <= pi (different to definition of angle for dot product!)
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline BiVec3d<std::common_type_t<T, U>> wdg(const Vec3d<T>& v1, const Vec3d<U>& v2)
+inline BiVec3d<std::common_type_t<T, U>> wdg(Vec3d<T> const& v1, Vec3d<U> const& v2)
 {
     return BiVec3d<std::common_type_t<T, U>>(
         v1.y * v2.z - v1.z * v2.y, v1.z * v2.x - v1.x * v2.z, v1.x * v2.y - v1.y * v2.x);
@@ -234,25 +234,25 @@ inline BiVec3d<std::common_type_t<T, U>> wdg(const Vec3d<T>& v1, const Vec3d<U>&
 // wdg(a,B) = gr3( gpr(a,B) )
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline PScalar3d<std::common_type_t<T, U>> wdg(const Vec3d<T>& v1, const BiVec3d<U>& v2)
+inline PScalar3d<std::common_type_t<T, U>> wdg(Vec3d<T> const& a, BiVec3d<U> const& B)
 {
-    return PScalar3d<std::common_type_t<T, U>>(v1.x * v2.x + v1.y * v2.y + v1.z * v2.z);
+    return PScalar3d<std::common_type_t<T, U>>(a.x * B.x + a.y * B.y + a.z * B.z);
 }
 
 // wedge product between a bivector and a vector (returns a trivector in 3d)
 // wdg(A,b) = gr3( gpr(A,b) )
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline PScalar3d<std::common_type_t<T, U>> wdg(const BiVec3d<T>& v1, const Vec3d<U>& v2)
+inline PScalar3d<std::common_type_t<T, U>> wdg(BiVec3d<T> const& A, Vec3d<U> const& b)
 {
-    return PScalar3d<std::common_type_t<T, U>>(v1.x * v2.x + v1.y * v2.y + v1.z * v2.z);
+    return PScalar3d<std::common_type_t<T, U>>(A.x * b.x + A.y * b.y + A.z * b.z);
 }
 
 // projection of a vector v1 onto vector v2
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr Vec3d<std::common_type_t<T, U>> project_onto(const Vec3d<T>& v1,
-                                                              const Vec3d<U>& v2)
+inline constexpr Vec3d<std::common_type_t<T, U>> project_onto(Vec3d<T> const& v1,
+                                                              Vec3d<U> const& v2)
 {
     return dot(v1, v2) * Vec3d<std::common_type_t<T, U>>(inv(v2));
 }
@@ -260,18 +260,18 @@ inline constexpr Vec3d<std::common_type_t<T, U>> project_onto(const Vec3d<T>& v1
 // projection of v1 onto v2 (v2 must already be unitized to nrm(v2) == 1)
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr Vec3d<std::common_type_t<T, U>> project_onto_unitized(const Vec3d<T>& v1,
-                                                                       const Vec3d<U>& v2)
+inline constexpr Vec3d<std::common_type_t<T, U>> project_onto_unitized(Vec3d<T> const& v1,
+                                                                       Vec3d<U> const& v2)
 {
-    return dot(v1, v2) * v2;
+    return dot(v1, v2) * v2; // v2 is already its own reverse
 }
 
 // projection of a vector v1 onto a bivector v2
 // v_parallel = gpr( dot(v1,v2), inv(v2) )
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr Vec3d<std::common_type_t<T, U>> project_onto(const Vec3d<T>& v1,
-                                                              const BiVec3d<U>& v2)
+inline constexpr Vec3d<std::common_type_t<T, U>> project_onto(Vec3d<T> const& v1,
+                                                              BiVec3d<U> const& v2)
 {
     using ctype = std::common_type_t<T, U>;
     Vec3d<ctype> a = dot(v1, v2);
@@ -279,7 +279,7 @@ inline constexpr Vec3d<std::common_type_t<T, U>> project_onto(const Vec3d<T>& v1
     // use the formular equivalent to the geometric product to save computational cost
     // aBi = dot(a,Bi) + wdg(a,Bi)
     // v_parallel = gr1(aBi) = dot(a,Bi)
-    return Vec3d<std::common_type_t<T, U>>(dot(a, Bi));
+    return Vec3d<ctype>(dot(a, Bi));
 }
 
 // projection of a vector v1 onto a unitized bivector v2
@@ -287,62 +287,66 @@ inline constexpr Vec3d<std::common_type_t<T, U>> project_onto(const Vec3d<T>& v1
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
 inline constexpr Vec3d<std::common_type_t<T, U>>
-project_onto_unitized(const Vec3d<T>& v1, const BiVec3d<U>& v2)
+project_onto_unitized(Vec3d<T> const& v1, BiVec3d<U> const& v2)
 {
     // requires v2 to be unitized
 
-    Vec3d<std::common_type_t<T, U>> a = dot(v1, v2);
+    using ctype = std::common_type_t<T, U>;
+    Vec3d<ctype> a = dot(v1, v2);
     // up to the sign v2 already is it's own inverse
-    BiVec3d<std::common_type_t<T, U>> Bi = -v2;
+    BiVec3d<ctype> Bi = -v2;
     // use the formular equivalent to the geometric product to save computational cost
     // aBi = dot(a,Bi) + wdg(a,Bi)
     // v_parallel = gr1(aBi) = dot(a,Bi)
-    return Vec3d<std::common_type_t<T, U>>(dot(a, Bi));
+    return Vec3d<ctype>(dot(a, Bi));
 }
 
 // rejection of vector v1 from a vector v2
 // v_perp = gr1(gpr( wdg(v1,v2), inv(v2) ))
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr Vec3d<std::common_type_t<T, U>> reject_from(const Vec3d<T>& v1,
-                                                             const Vec3d<U>& v2)
+inline constexpr Vec3d<std::common_type_t<T, U>> reject_from(Vec3d<T> const& v1,
+                                                             Vec3d<U> const& v2)
 {
-    BiVec3d<std::common_type_t<T, U>> A = wdg(v1, v2);
-    Vec3d<std::common_type_t<T, U>> bi = inv(v2);
+    using ctype = std::common_type_t<T, U>;
+    BiVec3d<ctype> A = wdg(v1, v2);
+    Vec3d<ctype> bi = inv(v2);
     // use the formular equivalent to the geometric product to save computational cost
     // Abi = dot(A,bi) + wdg(A,bi)
     // v_perp = gr1(Abi) = dot(A,bi)
-    return Vec3d<std::common_type_t<T, U>>(dot(A, bi));
+    return Vec3d<ctype>(dot(A, bi));
 }
 
 // rejection of vector v1 from a unitized vector v2
 // v_perp = gr1(gpr( wdg(v1,v2), inv(v2) ))
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr Vec3d<std::common_type_t<T, U>> reject_from_unitized(const Vec3d<T>& v1,
-                                                                      const Vec3d<U>& v2)
+inline constexpr Vec3d<std::common_type_t<T, U>> reject_from_unitized(Vec3d<T> const& v1,
+                                                                      Vec3d<U> const& v2)
 {
     // requires v2 to be unitized
-    BiVec3d<std::common_type_t<T, U>> A = wdg(v1, v2);
-    Vec3d<std::common_type_t<T, U>> bi = v2;
+    using ctype = std::common_type_t<T, U>;
+    BiVec3d<ctype> A = wdg(v1, v2);
+    Vec3d<ctype> bi = v2;
     // use the formular equivalent to the geometric product to save computational cost
     // Abi = dot(A,bi) + wdg(A,bi)
     // v_perp = gr1(Abi) = dot(A,bi)
-    return Vec3d<std::common_type_t<T, U>>(dot(A, bi));
+    return Vec3d<ctype>(dot(A, bi));
 }
 
 // rejection of vector v1 from a bivector v2
 // u_perp = gr1(gpr( wdg(v1,v2), inv(v2) ))
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr Vec3d<std::common_type_t<T, U>> reject_from(const Vec3d<T>& v1,
-                                                             const BiVec3d<U>& v2)
+inline constexpr Vec3d<std::common_type_t<T, U>> reject_from(Vec3d<T> const& v1,
+                                                             BiVec3d<U> const& v2)
 {
-    PScalar3d<std::common_type_t<T, U>> a = wdg(v1, v2);
-    BiVec3d<std::common_type_t<T, U>> B = inv(v2);
+    using ctype = std::common_type_t<T, U>;
+    PScalar3d<ctype> a = wdg(v1, v2);
+    BiVec3d<ctype> B = inv(v2);
     // trivector * bivector = vector (derived from full geometric product to save
     // costs)
-    return Vec3d<std::common_type_t<T, U>>(-a * B.x, -a * B.y, -a * B.z);
+    return Vec3d<ctype>(-a * B.x, -a * B.y, -a * B.z);
 }
 
 // rejection of vector v1 from a unitized bivector v2
@@ -350,14 +354,15 @@ inline constexpr Vec3d<std::common_type_t<T, U>> reject_from(const Vec3d<T>& v1,
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
 inline constexpr Vec3d<std::common_type_t<T, U>>
-reject_from_unitized(const Vec3d<T>& v1, const BiVec3d<U>& v2)
+reject_from_unitized(Vec3d<T> const& v1, BiVec3d<U> const& v2)
 {
-    PScalar3d<std::common_type_t<T, U>> a = wdg(v1, v2);
+    using ctype = std::common_type_t<T, U>;
+    PScalar3d<ctype> a = wdg(v1, v2);
     // up to the sign v2 already is it's own inverse
-    BiVec3d<std::common_type_t<T, U>> B = -v2;
+    BiVec3d<ctype> B = -v2;
     // trivector * bivector = vector (derived from full geometric product to save
     // costs)
-    return Vec3d<std::common_type_t<T, U>>(-a * B.x, -a * B.y, -a * B.z);
+    return Vec3d<ctype>(-a * B.x, -a * B.y, -a * B.z);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -375,42 +380,67 @@ reject_from_unitized(const Vec3d<T>& v1, const BiVec3d<U>& v2)
 // => see overloaded versions of gpr
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr MVec3d<std::common_type_t<T, U>> gpr(MVec3d<T> const& v1,
-                                                      MVec3d<U> const& v2)
+inline constexpr MVec3d<std::common_type_t<T, U>> gpr(MVec3d<T> const& A,
+                                                      MVec3d<U> const& B)
 {
     // geometric product with a fully populated 3d multivector
-    T c0 = v1.c0 * v2.c0 + v1.c1 * v2.c1 + v1.c2 * v2.c2 + v1.c3 * v2.c3 - v1.c4 * v2.c4 -
-           v1.c5 * v2.c5 - v1.c6 * v2.c6 - v1.c7 * v2.c7;
-    T c1 = v1.c0 * v2.c1 + v1.c1 * v2.c0 - v1.c2 * v2.c6 + v1.c3 * v2.c5 - v1.c4 * v2.c7 -
-           v1.c5 * v2.c3 + v1.c6 * v2.c2 - v1.c7 * v2.c4;
-    T c2 = v1.c0 * v2.c2 + v1.c1 * v2.c6 + v1.c2 * v2.c0 - v1.c3 * v2.c4 + v1.c4 * v2.c3 -
-           v1.c5 * v2.c7 - v1.c6 * v2.c1 - v1.c7 * v2.c5;
-    T c3 = v1.c0 * v2.c3 - v1.c1 * v2.c5 + v1.c2 * v2.c4 + v1.c3 * v2.c0 - v1.c4 * v2.c2 +
-           v1.c5 * v2.c1 - v1.c6 * v2.c7 - v1.c7 * v2.c6;
-    T c4 = v1.c0 * v2.c4 + v1.c1 * v2.c7 + v1.c2 * v2.c3 - v1.c3 * v2.c2 + v1.c4 * v2.c0 -
-           v1.c5 * v2.c6 + v1.c6 * v2.c5 + v1.c7 * v2.c1;
-    T c5 = v1.c0 * v2.c5 - v1.c1 * v2.c3 + v1.c2 * v2.c7 + v1.c3 * v2.c1 + v1.c4 * v2.c6 +
-           v1.c5 * v2.c0 - v1.c6 * v2.c4 + v1.c7 * v2.c2;
-    T c6 = v1.c0 * v2.c6 + v1.c1 * v2.c2 - v1.c2 * v2.c1 + v1.c3 * v2.c7 - v1.c4 * v2.c5 +
-           v1.c5 * v2.c4 + v1.c6 * v2.c0 + v1.c7 * v2.c3;
-    T c7 = v1.c0 * v2.c7 + v1.c1 * v2.c4 + v1.c2 * v2.c5 + v1.c3 * v2.c6 + v1.c4 * v2.c1 +
-           v1.c5 * v2.c2 + v1.c6 * v2.c3 + v1.c7 * v2.c0;
-    return MVec3d<std::common_type_t<T, U>>(c0, c1, c2, c3, c4, c5, c6, c7);
+    using ctype = std::common_type_t<T, U>;
+    ctype c0 = A.c0 * B.c0 + A.c1 * B.c1 + A.c2 * B.c2 + A.c3 * B.c3 - A.c4 * B.c4 -
+               A.c5 * B.c5 - A.c6 * B.c6 - A.c7 * B.c7;
+    ctype c1 = A.c0 * B.c1 + A.c1 * B.c0 - A.c2 * B.c6 + A.c3 * B.c5 - A.c4 * B.c7 -
+               A.c5 * B.c3 + A.c6 * B.c2 - A.c7 * B.c4;
+    ctype c2 = A.c0 * B.c2 + A.c1 * B.c6 + A.c2 * B.c0 - A.c3 * B.c4 + A.c4 * B.c3 -
+               A.c5 * B.c7 - A.c6 * B.c1 - A.c7 * B.c5;
+    ctype c3 = A.c0 * B.c3 - A.c1 * B.c5 + A.c2 * B.c4 + A.c3 * B.c0 - A.c4 * B.c2 +
+               A.c5 * B.c1 - A.c6 * B.c7 - A.c7 * B.c6;
+    ctype c4 = A.c0 * B.c4 + A.c1 * B.c7 + A.c2 * B.c3 - A.c3 * B.c2 + A.c4 * B.c0 -
+               A.c5 * B.c6 + A.c6 * B.c5 + A.c7 * B.c1;
+    ctype c5 = A.c0 * B.c5 - A.c1 * B.c3 + A.c2 * B.c7 + A.c3 * B.c1 + A.c4 * B.c6 +
+               A.c5 * B.c0 - A.c6 * B.c4 + A.c7 * B.c2;
+    ctype c6 = A.c0 * B.c6 + A.c1 * B.c2 - A.c2 * B.c1 + A.c3 * B.c7 - A.c4 * B.c5 +
+               A.c5 * B.c4 + A.c6 * B.c0 + A.c7 * B.c3;
+    ctype c7 = A.c0 * B.c7 + A.c1 * B.c4 + A.c2 * B.c5 + A.c3 * B.c6 + A.c4 * B.c1 +
+               A.c5 * B.c2 + A.c6 * B.c3 + A.c7 * B.c0;
+    return MVec3d<ctype>(c0, c1, c2, c3, c4, c5, c6, c7);
 }
 
-// geometric product ab between two vectors (returns a multivector)
-// ab = dot(a,b) + wdg(a,b) = gr0(ab) + gr2(ab)  (vector vector = scalar + bivector)
+// define geometric multiplication with operator*(A,B) as an alias for gpr(A,B)
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr MVec3d<std::common_type_t<T, U>> gpr(Vec3d<T> const& a,
-                                                      Vec3d<U> const& b)
+inline constexpr MVec3d<std::common_type_t<T, U>> operator*(MVec3d<T> const& A,
+                                                            MVec3d<U> const& B)
 {
     using ctype = std::common_type_t<T, U>;
-    return MVec3d<ctype>(Scalar<ctype>(dot(a, b)), wdg(a, b));
+    return gpr<ctype>(A, B);
+}
+
+// geometric product ab between two vectors (returns a multivector of the even subalgebra)
+// ab = dot(a,b) + wdg(a,b) = gr0(ab) + gr2(ab)  (vector vector = scalar + bivector)
+//
+// HINT: if a full 3d multivector is required as result it must be converted explicitly,
+//       since C++ does not allow overloading on different return types
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline constexpr MCplx3d<std::common_type_t<T, U>> gpr(Vec3d<T> const& a,
+                                                       Vec3d<U> const& b)
+{
+    using ctype = std::common_type_t<T, U>;
+    return MCplx3d<ctype>(Scalar<ctype>(dot(a, b)), wdg(a, b));
+}
+
+// define geometric multiplication with operator*(a,b) as an alias for gpr(a,b)
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline constexpr MCplx3d<std::common_type_t<T, U>> operator*(Vec3d<T> const& a,
+                                                             Vec3d<U> const& b)
+{
+    using ctype = std::common_type_t<T, U>;
+    return gpr<ctype>(a, b);
 }
 
 // geometric product Ab for a bivector and a vector (returns a multivector)
-// Ab = dot(A,b) + wdg(A,b) = gr1(Ab) + gr3(Ab)  (bivector vector = vector + trivector)
+// Ab = dot(A,b) + wdg(A,b) = gr1(Ab) + gr3(Ab)
+// => bivector vector = vector + trivector
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
 inline constexpr MVec3d<std::common_type_t<T, U>> gpr(BiVec3d<T> const& A,
@@ -420,8 +450,19 @@ inline constexpr MVec3d<std::common_type_t<T, U>> gpr(BiVec3d<T> const& A,
     return MVec3d<ctype>(dot(A, b), wdg(A, b));
 }
 
-// geometric product Ab for a bivector and a vector (returns a multivector)
-// aB = dot(a,B) + wdg(a,B) = gr1(aB) + gr3(aB)  (bivector vector = vector + trivector)
+// define geometric multiplication with operator*(A,b) as an alias for gpr(A,b)
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline constexpr MVec3d<std::common_type_t<T, U>> operator*(BiVec3d<T> const& A,
+                                                            Vec3d<U> const& b)
+{
+    using ctype = std::common_type_t<T, U>;
+    return gpr<ctype>(A, b);
+}
+
+// geometric product aB for a vector and a bivector (returns a multivector)
+// aB = dot(a,B) + wdg(a,B) = gr1(aB) + gr3(aB)
+// => bivector vector = vector + trivector
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
 inline constexpr MVec3d<std::common_type_t<T, U>> gpr(Vec3d<T> const& a,
@@ -431,8 +472,19 @@ inline constexpr MVec3d<std::common_type_t<T, U>> gpr(Vec3d<T> const& a,
     return MVec3d<ctype>(dot(a, B), wdg(a, B));
 }
 
-// geometric product ab between two bivectors (returns a multivector)
-// ab = gr0(ab) + gr2(ab)  (bivector bivector = scalar + bivector, in 3D)
+// define geometric multiplication with operator*(a,B) as an alias for gpr(a,B)
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline constexpr MVec3d<std::common_type_t<T, U>> operator*(Vec3d<T> const& a,
+                                                            BiVec3d<U> const& B)
+{
+    using ctype = std::common_type_t<T, U>;
+    return gpr<ctype>(a, B);
+}
+
+// geometric product ab between two bivectors (returns an even grade multivector)
+// ab = gr0(ab) + gr2(ab)
+// => bivector bivector = scalar + bivector, in 3D)
 //
 // the full geometric bivector product only exists in 4 dimensional spaces:
 // ab = a*b + axb + a^b = gr0(ab) + gr2(ab) + gr4(ab)
@@ -443,11 +495,21 @@ inline constexpr MVec3d<std::common_type_t<T, U>> gpr(Vec3d<T> const& a,
 // ab = dot(a,b) + cmt(a,b)             (in 3D)
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr MVec3d<std::common_type_t<T, U>> gpr(BiVec3d<T> const& a,
-                                                      BiVec3d<U> const& b)
+inline constexpr MCplx3d<std::common_type_t<T, U>> gpr(BiVec3d<T> const& a,
+                                                       BiVec3d<U> const& b)
 {
     using ctype = std::common_type_t<T, U>;
-    return MVec3d<ctype>(Scalar<ctype>(dot(a, b)), cmt(a, b));
+    return MCplx3d<ctype>(Scalar<ctype>(dot(a, b)), cmt(a, b));
+}
+
+// define geometric multiplication with operator*(a,b) as an alias for gpr(a,b)
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline constexpr MCplx3d<std::common_type_t<T, U>> operator*(BiVec3d<T> const& a,
+                                                             BiVec3d<U> const& b)
+{
+    using ctype = std::common_type_t<T, U>;
+    return gpr<ctype>(a, b);
 }
 
 // geometric product AB of a trivector A multiplied from the left
@@ -461,6 +523,16 @@ inline constexpr MVec3d<std::common_type_t<T, U>> gpr(PScalar3d<T> A, MVec3d<U> 
     return ctype(A) * MVec3d<ctype>(-B.c7, -B.c4, -B.c5, -B.c6, B.c1, B.c2, B.c3, B.c0);
 }
 
+// define geometric multiplication with operator*(A,B) as an alias for gpr(A,B)
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline constexpr MVec3d<std::common_type_t<T, U>> operator*(PScalar3d<T> A,
+                                                            MVec3d<U> const& B)
+{
+    using ctype = std::common_type_t<T, U>;
+    return gpr<ctype>(A, B);
+}
+
 // geometric product Ab of a trivector A multiplied from the left
 // to the vector b
 // gpr(trivector, vector) => returns a bivector
@@ -470,6 +542,16 @@ inline constexpr BiVec3d<std::common_type_t<T, U>> gpr(PScalar3d<T> A, Vec3d<U> 
 {
     using ctype = std::common_type_t<T, U>;
     return ctype(A) * BiVec3d<ctype>(b.x, b.y, b.z);
+}
+
+// define geometric multiplication with operator*(A,b) as an alias for gpr(A,b)
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline constexpr BiVec3d<std::common_type_t<T, U>> operator*(PScalar3d<T> A,
+                                                             Vec3d<U> const& b)
+{
+    using ctype = std::common_type_t<T, U>;
+    return gpr<ctype>(A, b);
 }
 
 // geometric product Ab of a trivector A multiplied from the left
@@ -483,6 +565,16 @@ inline constexpr Vec3d<std::common_type_t<T, U>> gpr(PScalar3d<T> A, BiVec3d<U> 
     return -ctype(A) * Vec3d<ctype>(b.x, b.y, b.z);
 }
 
+// define geometric multiplication with operator*(A,b) as an alias for gpr(A,b)
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline constexpr Vec3d<std::common_type_t<T, U>> operator*(PScalar3d<T> A,
+                                                           BiVec3d<U> const& b)
+{
+    using ctype = std::common_type_t<T, U>;
+    return gpr<ctype>(A, b);
+}
+
 // geometric product AB of a trivector B multiplied from the right
 // to the multivector A
 // gpr(multivector, trivector) => returns a multivector
@@ -492,6 +584,16 @@ inline constexpr MVec3d<std::common_type_t<T, U>> gpr(MVec3d<T> const& A, PScala
 {
     using ctype = std::common_type_t<T, U>;
     return MVec3d<ctype>(-A.c7, -A.c4, -A.c5, -A.c6, A.c1, A.c2, A.c3, A.c0) * ctype(B);
+}
+
+// define geometric multiplication with operator*(A,B) as an alias for gpr(A,B)
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline constexpr MVec3d<std::common_type_t<T, U>> operator*(MVec3d<T> const& A,
+                                                            PScalar3d<U> B)
+{
+    using ctype = std::common_type_t<T, U>;
+    return gpr<ctype>(A, B);
 }
 
 // geometric product aB of a trivector B multiplied from the right
@@ -505,6 +607,16 @@ inline constexpr BiVec3d<std::common_type_t<T, U>> gpr(Vec3d<T> const& a, PScala
     return BiVec3d<ctype>(a.x, a.y, a.z) * ctype(B);
 }
 
+// define geometric multiplication with operator*(a,B) as an alias for gpr(a,B)
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline constexpr BiVec3d<std::common_type_t<T, U>> operator*(Vec3d<T> const& a,
+                                                             PScalar3d<U> B)
+{
+    using ctype = std::common_type_t<T, U>;
+    return gpr<ctype>(a, B);
+}
+
 // geometric product aB of a trivector B multiplied from the right
 // to the bivector a
 // gpr(bivector, trivector) => returns a vector
@@ -516,6 +628,16 @@ inline constexpr Vec3d<std::common_type_t<T, U>> gpr(BiVec3d<T> const& a, PScala
     return -Vec3d<ctype>(a.x, a.y, a.z) * ctype(B);
 }
 
+// define geometric multiplication with operator*(a,B) as an alias for gpr(a,B)
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline constexpr Vec3d<std::common_type_t<T, U>> operator*(BiVec3d<T> const& a,
+                                                           PScalar3d<U> B)
+{
+    using ctype = std::common_type_t<T, U>;
+    return gpr<ctype>(a, B);
+}
+
 // geometric product AB of two trivectors
 // gpr(trivector, trivector) => returns a scalar
 template <typename T, typename U>
@@ -524,6 +646,15 @@ inline constexpr std::common_type_t<T, U> gpr(PScalar3d<T> A, PScalar3d<U> B)
 {
     using ctype = std::common_type_t<T, U>;
     return -ctype(A) * ctype(B); // trivectors square to -1
+}
+
+// define geometric multiplication with operator*(A,B) as an alias for gpr(A,B)
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline constexpr std::common_type_t<T, U> operator*(PScalar3d<T> A, PScalar3d<U> B)
+{
+    using ctype = std::common_type_t<T, U>;
+    return gpr<ctype>(A, B);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

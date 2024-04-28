@@ -28,20 +28,20 @@ namespace hd::ga {
 // dot(v1,v2) = nrm(v1)*nrm(v2)*cos(angle)
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline std::common_type_t<T, U> dot(const Vec2d<T>& v1, const Vec2d<U>& v2)
+inline std::common_type_t<T, U> dot(Vec2d<T> const& v1, Vec2d<U> const& v2)
 {
     // this implementation is only valid in an orthonormal basis
     return v1.x * v2.x + v1.y * v2.y;
 }
 
 // return squared magnitude of vector
-template <typename T> inline T sq_nrm(const Vec2d<T>& v) { return dot(v, v); }
+template <typename T> inline T sq_nrm(Vec2d<T> const& v) { return dot(v, v); }
 
 // return magnitude of vector
-template <typename T> inline T nrm(const Vec2d<T>& v) { return std::sqrt(dot(v, v)); }
+template <typename T> inline T nrm(Vec2d<T> const& v) { return std::sqrt(dot(v, v)); }
 
 // return a vector unitized to nrm(v) == 1.0
-template <typename T> inline Vec2d<T> unitized(const Vec2d<T>& v)
+template <typename T> inline Vec2d<T> unitized(Vec2d<T> const& v)
 {
     T n = nrm(v);
     if (n < std::numeric_limits<T>::epsilon()) {
@@ -53,7 +53,7 @@ template <typename T> inline Vec2d<T> unitized(const Vec2d<T>& v)
 }
 
 // return the multiplicative inverse of the vector
-template <typename T> inline Vec2d<T> inv(const Vec2d<T>& v)
+template <typename T> inline Vec2d<T> inv(Vec2d<T> const& v)
 {
     T sq_n = sq_nrm(v);
     if (sq_n < std::numeric_limits<T>::epsilon()) {
@@ -68,7 +68,7 @@ template <typename T> inline Vec2d<T> inv(const Vec2d<T>& v)
 // range of angle: 0 <= angle <= pi
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline std::common_type_t<T, U> angle(const Vec2d<T>& v1, const Vec2d<U>& v2)
+inline std::common_type_t<T, U> angle(Vec2d<T> const& v1, Vec2d<U> const& v2)
 {
     using ctype = std::common_type_t<T, U>;
     ctype nrm_prod = nrm(v1) * nrm(v2);
@@ -85,7 +85,7 @@ inline std::common_type_t<T, U> angle(const Vec2d<T>& v1, const Vec2d<U>& v2)
 // where theta: -pi <= theta <= pi (different to definition of angle for dot product!)
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline PScalar2d<std::common_type_t<T, U>> wdg(const Vec2d<T>& v1, const Vec2d<U>& v2)
+inline PScalar2d<std::common_type_t<T, U>> wdg(Vec2d<T> const& v1, Vec2d<U> const& v2)
 {
     return PScalar2d<std::common_type_t<T, U>>(v1.x * v2.y - v1.y * v2.x);
 }
@@ -93,8 +93,8 @@ inline PScalar2d<std::common_type_t<T, U>> wdg(const Vec2d<T>& v1, const Vec2d<U
 // projection of v1 onto v2
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr Vec2d<std::common_type_t<T, U>> project_onto(const Vec2d<T>& v1,
-                                                              const Vec2d<U>& v2)
+inline constexpr Vec2d<std::common_type_t<T, U>> project_onto(Vec2d<T> const& v1,
+                                                              Vec2d<U> const& v2)
 {
     return dot(v1, v2) * inv(v2);
 }
@@ -102,8 +102,8 @@ inline constexpr Vec2d<std::common_type_t<T, U>> project_onto(const Vec2d<T>& v1
 // projection of v1 onto v2 (v2 must already be unitized to nrm(v2) == 1)
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr Vec2d<std::common_type_t<T, U>> project_onto_unitized(const Vec2d<T>& v1,
-                                                                       const Vec2d<U>& v2)
+inline constexpr Vec2d<std::common_type_t<T, U>> project_onto_unitized(Vec2d<T> const& v1,
+                                                                       Vec2d<U> const& v2)
 {
     // requires v2 to be unitized
     return dot(v1, v2) * v2;
@@ -112,8 +112,8 @@ inline constexpr Vec2d<std::common_type_t<T, U>> project_onto_unitized(const Vec
 // rejection of v1 from v2
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr Vec2d<std::common_type_t<T, U>> reject_from(const Vec2d<T>& v1,
-                                                             const Vec2d<U>& v2)
+inline constexpr Vec2d<std::common_type_t<T, U>> reject_from(Vec2d<T> const& v1,
+                                                             Vec2d<U> const& v2)
 {
     using ctype = std::common_type_t<T, U>;
     // version using geometric algebra wedge product manually computed
@@ -131,8 +131,8 @@ inline constexpr Vec2d<std::common_type_t<T, U>> reject_from(const Vec2d<T>& v1,
 // rejection of v1 from v2 (v2 must already be unitized to nrm(v2) == 1)
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr Vec2d<std::common_type_t<T, U>> reject_from_unitized(const Vec2d<T>& v1,
-                                                                      const Vec2d<U>& v2)
+inline constexpr Vec2d<std::common_type_t<T, U>> reject_from_unitized(Vec2d<T> const& v1,
+                                                                      Vec2d<U> const& v2)
 {
     // requires v2 to be unitized
 
@@ -181,7 +181,7 @@ inline constexpr MVec2d<std::common_type_t<T, U>> operator*(MVec2d<T> const& A,
 // ab = dot(a,b) + wdg(a,b) = gr0(ab) + gr2(ab)
 // => vector vector = scalar + bivector
 //
-// HINT: if a full multivector is required as result it must be converted explicitly,
+// HINT: if a full 2d multivector is required as result it must be converted explicitly,
 //       since C++ does not allow overloading on different return types
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)

@@ -52,17 +52,14 @@ struct MVec3d {
     MVec3d(BiVec3d<T> const& v) : c4(v.x), c5(v.y), c6(v.z) {}
 
     // assign a geometric product resulting from a product of two vectors
-    // via dot(v1,v2) and wdg(v1,v2) or via dot(v1,v2) and cmt(v1,v2)
-    // directly (other grades = 0)
-    // (less expensive compared to computing the full geometric product)
+    // via dot(v1,v2) and wdg(v1,v2) or via dot(v1,v2) and cmt(v1,v2) directly
+    // (other grades = 0)
     MVec3d(Scalar<T> s, BiVec3d<T> const& v) : c0(s), c4(v.x), c5(v.y), c6(v.z) {}
 
     // assign from a quaternion, i.e. from the even subalgebra
     MVec3d(MCplx3d<T> v) : c0(v.c0), c4(v.c1), c5(v.c2), c6(v.c3) {}
 
     // assign a geometric product resulting from a product of a vector and a bivector
-    // via dot(v1,v2) and wdg(v1,v2) directly (other grades = 0)
-    // (less expensive compared to computing the full geometric product)
     MVec3d(Vec3d<T> const& v, PScalar3d<T> ps) : c1(v.x), c2(v.y), c3(v.z), c7(ps) {}
 
     // this constructor must be explicitly deleted,
