@@ -1668,7 +1668,7 @@ TEST_SUITE("Geometric Algebra")
         auto angle_uv = angle(u, v);
 
         auto uv = gpr(u, v); // complex number with real part and bivector part
-        auto v2 = exp(PScalar2d<double>(angle_uv));
+        auto v2 = exp(I_2d, angle_uv);
         auto re = gr0(uv);
         auto im = gr2(uv);
         auto r = sqrt(re * re + im * im);
@@ -1687,7 +1687,7 @@ TEST_SUITE("Geometric Algebra")
         MVec2d_E i = gpr(b, c);
         MVec2d_E j = b * c; // defined operator*(MVec2d_E,MVec2d_E) as gpr(a,b)
         auto k = I_2d;
-        MVec2d_E l = exp(PScalar2d<double>(pi / 2));
+        MVec2d_E l = exp(I_2d, pi / 2);
         MVec2d_E m = Ic_2d;
         MVec2d n = Im_2d;
         // fmt::println("   Multivector form of complex numbers:");
@@ -1770,7 +1770,7 @@ TEST_SUITE("Geometric Algebra")
 
         CHECK(Vec2d{1.0, 0.0} * Vec2d{1.1, 1.1} ==
               rev(Vec2d{1.1, 1.1} * Vec2d{1.0, 0.0}));
-        CHECK(exp(PScalar2d<double>(pi / 4)) == rev(exp(PScalar2d<double>(-pi / 4))));
+        CHECK(exp(I_2d, pi / 4) == rev(exp(I_2d, -pi / 4)));
     }
 
 
@@ -1857,7 +1857,7 @@ TEST_SUITE("Geometric Algebra")
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    // MCplx23<T> operations test cases
+    // MVec3d_E<T> and MVec3d_U<T> operations test cases
     ////////////////////////////////////////////////////////////////////////////////
 
     TEST_CASE("MVec3d_E/_U: modelling even and uneven parts of 3d algebra - basics")
@@ -1867,46 +1867,92 @@ TEST_SUITE("Geometric Algebra")
 
         // defining a complex number in all three forms as multivector
         using std::numbers::pi;
-        auto u = Vec3d{1.0, 0.0, 0.0};
-        auto v = Vec3d{std::cos(pi / 12), std::sin(pi / 12), 0.0}; // unit vec +15%
+        auto u = unitized(Vec3d{1.0, 0.0, 0.0});
+        auto v =
+            unitized(Vec3d{std::cos(pi / 12), std::sin(pi / 12), 0.0}); // unit vec +15%
         auto angle_uv = angle(u, v);
+        auto p = wdg(u, v); // bivector describing the plane spanned by u and v
+
+        auto my_exp = exp(p, angle_uv);
+        auto my_rot = rotor(p, 2 * angle_uv);
 
         auto R_m = MVec3d(u * v);     // Rotor formed by u and v
         auto Rr_m = MVec3d(rev(R_m)); // and its reverse
 
-        auto c = Vec3d{1.0, 0.0, 0.0};
+        auto c = Vec3d{1.0, 1.0, 1.0};
         auto c_m = MVec3d{c};
 
-        auto c_tmp_m = R_m * c_m;
-        auto c_rot_m = c_tmp_m * Rr_m;
+        auto c_tmp_m = Rr_m * c_m;
+        auto c_rot_m = c_tmp_m * R_m;
 
         auto R = u * v;   // Rotor formed by u and v
         auto Rr = rev(R); // and its reverse
 
-        auto c_tmp = R * c;
-        auto c_rot_u = c_tmp * Rr;
-        auto c_rot = gr1(c_rot_u);
+        auto c_tmp_l = Rr * c;
+        auto c_rot_u_l = c_tmp_l * R;
+        auto c_rot_l = gr1(c_rot_u_l);
         // due to symmetry of R and Rr the gr3(c_rot) part will be zero
         // and thus can be neglected for further computations
 
-        auto angle_c_c_rot = angle(c, c_rot);
+        auto c_tmp_r = c * R;
+        auto c_rot_u_r = Rr * c_tmp_r;
+        auto c_rot_r = gr1(c_rot_u_r);
+        // due to symmetry of R and Rr the gr3(c_rot) part will be zero
+        // and thus can be neglected for further computations
 
-        fmt::println("   u                     = {: .3}", u);
-        fmt::println("   v                     = {: .3}", v);
-        fmt::println("   angle(u,v)            = {: .3}°", angle_uv * 180 / pi);
-        fmt::println("   R_m  = u*v            = {: .3}", R_m);
-        fmt::println("   Rr_m = rev(u*v)       = {: .3}", Rr_m);
-        fmt::println("   c_m                   = {: .3}", c_m);
-        fmt::println("   c_tmp_m = R_m*c_m     = {: .3}", c_tmp_m);
-        fmt::println("   c_rot_m = c_tmp_m*R_m = {: .3}", c_rot_m);
-        fmt::println("");
-        fmt::println("   R  = u*v              = {: .3}", R);
-        fmt::println("   Rr = rev(u*v)         = {: .3}", Rr);
-        fmt::println("   c                     = {: .3}", c);
-        fmt::println("   c_tmp = R*c           = {: .3}", c_tmp);
-        fmt::println("   c_rot_u = c_tmp*R     = {: .3}", c_rot_u);
-        fmt::println("   c_rot = gr1(c_rot_u)  = {: .3}", c_rot);
-        fmt::println("   angle(c, c_rot)       = {: .3}°", angle_c_c_rot * 180 / pi);
+        auto angle_c_c_rot = angle(c, c_rot_l); // not that easy in 3D!
+        // (angle in plane of both vectors is not the angle in the plane
+        // represented by the bivector!)
+        // => requires projection of vectors onto plane and then taking
+        // the angle between the projected vectors to be correct (bivector angle!)
+
+        auto c_proj = project_onto(c, p);
+        auto c_rot_proj = project_onto(c_rot_l, p);
+        auto angle_proj = angle(c_proj, c_rot_proj);
+
+        // fmt::println("   u                     = {: .3}", u);
+        // fmt::println("   v                     = {: .3}", v);
+        // fmt::println("   p = wdg(u,v)          = {: .3}", p);
+        // fmt::println("   angle(u,v)            = {: .3}°", angle_uv * 180 / pi);
+        // fmt::println("   sin(angle(u,v))       = {: .3}", std::sin(angle_uv));
+        // fmt::println("");
+        // fmt::println("   c                     = {: .3}", c);
+        // fmt::println("");
+        // fmt::println("Implemented as full multivector operation:");
+        // fmt::println("   R_m  = u*v            = {: .3}", R_m);
+        // fmt::println("   Rr_m = rev(u*v)       = {: .3}", Rr_m);
+        // fmt::println("   Rr_m*R_m              = {: .3}", Rr_m * R_m);
+        // fmt::println("   c_m                   = {: .3}", c_m);
+        // fmt::println("   c_tmp_m = Rr_m*c_m    = {: .3}", c_tmp_m);
+        // fmt::println("   c_rot_m = c_tmp_m*R_m = {: .3}", c_rot_m);
+        // fmt::println("   gr1(c_rot_m)          = {: .3}", gr1(c_rot_m));
+        // fmt::println("");
+        // fmt::println("Implemented as reduced grade multivector operation:");
+        // fmt::println("   R  = u*v                         = {: .3}", R);
+        // fmt::println("   Rr = rev(u*v)                    = {: .3}", Rr);
+        // fmt::println("   my_exp = exp(u^v)                = {: .3}", my_exp);
+        // fmt::println("   my_rot = rotor(u^v,2*angle(u,v)) = {: .3}", my_rot);
+        // fmt::println("");
+        // fmt::println("Left multiplication of rotor first:");
+        // fmt::println("   c_tmp_l = Rr*c           = {: .3}", c_tmp_l);
+        // fmt::println("   c_rot_u_l = c_tmp_l*R    = {: .3}", c_rot_u_l);
+        // fmt::println("   c_rot_l = gr1(c_rot_u_l) = {: .3}", c_rot_l);
+        // fmt::println("");
+        // fmt::println("Right multiplication of rotor first:");
+        // fmt::println("   c_tmp_r = c*R            = {: .3}", c_tmp_r);
+        // fmt::println("   c_rot_u_r = Rr*c_tmp_r   = {: .3}", c_rot_u_r);
+        // fmt::println("   c_rot_r = gr1(c_rot_u_r) = {: .3}", c_rot_r);
+        // fmt::println("");
+        // fmt::println("   angle(c, c_rot_l)         = {: .3}°", angle_c_c_rot * 180 /
+        // pi); fmt::println("   angle(c_proj, c_rot_proj) = {: .3}°", angle_proj * 180 /
+        // pi); fmt::println(""); fmt::println("direct calclulation:"); fmt::println("
+        // c_rot = rot(c,R)          = {: .3}", rot(c, R));
+
+        CHECK(gr1(c_rot_m) == rot(c, R));
+        CHECK(rot(Vec3d{1.0, 0.0, 0.0}, rotor(e3_3d * I_3d, pi / 4)) ==
+              unitized(Vec3d{1.0, 1.0, 0.0}));
+        CHECK(rot(Vec3d{1.0, 0.0, 0.0}, rotor(e12_3d, pi / 4)) ==
+              unitized(Vec3d{1.0, 1.0, 0.0}));
     }
 
 } // TEST_SUITE("Geometric Algebra")

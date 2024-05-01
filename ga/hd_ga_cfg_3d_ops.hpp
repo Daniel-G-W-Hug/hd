@@ -712,8 +712,8 @@ inline constexpr MVec3d_E<std::common_type_t<T, U>> operator*(MVec3d_E<T> const&
     return gpr<ctype>(a, b);
 }
 
-// geometric product Ab a multivector A from the even subalgebra (3d case)
-// with a vector a
+// geometric product Ab of a multivector A from the even subalgebra (3d case)
+// with a vector b from the right
 // => returns an uneven multivector
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
@@ -738,8 +738,33 @@ inline constexpr MVec3d_U<std::common_type_t<T, U>> operator*(MVec3d_E<T> const&
 }
 
 
-// geometric product Ab of A multivector A from the uneven subalgebra (3d case)
-// with a multivector of the even subalgebra
+// geometric product aB a multivector B from the even subalgebra (3d case)
+// with a vector from the left
+// => returns an uneven multivector
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline constexpr MVec3d_U<std::common_type_t<T, U>> gpr(Vec3d<T> const& a,
+                                                        MVec3d_E<U> const& B)
+{
+    using ctype = std::common_type_t<T, U>;
+    return MVec3d_U<ctype>(Vec3d<ctype>(a.x * B.c0 - a.y * B.c3 + a.z * B.c2,
+                                        a.x * B.c3 + a.y * B.c0 - a.z * B.c1,
+                                        -a.x * B.c2 + a.y * B.c1 + a.z * B.c0),
+                           PScalar3d<ctype>(a.x * B.c1 + a.y * B.c2 + a.z * B.c3));
+}
+
+// define complex multiplication with operator*(a,b) as an alias for gpr(a,b)
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline constexpr MVec3d_U<std::common_type_t<T, U>> operator*(Vec3d<T> const& a,
+                                                              MVec3d_E<U> const& B)
+{
+    using ctype = std::common_type_t<T, U>;
+    return gpr<ctype>(a, B);
+}
+
+// geometric product AB of a multivector A from the uneven subalgebra (3d case)
+// with a multivector B of the even subalgebra
 // => returns an uneven multivector
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
@@ -764,7 +789,35 @@ inline constexpr MVec3d_U<std::common_type_t<T, U>> operator*(MVec3d_U<T> const&
     return gpr<ctype>(A, b);
 }
 
-// return conjugate complex of complex number,
+
+// geometric product AB of a multivector A from the even subalgebra (3d case)
+// with a multivector B of the uneven subalgebra
+// => returns an uneven multivector
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline constexpr MVec3d_U<std::common_type_t<T, U>> gpr(MVec3d_E<T> const& A,
+                                                        MVec3d_U<U> const& B)
+{
+    using ctype = std::common_type_t<T, U>;
+    return MVec3d_U<ctype>(
+        Vec3d<ctype>(A.c0 * B.c0 - A.c1 * B.c3 - A.c2 * B.c2 + A.c3 * B.c1,
+                     A.c0 * B.c1 + A.c1 * B.c2 - A.c2 * B.c3 - A.c3 * B.c0,
+                     A.c0 * B.c2 - A.c1 * B.c1 + A.c2 * B.c0 - A.c3 * B.c3),
+        PScalar3d<ctype>(A.c0 * B.c3 + A.c1 * B.c0 + A.c2 * B.c1 + A.c3 * B.c2));
+}
+
+// define complex multiplication with operator*(a,b) as an alias for gpr(a,b)
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline constexpr MVec3d_U<std::common_type_t<T, U>> operator*(MVec3d_E<T> const& A,
+                                                              MVec3d_U<U> const& B)
+{
+    using ctype = std::common_type_t<T, U>;
+    return gpr<ctype>(A, B);
+}
+
+
+// return conjugate complex of quaternion (MVec3d_E<T>),
 // i.e. the reverse in nomenclature of multivectors
 template <typename T> inline MVec3d_E<T> rev(MVec3d_E<T> const& v)
 {
@@ -772,6 +825,7 @@ template <typename T> inline MVec3d_E<T> rev(MVec3d_E<T> const& v)
     return MVec3d_E<T>(v.c0, -v.c1, -v.c2, -v.c3);
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////
 // exponential function with bivector as argument for setup of quaternions
 // as geometric multivector with a scalar and a bivector part
 // MVec3d_E<T> M = c0 + (c1 e2^e3 + c2 e3^e1 + c3 e1^e2)
@@ -783,19 +837,57 @@ template <typename T> inline MVec3d_E<T> rev(MVec3d_E<T> const& v)
 //             size of the rotation, the later is given by the angle
 //             theta, which is the magnitude of the bivector
 //
-template <typename T>
-    requires(std::floating_point<T>)
-inline constexpr MVec3d_E<T> exp(BiVec3d<T> theta)
+// Inputs:
+//         - an arbitray bivector representing the oriented plane of rotation
+//           (does not need to be unitized)
+//         - a rotation angle
+// Output:
+//         - a rotor representing the rotation
+//
+// HINT:     For a rotation around an axis n (n = unitized(Vec3d<T>))
+//           use the bivector B = n*I_3d  => B = gpr(Vec3d<T>,PScalar3d<T>
+//////////////////////////////////////////////////////////////////////////////////////////
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline constexpr MVec3d_E<std::common_type_t<T, U>> exp(BiVec3d<T> const& I, U theta)
 {
-    return MVec3d_E<T>(Scalar<T>(std::cos(theta)),
-                       unitized(theta) * std::sin(nrm(theta)));
+    using ctype = std::common_type_t<T, U>;
+    return MVec3d_E<ctype>(Scalar<ctype>(std::cos(theta)), unitized(I) * std::sin(theta));
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+// Inputs:
+//       1.) an arbitray bivector representing the oriented plane of rotation
+//           (does not need to be unitized, defines what is a posive rotation angle)
+//       2.) a rotation angle in that plane
+// Output:
+//           a rotor representing the requested rotation,
+//           for applying the sandwich product as in rot(v,rotor)
+//
+//////////////////////////////////////////////////////////////////////////////////////////
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline constexpr MVec3d_E<std::common_type_t<T, U>> rotor(BiVec3d<T> const& I, U theta)
+{
+    using ctype = std::common_type_t<T, U>;
+    ctype half_angle = 0.5 * theta;
+    return MVec3d_E<ctype>(Scalar<ctype>(std::cos(half_angle)),
+                           unitized(I) * std::sin(half_angle));
 }
 
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr Vec3d<std::common_type_t<T, U>> rot(Vec3d<T> u, BiVec3d<U> theta)
+inline constexpr Vec3d<std::common_type_t<T, U>> rot(Vec3d<T> const& v,
+                                                     MVec3d_E<U> const& rotor)
 {
-    Vec3d<std::common_type_t<T, U>> gr1(gpr(gpr(exp(-0.5 * theta), u), exp(0.5 * theta)));
+    using ctype = std::common_type_t<T, U>;
+
+    // MVec3d_E<ctype> reverse_rotor = rev(rotor);
+    // MVec3d_U<ctype> tmp = reverse_rotor * v;
+    // MVec3d_U<ctype> res = tmp * rotor;
+
+    // trivector part of res is 0 due to symmetric product rev(rotor) * v * rotor
+    return Vec3d<ctype>(gr1<ctype>(rev(rotor) * v * rotor));
 }
 
 } // namespace hd::ga
