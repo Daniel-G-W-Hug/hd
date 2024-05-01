@@ -182,6 +182,14 @@ template <typename T> inline constexpr BiVec3d<T> gr2(MVec3d_E<T> const& v)
     return BiVec3d<T>(v.c1, v.c2, v.c3);
 }
 
+// return conjugate complex of quaternion (MVec3d_E<T>),
+// i.e. the reverse in nomenclature of multivectors
+template <typename T> inline constexpr MVec3d_E<T> rev(MVec3d_E<T> const& v)
+{
+    // only the bivector parts switch signs
+    return MVec3d_E<T>(v.c0, -v.c1, -v.c2, -v.c3);
+}
+
 } // namespace hd::ga
 
 

@@ -1949,8 +1949,10 @@ TEST_SUITE("Geometric Algebra")
         // c_rot = rot(c,R)          = {: .3}", rot(c, R));
 
         CHECK(gr1(c_rot_m) == rot(c, R));
+        // n I_3d approach:
         CHECK(rot(Vec3d{1.0, 0.0, 0.0}, rotor(e3_3d * I_3d, pi / 4)) ==
               unitized(Vec3d{1.0, 1.0, 0.0}));
+        // using a bivector directly:
         CHECK(rot(Vec3d{1.0, 0.0, 0.0}, rotor(e12_3d, pi / 4)) ==
               unitized(Vec3d{1.0, 1.0, 0.0}));
     }

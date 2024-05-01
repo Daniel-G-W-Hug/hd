@@ -21,74 +21,8 @@
 namespace hd::ga {
 
 ////////////////////////////////////////////////////////////////////////////////
-// Vec2d<T> geometric operations
+// Vec2d<T> projections and rejections
 ////////////////////////////////////////////////////////////////////////////////
-
-// return dot-product of two vectors
-// dot(v1,v2) = nrm(v1)*nrm(v2)*cos(angle)
-template <typename T, typename U>
-    requires(std::floating_point<T> && std::floating_point<U>)
-inline std::common_type_t<T, U> dot(Vec2d<T> const& v1, Vec2d<U> const& v2)
-{
-    // this implementation is only valid in an orthonormal basis
-    return v1.x * v2.x + v1.y * v2.y;
-}
-
-// return squared magnitude of vector
-template <typename T> inline T sq_nrm(Vec2d<T> const& v) { return dot(v, v); }
-
-// return magnitude of vector
-template <typename T> inline T nrm(Vec2d<T> const& v) { return std::sqrt(dot(v, v)); }
-
-// return a vector unitized to nrm(v) == 1.0
-template <typename T> inline Vec2d<T> unitized(Vec2d<T> const& v)
-{
-    T n = nrm(v);
-    if (n < std::numeric_limits<T>::epsilon()) {
-        throw std::runtime_error("vector norm too small for normalization" +
-                                 std::to_string(n) + "\n");
-    }
-    T inv = 1.0 / n; // for multiplication with inverse of norm
-    return Vec2d<T>(v.x * inv, v.y * inv);
-}
-
-// return the multiplicative inverse of the vector
-template <typename T> inline Vec2d<T> inv(Vec2d<T> const& v)
-{
-    T sq_n = sq_nrm(v);
-    if (sq_n < std::numeric_limits<T>::epsilon()) {
-        throw std::runtime_error("vector norm too small for inversion" +
-                                 std::to_string(sq_n) + "\n");
-    }
-    T inv = 1.0 / sq_n; // inverse of squared norm for a vector
-    return Vec2d<T>(v.x * inv, v.y * inv);
-}
-
-// return the angle between of two vectors
-// range of angle: 0 <= angle <= pi
-template <typename T, typename U>
-    requires(std::floating_point<T> && std::floating_point<U>)
-inline std::common_type_t<T, U> angle(Vec2d<T> const& v1, Vec2d<U> const& v2)
-{
-    using ctype = std::common_type_t<T, U>;
-    ctype nrm_prod = nrm(v1) * nrm(v2);
-    if (nrm_prod < std::numeric_limits<ctype>::epsilon()) {
-        throw std::runtime_error(
-            "vector norm product too small for calculation of angle" +
-            std::to_string(nrm_prod) + "\n");
-    }
-    return std::acos(dot(v1, v2) / nrm_prod);
-}
-
-// wedge product (returns a bivector, which is the pseudoscalar in 2d)
-// wdg(v1,v2) = |v1| |v2| sin(theta)
-// where theta: -pi <= theta <= pi (different to definition of angle for dot product!)
-template <typename T, typename U>
-    requires(std::floating_point<T> && std::floating_point<U>)
-inline PScalar2d<std::common_type_t<T, U>> wdg(Vec2d<T> const& v1, Vec2d<U> const& v2)
-{
-    return PScalar2d<std::common_type_t<T, U>>(v1.x * v2.y - v1.y * v2.x);
-}
 
 // projection of v1 onto v2
 template <typename T, typename U>

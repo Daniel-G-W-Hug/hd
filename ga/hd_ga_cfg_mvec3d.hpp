@@ -219,6 +219,14 @@ template <typename T> inline constexpr PScalar3d<T> gr3(MVec3d<T> const& v)
     return PScalar3d<T>(v.c7);
 }
 
+// return conjugate complex of a multivector,
+// i.e. the reverse in nomenclature of multivectors
+template <typename T> inline constexpr MVec3d<T> rev(MVec3d<T> const& v)
+{
+    // only bivector and trivector parts switch signs
+    return MVec3d<T>(v.c0, v.c1, v.c2, v.c3, -v.c4, -v.c5, -v.c6, -v.c7);
+}
+
 } // namespace hd::ga
 
 

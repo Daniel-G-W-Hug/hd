@@ -24,24 +24,8 @@
 namespace hd::ga {
 
 ////////////////////////////////////////////////////////////////////////////////
-// Vec3d<T> & BiVec3d<T> geometric operations
+// Vec3d<T> & BiVec3d<T> mixed geometric operations
 ////////////////////////////////////////////////////////////////////////////////
-
-// return the dot product of two vectors (= a scalar)
-// coordinate free definition: dot(v1,v2) = nrm(v1)*nrm(v2)*cos(angle)
-template <typename T, typename U>
-    requires(std::floating_point<T> && std::floating_point<U>)
-inline std::common_type_t<T, U> dot(Vec3d<T> const& v1, Vec3d<U> const& v2)
-{
-    // this implementation is only valid in an orthonormal basis
-    return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
-}
-
-// return squared magnitude of vector
-template <typename T> inline T sq_nrm(Vec3d<T> const& v) { return dot(v, v); }
-
-// return magnitude of vector
-template <typename T> inline T nrm(Vec3d<T> const& v) { return std::sqrt(dot(v, v)); }
 
 // return the dot product of a bivector and a vector (= a vector)
 // dot(A,b) = gr0( gpr(A,b) )
@@ -65,15 +49,6 @@ inline Vec3d<std::common_type_t<T, U>> dot(Vec3d<T> const& v1, BiVec3d<U> const&
         v1.z * v2.y - v1.y * v2.z, v1.x * v2.z - v1.z * v2.x, v1.y * v2.x - v1.x * v2.y);
 }
 
-// return dot product of two bivectors A and B (= a scalar)
-// dot(A,B) = gr0( gpr(A,B) )
-template <typename T, typename U>
-    requires(std::floating_point<T> && std::floating_point<U>)
-inline std::common_type_t<T, U> dot(BiVec3d<T> const& A, BiVec3d<U> const& B)
-{
-    // this implementation is only valid in an orthonormal basis
-    return -A.x * B.x - A.y * B.y - A.z * B.z;
-}
 
 // return commutator product cmt(A,B) of two bivectors A and B (= a bivector)
 // cmt(A,B) = 0.5*(AB-BA) = gr2( gpr(A,B) )
@@ -88,92 +63,6 @@ inline BiVec3d<std::common_type_t<T, U>> cmt(BiVec3d<T> const& A, BiVec3d<U> con
     using ctype = std::common_type_t<T, U>;
     return BiVec3d<ctype>(A.z * B.y - A.y * B.z, A.x * B.z - A.z * B.x,
                           A.y * B.x - A.x * B.y);
-}
-
-// return squared magnitude of bivector
-//
-// TODO: Check whether this the right way to calculate the magnitude
-//
-template <typename T> inline T sq_nrm(BiVec3d<T> const& v)
-{
-    return v.x * v.x + v.y * v.y + v.z * v.z;
-}
-
-// return magnitude of bivector
-template <typename T> inline T nrm(BiVec3d<T> const& v)
-{
-    return std::sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
-}
-
-// return a vector unitized to nrm(v) == 1.0
-template <typename T> inline Vec3d<T> unitized(Vec3d<T> const& v)
-{
-    T n = nrm(v);
-    if (n < std::numeric_limits<T>::epsilon()) {
-        throw std::runtime_error("vector norm too small for normalization" +
-                                 std::to_string(n) + "\n");
-    }
-    T inv = 1.0 / n; // for multiplication with inverse of norm
-    return Vec3d<T>(v.x * inv, v.y * inv, v.z * inv);
-}
-
-// return a bivector unitized to nrm(v) == 1.0
-template <typename T> inline BiVec3d<T> unitized(BiVec3d<T> const& v)
-{
-    T n = nrm(v);
-    if (n < std::numeric_limits<T>::epsilon()) {
-        throw std::runtime_error("bivector norm too small for normalization" +
-                                 std::to_string(n) + "\n");
-    }
-    T inv = 1.0 / n; // for multiplication with inverse of norm
-    return BiVec3d<T>(v.x * inv, v.y * inv, v.z * inv);
-}
-
-// return the multiplicative inverse of the vector
-template <typename T> inline Vec3d<T> inv(Vec3d<T> const& v)
-{
-    T sq_n = sq_nrm(v);
-    if (sq_n < std::numeric_limits<T>::epsilon()) {
-        throw std::runtime_error("vector norm too small for inversion" +
-                                 std::to_string(sq_n) + "\n");
-    }
-    T inv = 1.0 / sq_n; // inverse of squared norm for a vector
-    return Vec3d<T>(v.x * inv, v.y * inv, v.z * inv);
-}
-
-// return the multiplicative inverse of the bivector
-template <typename T> inline BiVec3d<T> inv(BiVec3d<T> const& v)
-{
-    T sq_n = sq_nrm(v);
-    if (sq_n < std::numeric_limits<T>::epsilon()) {
-        throw std::runtime_error("bivector norm too small for inversion" +
-                                 std::to_string(sq_n) + "\n");
-    }
-    T inv = -1.0 / sq_n; // negative inverse of squared norm for a bivector
-    return BiVec3d<T>(v.x * inv, v.y * inv, v.z * inv);
-}
-
-// return conjugate complex of a bivector
-// i.e. the reverse in nomenclature of multivectors
-template <typename T> inline BiVec3d<T> rev(BiVec3d<T> const& v)
-{
-    // all bivector parts switch sign
-    return MVec3d<T>(-v.x, -v.y, -v.z);
-}
-
-// return the angle between of two vectors
-// range of angle: 0 <= angle <= pi
-template <typename T, typename U>
-    requires(std::floating_point<T> && std::floating_point<U>)
-inline std::common_type_t<T, U> angle(Vec3d<T> const& v1, Vec3d<U> const& v2)
-{
-    std::common_type_t<T, U> nrm_prod = nrm(v1) * nrm(v2);
-    if (nrm_prod < std::numeric_limits<std::common_type_t<T, U>>::epsilon()) {
-        throw std::runtime_error(
-            "vector norm product too small for calculation of angle" +
-            std::to_string(nrm_prod) + "\n");
-    }
-    return std::acos(dot(v1, v2) / nrm_prod);
 }
 
 // return the angle between of a vector and a bivector
@@ -204,30 +93,6 @@ inline std::common_type_t<T, U> angle(BiVec3d<T> const& v1, Vec3d<U> const& v2)
     return std::acos(std::abs(dot(v1, v2)) / nrm_prod);
 }
 
-// return the angle between two bivectors
-// range of angle: 0 <= angle <= pi
-template <typename T, typename U>
-    requires(std::floating_point<T> && std::floating_point<U>)
-inline std::common_type_t<T, U> angle(BiVec3d<T> const& v1, BiVec3d<U> const& v2)
-{
-    std::common_type_t<T, U> nrm_prod = nrm(v1) * nrm(v2);
-    if (nrm_prod < std::numeric_limits<std::common_type_t<T, U>>::epsilon()) {
-        throw std::runtime_error(
-            "vector norm product too small for calculation of angle" +
-            std::to_string(nrm_prod) + "\n");
-    }
-    return std::acos(std::abs(dot(v1, v2)) / nrm_prod);
-}
-
-// cross-product between two vectors (returns a vector in 3d)
-template <typename T, typename U>
-    requires(std::floating_point<T> && std::floating_point<U>)
-inline BiVec3d<std::common_type_t<T, U>> cross(Vec3d<T> const& v1, Vec3d<U> const& v2)
-{
-    return Vec3d<std::common_type_t<T, U>>(
-        v1.y * v2.z - v1.z * v2.y, v1.z * v2.x - v1.x * v2.z, v1.x * v2.y - v1.y * v2.x);
-}
-
 // wedge product between two vectors (returns a bivector in 3d)
 // coordinate-free definition: wdg(v1,v2) = |v1| |v2| sin(theta)
 // where theta: -pi <= theta <= pi (different to definition of angle for dot product!)
@@ -256,6 +121,10 @@ inline PScalar3d<std::common_type_t<T, U>> wdg(BiVec3d<T> const& A, Vec3d<U> con
 {
     return PScalar3d<std::common_type_t<T, U>>(A.x * b.x + A.y * b.y + A.z * b.z);
 }
+
+////////////////////////////////////////////////////////////////////////////////
+// Vec3d<T> and BiVec3d<T> projections and rejections
+////////////////////////////////////////////////////////////////////////////////
 
 // projection of a vector v1 onto vector v2
 template <typename T, typename U>
@@ -421,14 +290,6 @@ inline constexpr MVec3d<std::common_type_t<T, U>> operator*(MVec3d<T> const& A,
 {
     using ctype = std::common_type_t<T, U>;
     return gpr<ctype>(A, B);
-}
-
-// return conjugate complex of a multivector,
-// i.e. the reverse in nomenclature of multivectors
-template <typename T> inline MVec3d<T> rev(MVec3d<T> const& v)
-{
-    // only bivector and trivector parts switch signs
-    return MVec3d<T>(v.c0, v.c1, v.c2, v.c3, -v.c4, -v.c5, -v.c6, -v.c7);
 }
 
 // geometric product ab between two vectors (returns a multivector of the even subalgebra)
@@ -814,15 +675,6 @@ inline constexpr MVec3d_U<std::common_type_t<T, U>> operator*(MVec3d_E<T> const&
 {
     using ctype = std::common_type_t<T, U>;
     return gpr<ctype>(A, B);
-}
-
-
-// return conjugate complex of quaternion (MVec3d_E<T>),
-// i.e. the reverse in nomenclature of multivectors
-template <typename T> inline MVec3d_E<T> rev(MVec3d_E<T> const& v)
-{
-    // only the bivector parts switch signs
-    return MVec3d_E<T>(v.c0, -v.c1, -v.c2, -v.c3);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////

@@ -114,6 +114,82 @@ inline constexpr BiVec3d<std::common_type_t<T, U>> operator/(BiVec3d<T> const& v
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// BiVec3d<T> geometric operations
+////////////////////////////////////////////////////////////////////////////////
+
+// return dot product of two bivectors A and B (= a scalar)
+// dot(A,B) = gr0( gpr(A,B) )
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline constexpr std::common_type_t<T, U> dot(BiVec3d<T> const& A, BiVec3d<U> const& B)
+{
+    // this implementation is only valid in an orthonormal basis
+    return -A.x * B.x - A.y * B.y - A.z * B.z;
+}
+
+// return squared magnitude of bivector
+//
+// TODO: Check whether this the right way to calculate the magnitude
+//
+template <typename T> inline constexpr T sq_nrm(BiVec3d<T> const& v)
+{
+    return v.x * v.x + v.y * v.y + v.z * v.z;
+}
+
+// return magnitude of bivector
+template <typename T> inline constexpr T nrm(BiVec3d<T> const& v)
+{
+    return std::sqrt(sq_nrm(v));
+}
+
+// return a bivector unitized to nrm(v) == 1.0
+template <typename T> inline constexpr BiVec3d<T> unitized(BiVec3d<T> const& v)
+{
+    T n = nrm(v);
+    if (n < std::numeric_limits<T>::epsilon()) {
+        throw std::runtime_error("bivector norm too small for normalization" +
+                                 std::to_string(n) + "\n");
+    }
+    T inv = 1.0 / n; // for multiplication with inverse of norm
+    return BiVec3d<T>(v.x * inv, v.y * inv, v.z * inv);
+}
+
+// return the multiplicative inverse of the bivector
+template <typename T> inline constexpr BiVec3d<T> inv(BiVec3d<T> const& v)
+{
+    T sq_n = sq_nrm(v);
+    if (sq_n < std::numeric_limits<T>::epsilon()) {
+        throw std::runtime_error("bivector norm too small for inversion" +
+                                 std::to_string(sq_n) + "\n");
+    }
+    T inv = -1.0 / sq_n; // negative inverse of squared norm for a bivector
+    return BiVec3d<T>(v.x * inv, v.y * inv, v.z * inv);
+}
+
+// return conjugate complex of a bivector
+// i.e. the reverse in nomenclature of multivectors
+template <typename T> inline constexpr BiVec3d<T> rev(BiVec3d<T> const& v)
+{
+    // all bivector parts switch sign
+    return MVec3d<T>(-v.x, -v.y, -v.z);
+}
+
+// return the angle between two bivectors
+// range of angle: 0 <= angle <= pi
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline std::common_type_t<T, U> angle(BiVec3d<T> const& v1, BiVec3d<U> const& v2)
+{
+    std::common_type_t<T, U> nrm_prod = nrm(v1) * nrm(v2);
+    if (nrm_prod < std::numeric_limits<std::common_type_t<T, U>>::epsilon()) {
+        throw std::runtime_error(
+            "vector norm product too small for calculation of angle" +
+            std::to_string(nrm_prod) + "\n");
+    }
+    return std::acos(std::abs(dot(v1, v2)) / nrm_prod);
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // BiVec3d<T> printing support via iostream
 ////////////////////////////////////////////////////////////////////////////////
 

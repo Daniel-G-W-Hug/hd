@@ -126,6 +126,74 @@ inline constexpr Vec3d<std::common_type_t<T, U>> operator/(Vec3d<T> const& v, U 
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// Vec3d<T> geometric operations
+////////////////////////////////////////////////////////////////////////////////
+
+// return the dot product of two vectors (= a scalar)
+// coordinate free definition: dot(v1,v2) = nrm(v1)*nrm(v2)*cos(angle)
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline std::common_type_t<T, U> dot(Vec3d<T> const& v1, Vec3d<U> const& v2)
+{
+    // this implementation is only valid in an orthonormal basis
+    return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
+}
+
+// return squared magnitude of vector
+template <typename T> inline T sq_nrm(Vec3d<T> const& v) { return dot(v, v); }
+
+// return magnitude of vector
+template <typename T> inline T nrm(Vec3d<T> const& v) { return std::sqrt(dot(v, v)); }
+
+// return a vector unitized to nrm(v) == 1.0
+template <typename T> inline Vec3d<T> unitized(Vec3d<T> const& v)
+{
+    T n = nrm(v);
+    if (n < std::numeric_limits<T>::epsilon()) {
+        throw std::runtime_error("vector norm too small for normalization" +
+                                 std::to_string(n) + "\n");
+    }
+    T inv = 1.0 / n; // for multiplication with inverse of norm
+    return Vec3d<T>(v.x * inv, v.y * inv, v.z * inv);
+}
+
+// return the multiplicative inverse of the vector
+template <typename T> inline Vec3d<T> inv(Vec3d<T> const& v)
+{
+    T sq_n = sq_nrm(v);
+    if (sq_n < std::numeric_limits<T>::epsilon()) {
+        throw std::runtime_error("vector norm too small for inversion" +
+                                 std::to_string(sq_n) + "\n");
+    }
+    T inv = 1.0 / sq_n; // inverse of squared norm for a vector
+    return Vec3d<T>(v.x * inv, v.y * inv, v.z * inv);
+}
+
+// return the angle between of two vectors
+// range of angle: 0 <= angle <= pi
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline std::common_type_t<T, U> angle(Vec3d<T> const& v1, Vec3d<U> const& v2)
+{
+    std::common_type_t<T, U> nrm_prod = nrm(v1) * nrm(v2);
+    if (nrm_prod < std::numeric_limits<std::common_type_t<T, U>>::epsilon()) {
+        throw std::runtime_error(
+            "vector norm product too small for calculation of angle" +
+            std::to_string(nrm_prod) + "\n");
+    }
+    return std::acos(dot(v1, v2) / nrm_prod);
+}
+
+// cross-product between two vectors (returns a vector in 3d)
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline Vec3d<std::common_type_t<T, U>> cross(Vec3d<T> const& v1, Vec3d<U> const& v2)
+{
+    return Vec3d<std::common_type_t<T, U>>(
+        v1.y * v2.z - v1.z * v2.y, v1.z * v2.x - v1.x * v2.z, v1.x * v2.y - v1.y * v2.x);
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // Vec3d<T> printing support via iostream
 ////////////////////////////////////////////////////////////////////////////////
 
