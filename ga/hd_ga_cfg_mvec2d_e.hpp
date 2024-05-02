@@ -7,6 +7,7 @@
 #include <concepts> // std::floating_point<T>
 #include <iostream>
 #include <limits>
+#include <numbers> // math constants like pi
 #include <stdexcept>
 #include <string>
 
@@ -171,12 +172,123 @@ template <typename T> inline constexpr PScalar2d<T> gr2(MVec2d_E<T> const& v)
     return PScalar2d<T>(v.c1);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// MVec2d_E<T> basic operations
+////////////////////////////////////////////////////////////////////////////////
+
+// return squared magnitude of complex number
+// |Z|^2 = Z rev(z) = c0^2 + c1^2
+template <typename T> inline T sq_nrm(MVec2d_E<T> const& v)
+{
+    return v.c0 * v.c0 + v.c1 * v.c1;
+}
+
+// return magnitude of complex number
+template <typename T> inline T nrm(MVec2d_E<T> const& v) { return std::sqrt(sq_nrm(v)); }
+
+// return conjugate complex of complex number,
+// i.e. the reverse in nomenclature of multivectors
+template <typename T> inline MVec2d_E<T> rev(MVec2d_E<T> const& v)
+{
+    return MVec2d_E<T>(v.c0, -v.c1);
+}
+
+// return a complex unitized to nrm(v) == 1.0
+template <typename T> inline MVec2d_E<T> unitized(MVec2d_E<T> const& v)
+{
+    T n = nrm(v);
+    if (n < std::numeric_limits<T>::epsilon()) {
+        throw std::runtime_error("complex norm too small for normalization" +
+                                 std::to_string(n) + "\n");
+    }
+    T inv = 1.0 / n; // for multiplication with inverse of norm
+    return MVec2d_E<T>(v.c0 * inv, v.c1 * inv);
+}
+
+// return the multiplicative inverse of the complex (inv(z) = 1/sq_nrm(z)*rev(z))
+// with rev(z) being the complex conjugate
+template <typename T> inline MVec2d_E<T> inv(MVec2d_E<T> const& v)
+{
+    T sq_n = sq_nrm(v);
+    if (sq_n < std::numeric_limits<T>::epsilon()) {
+        throw std::runtime_error("complex norm too small for inversion" +
+                                 std::to_string(sq_n) + "\n");
+    }
+    T inv = 1.0 / sq_n; // inverse of squared norm for a vector
+    return inv * rev(v);
+}
+
+// return the angle of the complex number w.r.t. the real axis
+// range of angle: -pi <= angle <= pi
+template <typename T>
+    requires(std::floating_point<T>)
+inline T angle(MVec2d_E<T> const& v)
+{
+    using std::numbers::pi;
+    if (v.c0 > 0.0) {
+        // quadrant I & IV
+        return std::atan(v.c1 / v.c0);
+    }
+    if (v.c0 < 0.0 && v.c1 >= 0.0) {
+        // quadrant II
+        return std::atan(v.c1 / v.c0) + pi;
+    }
+    if (v.c0 < 0.0 && v.c1 < 0.0) {
+        // quadrant III
+        return std::atan(v.c1 / v.c0) - pi;
+    }
+    if (v.c0 == 0.0) {
+        // on y-axis
+        if (v.c1 > 0.0) return pi / 2.0;
+        if (v.c1 < 0.0) return -pi / 2.0;
+    }
+    return 0.0; // zero as input => define 0 as corresponding angle
+}
+
+// exponential function for setup of complex numbers and rotations
+// as geometric multivectors with a scalar and a bivector part
+//
+// r = 1 is the vector length of the complex number in polar form
+// theta is the bivector angle (i.e. a multiple of the bivector I_2d)
+// such that uv = r exp(I_2d, theta) = a + I_2d b
+// with r = |u| |v| = sqrt(a^2 + b^2) = 1
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline constexpr MVec2d_E<std::common_type_t<T, U>>
+exp([[maybe_unused]] PScalar2d<T> const& I, U theta)
+{
+    // PScalar2d<T> is just used here for a unique overload of exp()
+    // and to make the function signature similar to the 3D case
+    using ctype = std::common_type_t<T, U>;
+    return MVec2d_E<ctype>(Scalar<ctype>(std::cos(theta)),
+                           PScalar2d<ctype>(std::sin(theta)));
+}
+
+// Inputs:
+//         - a 2d pseudoscalar representing the plane of 2d space
+//         - a rotation angle in the plane of 2d space
+// Output:
+//         - a rotor representing the requested rotation,
+//           when applying the sandwich product with the rotor as in rot(v,rotor)
+//
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline constexpr MVec2d_E<std::common_type_t<T, U>>
+rotor([[maybe_unused]] PScalar2d<T> const& I, U theta)
+{
+    // PScalar2d<T> is just used here to be able to overload exp
+    // and to make the function similar to the 3D case
+    using ctype = std::common_type_t<T, U>;
+    ctype half_angle = 0.5 * theta;
+    return MVec2d_E<ctype>(Scalar<ctype>(std::cos(half_angle)),
+                           PScalar2d<ctype>(std::sin(half_angle)));
+}
+
 } // namespace hd::ga
 
-
-// ////////////////////////////////////////////////////////////////////////////////
-// // printing support via fmt library
-// ////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+// printing support via fmt library
+////////////////////////////////////////////////////////////////////////////////
 template <typename T>
 struct fmt::formatter<hd::ga::MVec2d_E<T>> : nested_formatter<double> {
     template <typename FormatContext>

@@ -182,6 +182,20 @@ template <typename T> inline constexpr BiVec3d<T> gr2(MVec3d_E<T> const& v)
     return BiVec3d<T>(v.c1, v.c2, v.c3);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// MVec3d_E<T> basic operations
+////////////////////////////////////////////////////////////////////////////////
+
+// return squared magnitude of complex number
+// |Z|^2 = Z rev(z) = c0^2 + c1^2 + c2^2 + c3^2
+template <typename T> inline T sq_nrm(MVec3d_E<T> const& v)
+{
+    return v.c0 * v.c0 + v.c1 * v.c1 + v.c2 * v.c2 + v.c3 * v.c3;
+}
+
+// return magnitude of complex number
+template <typename T> inline T nrm(MVec3d_E<T> const& v) { return std::sqrt(sq_nrm(v)); }
+
 // return conjugate complex of quaternion (MVec3d_E<T>),
 // i.e. the reverse in nomenclature of multivectors
 template <typename T> inline constexpr MVec3d_E<T> rev(MVec3d_E<T> const& v)
@@ -189,6 +203,19 @@ template <typename T> inline constexpr MVec3d_E<T> rev(MVec3d_E<T> const& v)
     // only the bivector parts switch signs
     return MVec3d_E<T>(v.c0, -v.c1, -v.c2, -v.c3);
 }
+
+// return a complex unitized to nrm(v) == 1.0
+template <typename T> inline MVec3d_E<T> unitized(MVec3d_E<T> const& v)
+{
+    T n = nrm(v);
+    if (n < std::numeric_limits<T>::epsilon()) {
+        throw std::runtime_error("complex norm too small for normalization" +
+                                 std::to_string(n) + "\n");
+    }
+    T inv = 1.0 / n; // for multiplication with inverse of norm
+    return MVec3d_E<T>(v.c0 * inv, v.c1 * inv, v.c2 * inv, v.c3 * inv);
+}
+
 
 } // namespace hd::ga
 
