@@ -1523,15 +1523,15 @@ TEST_SUITE("Geometric Algebra")
         auto dot_aB = dot(a, B);
         auto wdg_aB = wdg(a, B);
 
-        MVec3d ab = gpr(a, b);
+        MVec3d_E ab = gpr(a, b);
         MVec3d abm = gpr(mva, mvb);
         MVec3d abd{Scalar<double>(dot_ab), wdg_ab};
 
-        MVec3d Ab = gpr(A, b);
+        MVec3d_U Ab = gpr(A, b);
         MVec3d Abm = gpr(mvA, mvb);
         MVec3d Abd{dot_Ab, wdg_Ab};
 
-        MVec3d aB = gpr(a, B);
+        MVec3d_U aB = gpr(a, B);
         MVec3d aBm = gpr(mva, mvB);
         MVec3d aBd{dot_aB, wdg_aB};
 
@@ -1539,7 +1539,7 @@ TEST_SUITE("Geometric Algebra")
         // fmt::println("   mva                              = {}", mva);
         // fmt::println("   b                                = {}", b);
         // fmt::println("   mvb                              = {}", mvb);
-        // fmt::println("   ab  = gpr(a,b)                   = {}", ab);
+        // fmt::println("   ab  = MVec3d_E(gpr(a,b))         = {}", ab);
         // fmt::println("   abm = gpr(mva,mvb)               = {}", abm);
         // fmt::println("   abd = MVec3d(dot(a,b), wdg(a,b)) = {}", abd);
         // fmt::println("");
@@ -1547,7 +1547,7 @@ TEST_SUITE("Geometric Algebra")
         // fmt::println("   mvA                              = {}", mvA);
         // fmt::println("   b                                = {}", b);
         // fmt::println("   mvb                              = {}", mvb);
-        // fmt::println("   Ab  = gpr(A,b)                   = {}", Ab);
+        // fmt::println("   Ab  = MVec3d_U(gpr(A,b))         = {}", Ab);
         // fmt::println("   Abm = gpr(mvA,mvb)               = {}", Abm);
         // fmt::println("   Abd = MVec3d(dot(A,b), wdg(A,b)) = {}", Abd);
         // fmt::println("");
@@ -1555,17 +1555,40 @@ TEST_SUITE("Geometric Algebra")
         // fmt::println("   mva                              = {}", mva);
         // fmt::println("   B                                = {}", B);
         // fmt::println("   mvB                              = {}", mvB);
-        // fmt::println("   aB  = gpr(a,B)                   = {}", aB);
+        // fmt::println("   aB  = MVec3d_U(gpr(a,B))         = {}", aB);
         // fmt::println("   aBm = gpr(mva,mvB)               = {}", aBm);
         // fmt::println("   aBd = MVec3d(dot(a,B), wdg(a,B)) = {}", aBd);
         // fmt::println("");
 
-        CHECK(ab == abm);
-        CHECK(ab == abd);
-        CHECK(Ab == Abm);
-        CHECK(Ab == Abd);
-        CHECK(aB == aBm);
-        CHECK(aB == aBd);
+        CHECK(gr0(ab) == gr0(abm));
+        CHECK(gr1(abm) == Vec3d{});
+        CHECK(gr2(ab) == gr2(abm));
+        CHECK(gr3(abm) == PScalar3d<double>{0.0});
+
+        CHECK(gr0(ab) == gr0(abd));
+        CHECK(gr1(abd) == Vec3d{});
+        CHECK(gr2(ab) == gr2(abd));
+        CHECK(gr3(abd) == PScalar3d<double>{0.0});
+
+        CHECK(gr0(Abm) == 0);
+        CHECK(gr1(Ab) == gr1(Abm));
+        CHECK(gr2(Abm) == BiVec3d{});
+        CHECK(gr3(Ab) == gr3(Abm));
+
+        CHECK(gr0(Abd) == 0);
+        CHECK(gr1(Ab) == gr1(Abd));
+        CHECK(gr2(Abd) == BiVec3d{});
+        CHECK(gr3(Ab) == gr3(Abd));
+
+        CHECK(gr0(aBm) == 0);
+        CHECK(gr1(aB) == gr1(aBm));
+        CHECK(gr2(aBm) == BiVec3d{});
+        CHECK(gr3(aB) == gr3(aBm));
+
+        CHECK(gr0(aBd) == 0);
+        CHECK(gr1(aB) == gr1(aBd));
+        CHECK(gr2(aBd) == BiVec3d{});
+        CHECK(gr3(aB) == gr3(aBd));
     }
 
     TEST_CASE("MVec3d: assignment tests")

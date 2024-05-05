@@ -257,7 +257,7 @@ reject_from_unitized(Vec3d<T> const& v1, BiVec3d<U> const& v2)
 // Use equivalent formulae instead for not fully populated multivectors:
 // ab = dot(a,b) + wdg(a,b) = gr0(ab) + gr2(ab)  (vector vector = scalar + bivector)
 // Ab = dot(A,b) + wdg(A,b) = gr1(Ab) + gr3(Ab)  (bivector vector = vector + trivector)
-// aB = dot(a,B) + wdg(a,B) = gr1(aB) + gr3(aB)  (bivector vector = vector + trivector)
+// aB = dot(a,B) + wdg(a,B) = gr1(aB) + gr3(aB)  (vector bivector = vector + trivector)
 // => see overloaded versions of gpr
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
@@ -322,20 +322,23 @@ inline constexpr MVec3d_E<std::common_type_t<T, U>> operator*(Vec3d<T> const& a,
 // geometric product Ab for a bivector and a vector (returns a multivector)
 // Ab = dot(A,b) + wdg(A,b) = gr1(Ab) + gr3(Ab)
 // => bivector vector = vector + trivector
+//
+// HINT: if a full 3d multivector is required as result it must be converted explicitly,
+//       since C++ does not allow overloading on different return types
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr MVec3d<std::common_type_t<T, U>> gpr(BiVec3d<T> const& A,
-                                                      Vec3d<U> const& b)
+inline constexpr MVec3d_U<std::common_type_t<T, U>> gpr(BiVec3d<T> const& A,
+                                                        Vec3d<U> const& b)
 {
     using ctype = std::common_type_t<T, U>;
-    return MVec3d<ctype>(dot(A, b), wdg(A, b));
+    return MVec3d_U<ctype>(dot(A, b), wdg(A, b));
 }
 
 // define geometric multiplication with operator*(A,b) as an alias for gpr(A,b)
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr MVec3d<std::common_type_t<T, U>> operator*(BiVec3d<T> const& A,
-                                                            Vec3d<U> const& b)
+inline constexpr MVec3d_U<std::common_type_t<T, U>> operator*(BiVec3d<T> const& A,
+                                                              Vec3d<U> const& b)
 {
     using ctype = std::common_type_t<T, U>;
     return gpr<ctype>(A, b);
@@ -344,20 +347,23 @@ inline constexpr MVec3d<std::common_type_t<T, U>> operator*(BiVec3d<T> const& A,
 // geometric product aB for a vector and a bivector (returns a multivector)
 // aB = dot(a,B) + wdg(a,B) = gr1(aB) + gr3(aB)
 // => bivector vector = vector + trivector
+//
+// HINT: if a full 3d multivector is required as result it must be converted explicitly,
+//       since C++ does not allow overloading on different return types
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr MVec3d<std::common_type_t<T, U>> gpr(Vec3d<T> const& a,
-                                                      BiVec3d<U> const& B)
+inline constexpr MVec3d_U<std::common_type_t<T, U>> gpr(Vec3d<T> const& a,
+                                                        BiVec3d<U> const& B)
 {
     using ctype = std::common_type_t<T, U>;
-    return MVec3d<ctype>(dot(a, B), wdg(a, B));
+    return MVec3d_U<ctype>(dot(a, B), wdg(a, B));
 }
 
 // define geometric multiplication with operator*(a,B) as an alias for gpr(a,B)
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr MVec3d<std::common_type_t<T, U>> operator*(Vec3d<T> const& a,
-                                                            BiVec3d<U> const& B)
+inline constexpr MVec3d_U<std::common_type_t<T, U>> operator*(Vec3d<T> const& a,
+                                                              BiVec3d<U> const& B)
 {
     using ctype = std::common_type_t<T, U>;
     return gpr<ctype>(a, B);
@@ -435,6 +441,29 @@ inline constexpr BiVec3d<std::common_type_t<T, U>> operator*(PScalar3d<T> A,
     return gpr<ctype>(A, b);
 }
 
+// geometric product AB of a trivector A multiplied from the left
+// to the multivector from the uneven subalgebra B
+// gpr(trivector, uneven multivector) => returns a even multivector
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline constexpr MVec3d_E<std::common_type_t<T, U>> gpr(PScalar3d<T> A,
+                                                        MVec3d_U<U> const& B)
+{
+    using ctype = std::common_type_t<T, U>;
+    return ctype(A) *
+           MVec3d_E<ctype>(Scalar<ctype>(-B.c3), BiVec3d<ctype>(B.c0, B.c1, B.c2));
+}
+
+// define geometric multiplication with operator*(A,b) as an alias for gpr(A,b)
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline constexpr MVec3d_E<std::common_type_t<T, U>> operator*(PScalar3d<T> A,
+                                                              MVec3d_U<U> const& B)
+{
+    using ctype = std::common_type_t<T, U>;
+    return gpr<ctype>(A, B);
+}
+
 // geometric product Ab of a trivector A multiplied from the left
 // to the bivector b
 // gpr(trivector, bivector) => returns a vector
@@ -454,6 +483,29 @@ inline constexpr Vec3d<std::common_type_t<T, U>> operator*(PScalar3d<T> A,
 {
     using ctype = std::common_type_t<T, U>;
     return gpr<ctype>(A, b);
+}
+
+// geometric product AB of a trivector A multiplied from the left
+// to the multivector from the even subalgebra B
+// gpr(trivector, even multivector) => returns an uneven multivector
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline constexpr MVec3d_U<std::common_type_t<T, U>> gpr(PScalar3d<T> A,
+                                                        MVec3d_E<U> const& B)
+{
+    using ctype = std::common_type_t<T, U>;
+    return ctype(A) *
+           MVec3d_U<ctype>(Vec3d<ctype>(-B.c1, -B.c2, -B.c3), PScalar3d<ctype>(B.c0));
+}
+
+// define geometric multiplication with operator*(A,b) as an alias for gpr(A,b)
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline constexpr MVec3d_U<std::common_type_t<T, U>> operator*(PScalar3d<T> A,
+                                                              MVec3d_E<U> const& B)
+{
+    using ctype = std::common_type_t<T, U>;
+    return gpr<ctype>(A, B);
 }
 
 // geometric product AB of a trivector B multiplied from the right
@@ -498,6 +550,29 @@ inline constexpr BiVec3d<std::common_type_t<T, U>> operator*(Vec3d<T> const& a,
     return gpr<ctype>(a, B);
 }
 
+// geometric product AB of an uneven multivector A multiplied from the right
+// by the trivector B (=pseudoscalar in 3d)
+// gpr(uneven multivector, trivector) => returns a even multivector
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline constexpr MVec3d_E<std::common_type_t<T, U>> gpr(MVec3d_U<U> const& A,
+                                                        PScalar3d<T> B)
+{
+    using ctype = std::common_type_t<T, U>;
+    return MVec3d_E<ctype>(Scalar<ctype>(-A.c3), BiVec3d<ctype>(A.c0, A.c1, A.c2)) *
+           ctype(B);
+}
+
+// define geometric multiplication with operator*(A,b) as an alias for gpr(A,b)
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline constexpr MVec3d_E<std::common_type_t<T, U>> operator*(MVec3d_U<U> const& A,
+                                                              PScalar3d<T> B)
+{
+    using ctype = std::common_type_t<T, U>;
+    return gpr<ctype>(A, B);
+}
+
 // geometric product aB of a trivector B multiplied from the right
 // to the bivector a
 // gpr(bivector, trivector) => returns a vector
@@ -517,6 +592,29 @@ inline constexpr Vec3d<std::common_type_t<T, U>> operator*(BiVec3d<T> const& a,
 {
     using ctype = std::common_type_t<T, U>;
     return gpr<ctype>(a, B);
+}
+
+// geometric product AB of an even multivector A multiplied from the right
+// by the trivector B (=pseudoscalar in 3d)
+// gpr(even multivector, trivector) => returns an uneven multivector
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline constexpr MVec3d_U<std::common_type_t<T, U>> gpr(MVec3d_E<U> const& A,
+                                                        PScalar3d<T> B)
+{
+    using ctype = std::common_type_t<T, U>;
+    return MVec3d_U<ctype>(Vec3d<ctype>(-A.c1, -A.c2, -A.c3), PScalar3d<ctype>(A.c0)) *
+           ctype(B);
+}
+
+// define geometric multiplication with operator*(A,b) as an alias for gpr(A,b)
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline constexpr MVec3d_U<std::common_type_t<T, U>> operator*(MVec3d_E<U> const& A,
+                                                              PScalar3d<T> B)
+{
+    using ctype = std::common_type_t<T, U>;
+    return gpr<ctype>(A, B);
 }
 
 // geometric product AB of two trivectors
@@ -547,7 +645,7 @@ template <typename T> inline PScalar3d<T> rev(PScalar3d<T> A)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// MVec3d_E<T> operations
+// MVec3d_E<T> / MVec3d_U<T> operations
 ////////////////////////////////////////////////////////////////////////////////
 
 // geometric product ab for two multivectors from the even subalgebra (3d case)
@@ -560,10 +658,11 @@ inline constexpr MVec3d_E<std::common_type_t<T, U>> gpr(MVec3d_E<T> const& a,
                                                         MVec3d_E<U> const& b)
 {
     using ctype = std::common_type_t<T, U>;
-    return MVec3d_E<ctype>(a.c0 * b.c0 - a.c1 * b.c1 - a.c2 * b.c2 - a.c3 * b.c3,
-                           a.c0 * b.c1 + a.c1 * b.c0 - a.c2 * b.c3 + a.c3 * b.c2,
-                           a.c0 * b.c2 + a.c1 * b.c3 + a.c2 * b.c0 - a.c3 * b.c1,
-                           a.c0 * b.c3 - a.c1 * b.c2 + a.c2 * b.c1 + a.c3 * b.c0);
+    return MVec3d_E<ctype>(
+        Scalar<ctype>(a.c0 * b.c0 - a.c1 * b.c1 - a.c2 * b.c2 - a.c3 * b.c3),
+        BiVec3d<ctype>(a.c0 * b.c1 + a.c1 * b.c0 - a.c2 * b.c3 + a.c3 * b.c2,
+                       a.c0 * b.c2 + a.c1 * b.c3 + a.c2 * b.c0 - a.c3 * b.c1,
+                       a.c0 * b.c3 - a.c1 * b.c2 + a.c2 * b.c1 + a.c3 * b.c0));
 }
 
 // define complex multiplication with operator*(a,b) as an alias for gpr(a,b)
@@ -571,6 +670,30 @@ template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
 inline constexpr MVec3d_E<std::common_type_t<T, U>> operator*(MVec3d_E<T> const& a,
                                                               MVec3d_E<U> const& b)
+{
+    using ctype = std::common_type_t<T, U>;
+    return gpr<ctype>(a, b);
+}
+
+// geometric product ab for two multivectors from the uneven subalgebra (3d case)
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline constexpr MVec3d_E<std::common_type_t<T, U>> gpr(MVec3d_U<T> const& a,
+                                                        MVec3d_U<U> const& b)
+{
+    using ctype = std::common_type_t<T, U>;
+    return MVec3d_E<ctype>(
+        Scalar<ctype>(a.c0 * b.c0 + a.c1 * b.c1 + a.c2 * b.c2 - a.c3 * b.c3),
+        BiVec3d<ctype>(a.c0 * b.c3 + a.c1 * b.c2 - a.c2 * b.c1 + a.c3 * b.c0,
+                       -a.c0 * b.c2 + a.c1 * b.c3 + a.c2 * b.c0 + a.c3 * b.c1,
+                       a.c0 * b.c1 - a.c1 * b.c0 + a.c2 * b.c3 + a.c3 * b.c2));
+}
+
+// define complex multiplication with operator*(a,b) as an alias for gpr(a,b)
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline constexpr MVec3d_E<std::common_type_t<T, U>> operator*(MVec3d_U<T> const& a,
+                                                              MVec3d_U<U> const& b)
 {
     using ctype = std::common_type_t<T, U>;
     return gpr<ctype>(a, b);
@@ -601,6 +724,30 @@ inline constexpr MVec3d_U<std::common_type_t<T, U>> operator*(MVec3d_E<T> const&
     return gpr<ctype>(A, b);
 }
 
+// geometric product ab of a multivector a from the even subalgebra (3d case)
+// with a bivector b from the right
+// => returns an even multivector
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline constexpr MVec3d_E<std::common_type_t<T, U>> gpr(MVec3d_E<T> const& a,
+                                                        BiVec3d<U> const& b)
+{
+    using ctype = std::common_type_t<T, U>;
+    return MVec3d_E<ctype>(Scalar3d<ctype>(-a.c1 * b.x - a.c2 * b.y - a.c3 * b.z),
+                           BiVec3d<ctype>(a.c0 * b.x - a.c2 * b.z + a.c3 * b.y,
+                                          a.c0 * b.y + a.c1 * b.z - a.c3 * b.x,
+                                          a.c0 * b.z - a.c1 * b.y + a.c2 * b.x));
+}
+
+// define complex multiplication with operator*(a,b) as an alias for gpr(a,b)
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline constexpr MVec3d_E<std::common_type_t<T, U>> operator*(MVec3d_E<T> const& a,
+                                                              BiVec3d<U> const& b)
+{
+    using ctype = std::common_type_t<T, U>;
+    return gpr<ctype>(a, b);
+}
 
 // geometric product aB a multivector B from the even subalgebra (3d case)
 // with a vector from the left
@@ -625,6 +772,31 @@ inline constexpr MVec3d_U<std::common_type_t<T, U>> operator*(Vec3d<T> const& a,
 {
     using ctype = std::common_type_t<T, U>;
     return gpr<ctype>(a, B);
+}
+
+// geometric product ab of a multivector b from the even subalgebra (3d case)
+// with a bivector a from the right
+// => returns an even multivector
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline constexpr MVec3d_E<std::common_type_t<T, U>> gpr(BiVec3d<T> const& a,
+                                                        MVec3d_E<U> const& b)
+{
+    using ctype = std::common_type_t<T, U>;
+    return MVec3d_E<ctype>(Scalar3d<ctype>(-a.x * b.c1 - a.y * b.c2 - a.z * b.c3),
+                           BiVec3d<ctype>(a.x * b.c0 - a.y * b.c3 + a.z * b.c2,
+                                          a.x * b.c3 + a.y * b.c0 - a.z * b.c1,
+                                          -a.x * b.c2 + a.y * b.c1 + a.z * b.c0));
+}
+
+// define complex multiplication with operator*(a,b) as an alias for gpr(a,b)
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline constexpr MVec3d_E<std::common_type_t<T, U>> operator*(BiVec3d<T> const& a,
+                                                              MVec3d_E<U> const& b)
+{
+    using ctype = std::common_type_t<T, U>;
+    return gpr<ctype>(a, b);
 }
 
 // geometric product AB of a multivector A from the uneven subalgebra (3d case)
@@ -652,7 +824,6 @@ inline constexpr MVec3d_U<std::common_type_t<T, U>> operator*(MVec3d_U<T> const&
     using ctype = std::common_type_t<T, U>;
     return gpr<ctype>(A, b);
 }
-
 
 // geometric product AB of a multivector A from the even subalgebra (3d case)
 // with a multivector B of the uneven subalgebra
