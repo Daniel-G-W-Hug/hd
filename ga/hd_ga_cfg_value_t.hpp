@@ -22,4 +22,6 @@ template <typename T> using Scalar = Strong_t<T, scalar_tag>;
 template <typename T> using PScalar2d = Strong_t<T, pscalar2d_tag>;
 template <typename T> using PScalar3d = Strong_t<T, pscalar3d_tag>;
 
+value_t sign(value_t value) { return (value >= 0.0) ? 1.0 : -1.0; }
+
 } // namespace hd::ga

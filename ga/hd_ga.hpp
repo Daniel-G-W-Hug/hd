@@ -28,5 +28,6 @@
 #include "hd_ga_cfg_2d_ops.hpp" // 2d operations
 #include "hd_ga_cfg_3d_ops.hpp" // 3d operations
 
-#include "hd_ga_usr_consts.hpp" // user constants
-#include "hd_ga_usr_types.hpp"  // consistent user types
+#include "hd_ga_usr_consts.hpp"    // user constants
+#include "hd_ga_usr_types.hpp"     // consistent user types
+#include "hd_ga_usr_utilities.hpp" // convenient helper functions

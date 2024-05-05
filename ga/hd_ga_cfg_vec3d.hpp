@@ -2,8 +2,9 @@
 
 // author: Daniel Hug, 2024
 
-#include <cmath>    // abs
-#include <concepts> // std::floating_point<T>
+#include <algorithm> // std::clamp
+#include <cmath>     // std::abs, std::sin, std::cos
+#include <concepts>  // std::floating_point<T>
 #include <iostream>
 #include <limits>
 #include <stdexcept>
@@ -49,6 +50,7 @@ struct Vec3d {
         requires(std::floating_point<U>)
     bool operator==(Vec3d<U> const& rhs) const
     {
+        using ctype = std::common_type_t<T, U>;
         // componentwise comparison
         // equality implies same magnitude and direction
         // comparison is not exact, but accepts epsilon deviations
@@ -56,9 +58,8 @@ struct Vec3d {
         auto abs_delta_y = std::abs(rhs.y - y);
         auto abs_delta_z = std::abs(rhs.z - z);
         auto constexpr delta_eps =
-            std::common_type_t<T, U>(5.0) *
-            std::max<std::common_type_t<T, U>>(std::numeric_limits<T>::epsilon(),
-                                               std::numeric_limits<U>::epsilon());
+            ctype(5.0) * std::max<ctype>(std::numeric_limits<T>::epsilon(),
+                                         std::numeric_limits<U>::epsilon());
         if (abs_delta_x < delta_eps && abs_delta_y < delta_eps && abs_delta_z < delta_eps)
             return true;
         return false;
@@ -175,14 +176,60 @@ template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
 inline std::common_type_t<T, U> angle(Vec3d<T> const& v1, Vec3d<U> const& v2)
 {
-    std::common_type_t<T, U> nrm_prod = nrm(v1) * nrm(v2);
-    if (nrm_prod < std::numeric_limits<std::common_type_t<T, U>>::epsilon()) {
+    using ctype = std::common_type_t<T, U>;
+
+    ctype nrm_prod = nrm(v1) * nrm(v2);
+    if (nrm_prod < std::numeric_limits<ctype>::epsilon()) {
         throw std::runtime_error(
             "vector norm product too small for calculation of angle" +
             std::to_string(nrm_prod) + "\n");
     }
-    return std::acos(dot(v1, v2) / nrm_prod);
+    // std::clamp must be used to take care of numerical inaccuracies
+    return std::acos(std::clamp(dot(v1, v2) / nrm_prod, -1.0, 1.0));
 }
+
+
+// unsuccessful try to extend angle range to -pi ... pi,
+// because orientation is not defined uniquely:
+//
+// // return the angle between of two vectors
+// // range of angle: -pi <= angle <= pi
+// template <typename T, typename U>
+//     requires(std::floating_point<T> && std::floating_point<U>)
+// inline std::common_type_t<T, U> angle(Vec3d<T> const& v1, Vec3d<U> const& v2)
+// {
+//     using ctype = std::common_type_t<T, U>;
+//     using std::numbers::pi;
+
+//     ctype nrm_prod = nrm(v1) * nrm(v2);
+//     if (nrm_prod < std::numeric_limits<ctype>::epsilon()) {
+//         throw std::runtime_error(
+//             "vector norm product too small for calculation of angle" +
+//             std::to_string(nrm_prod) + "\n");
+//     }
+
+//     auto cos_angle = std::clamp(dot(v1, v2) / nrm_prod, -1.0, 1.0);
+//     auto sin_angle = std::clamp(ctype(nrm(wdg(v1, v2))) / nrm_prod, -1.0, 1.0);
+//     // wdg() does contain magnitude, but no unique value of orientation
+//     // so we chose one arbitrarily => but would deliver only pos. angles!
+
+//     fmt::println("   c = {: .4f}, s = {: .4f}, wdg = {: .4f}, nrm_wdg = {: .4f}",
+//                  cos_angle, sin_angle, wdg(v1, v2), nrm(wdg(v1, v2)));
+
+//     if (cos_angle >= 0.0) {
+//         // quadrant I or IV
+//         return std::asin(sin_angle);
+//     }
+//     else if (cos_angle < 0.0 && sin_angle >= 0.0) {
+//         // quadrant II
+//         return pi - std::asin(sin_angle);
+//     }
+//     else {
+//         // cos_angle < 0.0 && sin_angle < 0.0)
+//         // quadrant III
+//         return -pi - std::asin(sin_angle);
+//     }
+// }
 
 // cross-product between two vectors (returns a vector in 3d)
 template <typename T, typename U>
@@ -205,6 +252,18 @@ std::ostream& operator<<(std::ostream& os, Vec3d<T> const& v)
     return os;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// PScalar3d<T> printing support via iostream
+////////////////////////////////////////////////////////////////////////////////
+
+template <typename T>
+    requires(std::floating_point<T>)
+std::ostream& operator<<(std::ostream& os, PScalar3d<T> const& v)
+{
+    os << "(" << T(v) << ")";
+    return os;
+}
+
 } // namespace hd::ga
 
 
@@ -217,6 +276,15 @@ template <typename T> struct fmt::formatter<hd::ga::Vec3d<T>> : nested_formatter
     {
         return fmt::format_to(ctx.out(), "({},{},{})", nested(v.x), nested(v.y),
                               nested(v.z));
+    }
+};
+
+template <typename T>
+struct fmt::formatter<hd::ga::PScalar3d<T>> : nested_formatter<double> {
+    template <typename FormatContext>
+    auto format(const hd::ga::PScalar3d<T>& v, FormatContext& ctx) const
+    {
+        return fmt::format_to(ctx.out(), "({})", nested(double(v)));
     }
 };
 

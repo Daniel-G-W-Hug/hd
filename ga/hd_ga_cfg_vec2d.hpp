@@ -2,10 +2,12 @@
 
 // author: Daniel Hug, 2024
 
-#include <cmath>    // abs
-#include <concepts> // std::floating_point<T>
+#include <algorithm> // std::clamp
+#include <cmath>     // std::abs, std::sin, std::cos
+#include <concepts>  // std::floating_point<T>
 #include <iostream>
 #include <limits>
+#include <numbers> // math constants like pi
 #include <stdexcept>
 #include <string>
 
@@ -166,21 +168,8 @@ template <typename T> inline Vec2d<T> inv(Vec2d<T> const& v)
     return Vec2d<T>(v.x * inv, v.y * inv);
 }
 
-// return the angle between of two vectors
-// range of angle: 0 <= angle <= pi
-template <typename T, typename U>
-    requires(std::floating_point<T> && std::floating_point<U>)
-inline std::common_type_t<T, U> angle(Vec2d<T> const& v1, Vec2d<U> const& v2)
-{
-    using ctype = std::common_type_t<T, U>;
-    ctype nrm_prod = nrm(v1) * nrm(v2);
-    if (nrm_prod < std::numeric_limits<ctype>::epsilon()) {
-        throw std::runtime_error(
-            "vector norm product too small for calculation of angle" +
-            std::to_string(nrm_prod) + "\n");
-    }
-    return std::acos(dot(v1, v2) / nrm_prod);
-}
+// return magnitude of the PSeudoscalar
+template <typename T> inline T nrm(PScalar2d<T> const& v) { return std::abs(T(v)); }
 
 // wedge product (returns a bivector, which is the pseudoscalar in 2d)
 // wdg(v1,v2) = |v1| |v2| sin(theta)
@@ -190,6 +179,48 @@ template <typename T, typename U>
 inline PScalar2d<std::common_type_t<T, U>> wdg(Vec2d<T> const& v1, Vec2d<U> const& v2)
 {
     return PScalar2d<std::common_type_t<T, U>>(v1.x * v2.y - v1.y * v2.x);
+}
+
+// return the angle between of two vectors
+// range of angle: -pi <= angle <= pi
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline std::common_type_t<T, U> angle(Vec2d<T> const& v1, Vec2d<U> const& v2)
+{
+    using ctype = std::common_type_t<T, U>;
+    using std::numbers::pi;
+
+    ctype nrm_prod = nrm(v1) * nrm(v2);
+    if (nrm_prod < std::numeric_limits<ctype>::epsilon()) {
+        throw std::runtime_error(
+            "vector norm product too small for calculation of angle" +
+            std::to_string(nrm_prod) + "\n");
+    }
+
+    // std::clamp must be used to take care of numerical inaccuracies
+    auto cos_angle = std::clamp(dot(v1, v2) / nrm_prod, -1.0, 1.0);
+    auto sin_angle = std::clamp(ctype(wdg(v1, v2)) / nrm_prod, -1.0, 1.0);
+    // wdg() in 2d contains magnitude and orientation, but works this easy only in 2d,
+    // because it is already a scalar value
+    // (for 3d to be as effective, the 3d vectors would need to be transformed
+    //  to a plane, the angle measured w.r.t. to the pseudoscalar of the plane)
+
+    // fmt::println("   c = {: .4f}, s = {: .4f}, wdg = {: .4f}, nrm_wdg = {: .4f}",
+    //              cos_angle, sin_angle, wdg(v1, v2), nrm(wdg(v1, v2)));
+
+    if (cos_angle >= 0.0) {
+        // quadrant I or IV
+        return std::asin(sin_angle);
+    }
+    else if (cos_angle < 0.0 && sin_angle >= 0.0) {
+        // quadrant II
+        return pi - std::asin(sin_angle);
+    }
+    else {
+        // cos_angle < 0.0 && sin_angle < 0.0)
+        // quadrant III
+        return -pi - std::asin(sin_angle);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -204,6 +235,18 @@ std::ostream& operator<<(std::ostream& os, Vec2d<T> const& v)
     return os;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// PScalar2d<T> printing support via iostream
+////////////////////////////////////////////////////////////////////////////////
+
+template <typename T>
+    requires(std::floating_point<T>)
+std::ostream& operator<<(std::ostream& os, PScalar2d<T> const& v)
+{
+    os << "(" << T(v) << ")";
+    return os;
+}
+
 } // namespace hd::ga
 
 
@@ -215,6 +258,15 @@ template <typename T> struct fmt::formatter<hd::ga::Vec2d<T>> : nested_formatter
     auto format(const hd::ga::Vec2d<T>& v, FormatContext& ctx) const
     {
         return fmt::format_to(ctx.out(), "({},{})", nested(v.x), nested(v.y));
+    }
+};
+
+template <typename T>
+struct fmt::formatter<hd::ga::PScalar2d<T>> : nested_formatter<double> {
+    template <typename FormatContext>
+    auto format(const hd::ga::PScalar2d<T>& v, FormatContext& ctx) const
+    {
+        return fmt::format_to(ctx.out(), "({})", nested(double(v)));
     }
 };
 

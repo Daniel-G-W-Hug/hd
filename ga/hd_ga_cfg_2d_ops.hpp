@@ -2,8 +2,9 @@
 
 // author: Daniel Hug, 2024
 
-#include <cmath>    // abs, sqrt, acos
-#include <concepts> // std::floating_point<T>
+#include <algorithm> // std::clamp
+#include <cmath>     // std::abs, std::sin, std::cos
+#include <concepts>  // std::floating_point<T>
 #include <iostream>
 #include <limits>
 #include <stdexcept>

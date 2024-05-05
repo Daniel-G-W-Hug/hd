@@ -62,11 +62,6 @@ struct MVec3d {
     // assign a geometric product resulting from a product of a vector and a bivector
     MVec3d(Vec3d<T> const& v, PScalar3d<T> ps) : c1(v.x), c2(v.y), c3(v.z), c7(ps) {}
 
-    // this constructor must be explicitly deleted,
-    // otherwise a BiVec3d<T> could implicitly convert to Vec3d<T>
-    // reason: Vec3d<T> is a base class of BiVec3d<T>
-    MVec3d(BiVec3d<T> const& v, PScalar3d<T> ps) = delete;
-
     // assign a pseudoscalar part exclusively (other grades = 0)
     MVec3d(PScalar3d<T> ps) : c7(ps) {}
 
@@ -218,6 +213,10 @@ template <typename T> inline constexpr PScalar3d<T> gr3(MVec3d<T> const& v)
 {
     return PScalar3d<T>(v.c7);
 }
+
+////////////////////////////////////////////////////////////////////////////////
+// MVec3d<T> basic operations
+////////////////////////////////////////////////////////////////////////////////
 
 // return conjugate complex of a multivector,
 // i.e. the reverse in nomenclature of multivectors

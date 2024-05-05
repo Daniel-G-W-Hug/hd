@@ -2,8 +2,9 @@
 
 // author: Daniel Hug, 2024
 
-#include <cmath>    // abs, sqrt, acos
-#include <concepts> // std::floating_point<T>
+#include <algorithm> // std::clamp
+#include <cmath>     // std::abs, std::sin, std::cos
+#include <concepts>  // std::floating_point<T>
 #include <iostream>
 #include <limits>
 #include <numbers> // math constants like pi
@@ -77,7 +78,8 @@ inline std::common_type_t<T, U> angle(Vec3d<T> const& v1, BiVec3d<U> const& v2)
             "vector norm product too small for calculation of angle" +
             std::to_string(nrm_prod) + "\n");
     }
-    return std::acos(std::abs(dot(v1, v2)) / nrm_prod);
+    // std::clamp must be used to take care of numerical inaccuracies
+    return std::acos(std::clamp(dot(v1, v2) / nrm_prod, -1.0, 1.0));
 }
 
 template <typename T, typename U>
@@ -90,7 +92,8 @@ inline std::common_type_t<T, U> angle(BiVec3d<T> const& v1, Vec3d<U> const& v2)
             "vector norm product too small for calculation of angle" +
             std::to_string(nrm_prod) + "\n");
     }
-    return std::acos(std::abs(dot(v1, v2)) / nrm_prod);
+    // std::clamp must be used to take care of numerical inaccuracies
+    return std::acos(std::clamp(dot(v1, v2) / nrm_prod, -1.0, 1.0));
 }
 
 // wedge product between two vectors (returns a bivector in 3d)
@@ -722,7 +725,7 @@ template <typename T, typename U>
 inline constexpr MVec3d_E<std::common_type_t<T, U>> rotor(BiVec3d<T> const& I, U theta)
 {
     using ctype = std::common_type_t<T, U>;
-    ctype half_angle = 0.5 * theta;
+    ctype half_angle = -0.5 * theta;
     return MVec3d_E<ctype>(Scalar<ctype>(std::cos(half_angle)),
                            unitized(I) * std::sin(half_angle));
 }
@@ -735,11 +738,11 @@ inline constexpr Vec3d<std::common_type_t<T, U>> rot(Vec3d<T> const& v,
     using ctype = std::common_type_t<T, U>;
 
     // MVec3d_E<ctype> reverse_rotor = rev(rotor);
-    // MVec3d_U<ctype> tmp = reverse_rotor * v;
-    // MVec3d_U<ctype> res = tmp * rotor;
+    // MVec3d_U<ctype> tmp = rotor * v;
+    // MVec3d_U<ctype> res = tmp * reverse rotor;
 
     // trivector part of res is 0 due to symmetric product rev(rotor) * v * rotor
-    return Vec3d<ctype>(gr1<ctype>(rev(rotor) * v * rotor));
+    return Vec3d<ctype>(gr1<ctype>(rotor * v * rev(rotor)));
 }
 
 } // namespace hd::ga

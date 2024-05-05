@@ -257,97 +257,82 @@ TEST_SUITE("Geometric Algebra")
     {
         fmt::println("Vec2d: operations - angle");
 
-        vec2d v1{1.0, 0.0};
-        vec2d v2{unitized(vec2d(1.0, 1.0))};
-        vec2d v3{0.0, 1.0};
-        vec2d v4{unitized(vec2d(-1.0, 1.0))};
-        vec2d v5{-1.0, 0.0};
-        vec2d v6{unitized(vec2d(-1.0, -1.0))};
-        vec2d v7{0.0, -1.0};
-        vec2d v8{unitized(vec2d(1.0, -1.0))};
+        std::vector<std::tuple<double, Vec2d<double>>> v1;
+        std::vector<std::tuple<double, Vec2d<double>>> v2;
+        std::vector<std::tuple<double, Vec2d<double>>> v3;
 
-        using std::numbers::pi;
+        for (int i = -12; i <= 12; ++i) {
+            double phi = i * pi / 12;
+            auto c = Vec2d<double>(std::cos(phi), std::sin(phi));
+            v1.push_back(std::make_tuple(phi, c));
+            // fmt::println("   i={: 3}: phi={: .4f}, phi={: 4.0f}°, c={: .3f},"
+            //              " angle={: .4f}",
+            //              i, phi, rad_to_deg(phi), c, angle(e1_2d, c));
+        }
+        // fmt::println("");
 
-        // fmt::println("v1 = {: .8f}, nrm(v1) = {: .8f}, angle(v1,v1) = {: .8f}, {:
-        // .8f}",
-        //              v1, nrm(v1), angle(v1, v1), angle(v1, v1) / pi);
-        // fmt::println("v2 = {: .8f}, nrm(v2) = {: .8f}, angle(v1,v2) = {: .8f}, {:
-        // .8f}",
-        //              v2, nrm(v2), angle(v1, v2), angle(v1, v2) / pi);
-        // fmt::println("v3 = {: .8f}, nrm(v3) = {: .8f}, angle(v1,v3) = {: .8f}, {:
-        // .8f}",
-        //              v3, nrm(v3), angle(v1, v3), angle(v1, v3) / pi);
-        // fmt::println("v4 = {: .8f}, nrm(v4) = {: .8f}, angle(v1,v4) = {: .8f}, {:
-        // .8f}",
-        //              v4, nrm(v4), angle(v1, v4), angle(v1, v4) / pi);
-        // fmt::println("v5 = {: .8f}, nrm(v5) = {: .8f}, angle(v1,v5) = {: .8f}, {:
-        // .8f}",
-        //              v5, nrm(v5), angle(v1, v5), angle(v1, v5) / pi);
-        // fmt::println("v6 = {: .8f}, nrm(v6) = {: .8f}, angle(v1,v6) = {: .8f}, {:
-        // .8f}",
-        //              v6, nrm(v6), angle(v1, v6), angle(v1, v6) / pi);
-        // fmt::println("v7 = {: .8f}, nrm(v7) = {: .8f}, angle(v1,v7) = {: .8f}, {:
-        // .8f}",
-        //              v7, nrm(v7), angle(v1, v7), angle(v1, v7) / pi);
-        // fmt::println("v8 = {: .8f}, nrm(v8) = {: .8f}, angle(v1,v8) = {: .8f}, {:
-        // .8f}",
-        //              v8, nrm(v8), angle(v1, v8), angle(v1, v8) / pi);
+        for (int i = -12; i <= 12; ++i) {
+            double phi = i * pi / 12;
+            auto c = Vec2d<double>(std::cos(phi + pi / 2), std::sin(phi + pi / 2));
+            v2.push_back(std::make_tuple(phi, c));
+            // fmt::println("   i={: 3}: phi={: .4f}, phi={: 4.0f}°, c={: .3f},"
+            //              " angle={: .4f}",
+            //              i, phi, rad_to_deg(phi), c, angle(e2_2d, c));
+        }
+        fmt::println("");
 
-        CHECK(std::abs(angle(v1, v1) - 0.0) < eps);
-        CHECK(std::abs(angle(v1, v2) - pi * 0.25) < eps);
-        CHECK(std::abs(angle(v1, v3) - pi * 0.5) < eps);
-        CHECK(std::abs(angle(v1, v4) - pi * 0.75) < eps);
-        CHECK(std::abs(angle(v1, v5) - pi) < eps);
+        for (int i = -12; i <= 12; ++i) {
+            double phi = i * pi / 12;
+            auto c = Vec2d<double>(std::cos(phi + pi / 4), std::sin(phi + pi / 4));
+            v3.push_back(std::make_tuple(phi, c));
+            // fmt::println("   i={: 3}: phi={: .4f}, phi={: 4.0f}°, c={: .3f},"
+            //              " angle={: .4f}",
+            //              i, phi, rad_to_deg(phi), c, angle(e1_2d + e2_2d, c));
+        }
+        // fmt::println("");
+
+        for (auto const& [phi, c] : v1) {
+            CHECK(std::abs(phi - angle(e1_2d, c)) < eps);
+        }
+        for (auto const& [phi, c] : v2) {
+            CHECK(std::abs(phi - angle(e2_2d, c)) < eps);
+        }
+        auto ref_vec = unitized(e1_2d + e2_2d);
+        for (auto const& [phi, c] : v3) {
+            CHECK(std::abs(phi - angle(ref_vec, c)) < eps);
+        }
+
+        // auto v = Vec2d<double>{1.0, 0.0};
+        // // auto v = Vec2d<double>{1.0, 1.0};
+        // for (auto const& [phi, c] : v1) {
+        //     auto u1 = v * c;
+        //     auto u2 = c * v;
+        //     fmt::println("   phi={: .4f}, phi={:> 4.0f}°, c={: .3f},"
+        //                  "  u1={: .3f}, u2={: .3f}",
+        //                  phi, phi * 180 / pi, c, u1, u2);
+        // }
+        // fmt::println("");
     }
 
     TEST_CASE("Vec2d: operations - wedge")
     {
         fmt::println("Vec2d: operations - wedge");
 
-        vec2d v1{1.0, 0.0};
-        vec2d v2{unitized(vec2d(1.0, 1.0))};
-        vec2d v3{0.0, 1.0};
-        vec2d v4{unitized(vec2d(-1.0, 1.0))};
-        vec2d v5{-1.0, 0.0};
-        vec2d v6{unitized(vec2d(-1.0, -1.0))};
-        vec2d v7{0.0, -1.0};
-        vec2d v8{unitized(vec2d(1.0, -1.0))};
+        std::vector<std::tuple<double, Vec2d<double>>> v;
 
-        using std::numbers::pi;
+        for (int i = -12; i <= 12; ++i) {
+            double phi = i * pi / 12;
+            auto c = Vec2d<double>(std::cos(phi), std::sin(phi));
+            v.push_back(std::make_tuple(phi, c));
+            // fmt::println("   i={: 3}: phi={: .4f}, phi={: 4.0f}°, c={: .3f},"
+            //              " angle={: .4f}",
+            //              i, phi, rad_to_deg(phi), c, angle(e1_2d, c));
+        }
+        // fmt::println("");
 
-        // fmt::println("v1 = {: .8f}, nrm(v1) = {: .8f}, wdg(v1,v1) = {: .8f}, "
-        //              "sin(angle) = {: .8f}",
-        //              v1, nrm(v1), wdg(v1, v1), sin(angle(v1, v1)));
-        // fmt::println("v2 = {: .8f}, nrm(v2) = {: .8f}, wdg(v1,v2) = {: .8f}, "
-        //              "sin(angle) = {: .8f}",
-        //              v2, nrm(v2), wdg(v1, v2), sin(angle(v1, v2)));
-        // fmt::println("v3 = {: .8f}, nrm(v3) = {: .8f}, wdg(v1,v3) = {: .8f}, "
-        //              "sin(angle) = {: .8f}",
-        //              v3, nrm(v3), wdg(v1, v3), sin(angle(v1, v3)));
-        // fmt::println("v4 = {: .8f}, nrm(v4) = {: .8f}, wdg(v1,v4) = {: .8f}, "
-        //              "sin(angle) = {: .8f}",
-        //              v4, nrm(v4), wdg(v1, v4), sin(angle(v1, v4)));
-        // fmt::println("v5 = {: .8f}, nrm(v5) = {: .8f}, wdg(v1,v5) = {: .8f}, "
-        //              "sin(angle) = {: .8f}",
-        //              v5, nrm(v5), wdg(v1, v5), sin(angle(v1, v5)));
-        // fmt::println("v6 = {: .8f}, nrm(v6) = {: .8f}, wdg(v1,v6) = {: .8f}, "
-        //              "sin(angle) = {: .8f}",
-        //              v6, nrm(v6), wdg(v1, v6), sin(angle(v1, v6)));
-        // fmt::println("v7 = {: .8f}, nrm(v7) = {: .8f}, wdg(v1,v7) = {: .8f}, "
-        //              "sin(angle) = {: .8f}",
-        //              v7, nrm(v7), wdg(v1, v7), sin(angle(v1, v7)));
-        // fmt::println("v8 = {: .8f}, nrm(v8) = {: .8f}, wdg(v1,v8) = {: .8f}, "
-        //              "sin(angle) = {: .8f}",
-        //              v8, nrm(v8), wdg(v1, v8), sin(angle(v1, v8)));
-
-        CHECK(std::abs(wdg(v1, v1) - sin(angle(v1, v1))) < eps);
-        CHECK(std::abs(wdg(v1, v2) - sin(angle(v1, v2))) < eps);
-        CHECK(std::abs(wdg(v1, v3) - sin(angle(v1, v3))) < eps);
-        CHECK(std::abs(wdg(v1, v4) - sin(angle(v1, v4))) < eps);
-        CHECK(std::abs(wdg(v1, v5) - sin(angle(v1, v5))) < eps);
-        CHECK(std::abs(wdg(v1, v6) + sin(angle(v1, v6))) < eps); // other orientation
-        CHECK(std::abs(wdg(v1, v7) + sin(angle(v1, v7))) < eps); // other orientation
-        CHECK(std::abs(wdg(v1, v8) + sin(angle(v1, v8))) < eps); // other orientation
+        for (auto const& [phi, c] : v) {
+            CHECK(std::abs(wdg(e1_2d, c) - sin(angle(e1_2d, c))) < eps);
+        }
     }
 
     TEST_CASE("Vec2d: operations - project / reject")
@@ -727,7 +712,6 @@ TEST_SUITE("Geometric Algebra")
         auto vlm = gpr(Im_2d, vcm); // full gpr
 
         // defining a complex number in all three forms
-        using std::numbers::pi;
         auto u = Vec2d{1.0, 0.0};
         auto v = Vec2d{std::cos(pi / 6.0), std::sin(pi / 6.0)}; // unit vec +30%
         auto angle_uv = angle(u, v);
@@ -976,7 +960,7 @@ TEST_SUITE("Geometric Algebra")
         CHECK(std::abs(dot(v4, v3) - 1.0) < eps);
     }
 
-    TEST_CASE("Vec3d: operations - angle")
+    TEST_CASE("Vec3d: operations - angle I")
     {
         fmt::println("Vec3d: operations - angle");
 
@@ -988,8 +972,6 @@ TEST_SUITE("Geometric Algebra")
         Vec3d v6{unitized(Vec3d(-1.0, -1.0, 0.0))};
         Vec3d v7{0.0, -1.0, 0.0};
         Vec3d v8{unitized(Vec3d(1.0, -1.0, 0.0))};
-
-        using std::numbers::pi;
 
         // fmt::println("v1 = {: .8f}, nrm(v1) = {:.8f}, angle(v1,v1) = {:.8f}, {:.8f}",
         // v1,
@@ -1023,6 +1005,58 @@ TEST_SUITE("Geometric Algebra")
         CHECK(std::abs(angle(v1, v5) - pi) < eps);
     }
 
+    TEST_CASE("Vec3d: operations - angle II")
+    {
+        fmt::println("Vec3d: operations - angle II");
+
+        std::vector<std::tuple<double, Vec3d<double>>> v1;
+        std::vector<std::tuple<double, Vec3d<double>>> v2;
+        std::vector<std::tuple<double, Vec3d<double>>> v3;
+
+        // only positive angles are easy to implement vs. the 2d case
+
+        for (int i = 0; i <= 12; ++i) {
+            double phi = i * pi / 12;
+            auto c = Vec3d<double>(std::cos(phi), std::sin(phi), 0.0);
+            v1.push_back(std::make_tuple(phi, c));
+            // fmt::println("   i={: 3}: phi={: .4f}, phi={: 4.0f}°, c={: .3f},"
+            //              " angle={: .4f}",
+            //              i, phi, rad_to_deg(phi), c, angle(e1_3d, c));
+        }
+        // fmt::println("");
+
+        for (int i = 0; i <= 12; ++i) {
+            double phi = i * pi / 12;
+            auto c = Vec3d<double>(std::cos(phi + pi / 2), std::sin(phi + pi / 2), 0.0);
+            v2.push_back(std::make_tuple(phi, c));
+            // fmt::println("   i={: 3}: phi={: .4f}, phi={: 4.0f}°, c={: .3f},"
+            //              " angle={: .4f}",
+            //              i, phi, rad_to_deg(phi), c, angle(e2_3d, c));
+        }
+        // fmt::println("");
+
+        for (int i = 0; i <= 12; ++i) {
+            double phi = i * pi / 12;
+            auto c = Vec3d<double>(std::cos(phi + pi / 4), std::sin(phi + pi / 4), 0.0);
+            v3.push_back(std::make_tuple(phi, c));
+            // fmt::println("   i={: 3}: phi={: .4f}, phi={: 4.0f}°, c={: .3f},"
+            //              " angle={: .4f}",
+            //              i, phi, rad_to_deg(phi), c, angle(e1_3d + e2_3d, c));
+        }
+        // fmt::println("");
+
+        for (auto const& [phi, c] : v1) {
+            CHECK(std::abs(phi - angle(e1_3d, c)) < eps);
+        }
+        for (auto const& [phi, c] : v2) {
+            CHECK(std::abs(phi - angle(e2_3d, c)) < eps);
+        }
+        auto ref_vec = unitized(e1_3d + e2_3d);
+        for (auto const& [phi, c] : v3) {
+            CHECK(std::abs(phi - angle(ref_vec, c)) < eps);
+        }
+    }
+
     TEST_CASE("Vec3d: operations - wedge")
     {
         fmt::println("Vec3d: operations - wedge");
@@ -1035,8 +1069,6 @@ TEST_SUITE("Geometric Algebra")
         Vec3d v6{unitized(Vec3d(-1.0, -1.0, 0.0))};
         Vec3d v7{0.0, -1.0, 0.0};
         Vec3d v8{unitized(Vec3d(1.0, -1.0, 0.0))};
-
-        using std::numbers::pi;
 
         // fmt::println("v1 = {: .8f}, wdg(v1,v1) = {: .8f}, "
         //              "angle = {: .8f}",
@@ -1661,7 +1693,6 @@ TEST_SUITE("Geometric Algebra")
         fmt::println("MVec2d_E: modelling complex numbers - basics");
 
         // defining a complex number in all three forms as multivector
-        using std::numbers::pi;
         auto u = Vec2d{1.0, 0.0};
         auto v = Vec2d{std::cos(pi / 6.0), std::sin(pi / 6.0)}; // unit vec +30%
 
@@ -1778,8 +1809,6 @@ TEST_SUITE("Geometric Algebra")
     {
         fmt::println("MVec2d_E: modelling complex numbers - products");
 
-        using std::numbers::pi;
-
         // std::vector<std::tuple<double, MVec2d_E<double>>> c_v;
         // for (int i = -12; i <= 12; ++i) {
         //     double phi = i * pi / 12;
@@ -1866,39 +1895,42 @@ TEST_SUITE("Geometric Algebra")
             "MVec3d_E/_U: modelling even and uneven parts of 3d algebra - basics");
 
         // defining a complex number in all three forms as multivector
-        using std::numbers::pi;
         auto u = unitized(Vec3d{1.0, 0.0, 0.0});
         auto v =
             unitized(Vec3d{std::cos(pi / 12), std::sin(pi / 12), 0.0}); // unit vec +15%
         auto angle_uv = angle(u, v);
-        auto p = wdg(u, v); // bivector describing the plane spanned by u and v
+        auto B = wdg(u, v); // unitized bivector describing the plane spanned by u and v
 
-        auto my_exp = exp(p, angle_uv);
-        auto my_rot = rotor(p, 2 * angle_uv);
+        auto my_exp = exp(-B, angle_uv);
+        auto my_rot = rotor(B, 2.0 * angle_uv);
 
-        auto R_m = MVec3d(u * v);     // Rotor formed by u and v
-        auto Rr_m = MVec3d(rev(R_m)); // and its reverse
+        // definition of rotor used here: B = u^v
+        // => B determines the meaning of the positive sign of the rotation
+        //
+        auto R_m =
+            MVec3d(exp(-B, angle_uv)); // Rotor formed by u and v (unitized bivector)
+        auto Rr_m = MVec3d(rev(R_m));  // and its reverse
 
         auto c = Vec3d{1.0, 1.0, 1.0};
         auto c_m = MVec3d{c};
 
-        auto c_tmp_m = Rr_m * c_m;
-        auto c_rot_m = c_tmp_m * R_m;
+        auto c_tmp_m = R_m * c_m;
+        auto c_rot_m = c_tmp_m * Rr_m;
 
-        auto R = u * v;   // Rotor formed by u and v
-        auto Rr = rev(R); // and its reverse
+        auto R = exp(-B, angle_uv); // Rotor formed by u and v (unitized bivector)
+        auto Rr = rev(R);           // and its reverse
 
-        auto c_tmp_l = Rr * c;
-        auto c_rot_u_l = c_tmp_l * R;
+        auto c_tmp_l = R * c;
+        auto c_rot_u_l = c_tmp_l * Rr;
         auto c_rot_l = gr1(c_rot_u_l);
         // due to symmetry of R and Rr the gr3(c_rot) part will be zero
-        // and thus can be neglected for further computations
+        // and thus can be assumed to be zero for further computations
 
-        auto c_tmp_r = c * R;
-        auto c_rot_u_r = Rr * c_tmp_r;
+        auto c_tmp_r = c * Rr;
+        auto c_rot_u_r = R * c_tmp_r;
         auto c_rot_r = gr1(c_rot_u_r);
         // due to symmetry of R and Rr the gr3(c_rot) part will be zero
-        // and thus can be neglected for further computations
+        // and thus can be assumed to be zero for further computations
 
         auto angle_c_c_rot = angle(c, c_rot_l); // not that easy in 3D!
         // (angle in plane of both vectors is not the angle in the plane
@@ -1906,48 +1938,50 @@ TEST_SUITE("Geometric Algebra")
         // => requires projection of vectors onto plane and then taking
         // the angle between the projected vectors to be correct (bivector angle!)
 
-        auto c_proj = project_onto(c, p);
-        auto c_rot_proj = project_onto(c_rot_l, p);
+        auto c_proj = project_onto(c, B);
+        auto c_rot_proj = project_onto(c_rot_l, B);
         auto angle_proj = angle(c_proj, c_rot_proj);
 
         // fmt::println("   u                     = {: .3}", u);
         // fmt::println("   v                     = {: .3}", v);
-        // fmt::println("   p = wdg(u,v)          = {: .3}", p);
-        // fmt::println("   angle(u,v)            = {: .3}°", angle_uv * 180 / pi);
+        // fmt::println("   B = u^v = wdg(u,v)    = {: .3}", B);
+        // fmt::println("   angle(u,v)            = {: .3}°", rad_to_deg(angle_uv));
         // fmt::println("   sin(angle(u,v))       = {: .3}", std::sin(angle_uv));
         // fmt::println("");
         // fmt::println("   c                     = {: .3}", c);
         // fmt::println("");
         // fmt::println("Implemented as full multivector operation:");
-        // fmt::println("   R_m  = u*v            = {: .3}", R_m);
-        // fmt::println("   Rr_m = rev(u*v)       = {: .3}", Rr_m);
-        // fmt::println("   Rr_m*R_m              = {: .3}", Rr_m * R_m);
-        // fmt::println("   c_m                   = {: .3}", c_m);
-        // fmt::println("   c_tmp_m = Rr_m*c_m    = {: .3}", c_tmp_m);
-        // fmt::println("   c_rot_m = c_tmp_m*R_m = {: .3}", c_rot_m);
-        // fmt::println("   gr1(c_rot_m)          = {: .3}", gr1(c_rot_m));
+        // fmt::println("   R_m  = MVec3d(exp(-B,angle_uv))  = {: .3}", R_m);
+        // fmt::println("   Rr_m = rev(R_m)                  = {: .3}", Rr_m);
+        // fmt::println("   Rr_m*R_m                         = {: .3}", Rr_m * R_m);
+        // fmt::println("   c_m                              = {: .3}", c_m);
+        // fmt::println("   c_tmp_m = R_m*c_m                = {: .3}", c_tmp_m);
+        // fmt::println("   c_rot_m = c_tmp_m*Rr_m           = {: .3}", c_rot_m);
+        // fmt::println("   gr1(c_rot_m)                     = {: .3}", gr1(c_rot_m));
         // fmt::println("");
         // fmt::println("Implemented as reduced grade multivector operation:");
-        // fmt::println("   R  = u*v                         = {: .3}", R);
-        // fmt::println("   Rr = rev(u*v)                    = {: .3}", Rr);
-        // fmt::println("   my_exp = exp(u^v)                = {: .3}", my_exp);
-        // fmt::println("   my_rot = rotor(u^v,2*angle(u,v)) = {: .3}", my_rot);
+        // fmt::println("   R  = exp(-B,angle_uv)            = {: .3}", R);
+        // fmt::println("   Rr = rev(R)                      = {: .3}", Rr);
+        // fmt::println("   my_exp = exp(-B, angle_uv)       = {: .3}", my_exp);
+        // fmt::println("   my_rot = rotor(B, 2*angle_uv)    = {: .3}", my_rot);
         // fmt::println("");
         // fmt::println("Left multiplication of rotor first:");
-        // fmt::println("   c_tmp_l = Rr*c           = {: .3}", c_tmp_l);
-        // fmt::println("   c_rot_u_l = c_tmp_l*R    = {: .3}", c_rot_u_l);
+        // fmt::println("   c_tmp_l = R*c            = {: .3}", c_tmp_l);
+        // fmt::println("   c_rot_u_l = c_tmp_l*Rr   = {: .3}", c_rot_u_l);
         // fmt::println("   c_rot_l = gr1(c_rot_u_l) = {: .3}", c_rot_l);
         // fmt::println("");
         // fmt::println("Right multiplication of rotor first:");
-        // fmt::println("   c_tmp_r = c*R            = {: .3}", c_tmp_r);
-        // fmt::println("   c_rot_u_r = Rr*c_tmp_r   = {: .3}", c_rot_u_r);
+        // fmt::println("   c_tmp_r = c*Rr           = {: .3}", c_tmp_r);
+        // fmt::println("   c_rot_u_r = R*c_tmp_r    = {: .3}", c_rot_u_r);
         // fmt::println("   c_rot_r = gr1(c_rot_u_r) = {: .3}", c_rot_r);
         // fmt::println("");
-        // fmt::println("   angle(c, c_rot_l)         = {: .3}°", angle_c_c_rot * 180 /
-        // pi); fmt::println("   angle(c_proj, c_rot_proj) = {: .3}°", angle_proj * 180 /
-        // pi); fmt::println(""); fmt::println("direct calclulation:"); fmt::println("
-        // c_rot = rot(c,R)          = {: .3}", rot(c, R));
+        // fmt::println("   angle(c, c_rot_l) = {: .3}°", rad_to_deg(angle_c_c_rot));
+        // fmt::println("   angle(projected)  = {: .3}°", rad_to_deg(angle_proj));
+        // fmt::println("");
+        // fmt::println("direct calclulation:");
+        // fmt::println("   c_rot = rot(c,R)          = {: .3}", rot(c, R));
 
+        CHECK(nrm(rot(c, R)) == nrm(c));
         CHECK(gr1(c_rot_m) == rot(c, R));
         // n I_3d approach:
         CHECK(rot(Vec3d{1.0, 0.0, 0.0}, rotor(e3_3d * I_3d, pi / 4)) ==

@@ -181,6 +181,17 @@ template <typename T> inline constexpr PScalar3d<T> gr3(MVec3d_U<T> const& v)
     return PScalar3d<T>(v.c3);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// MVec3d_U<T> basic operations
+////////////////////////////////////////////////////////////////////////////////
+
+// return the reverse
+template <typename T> inline constexpr MVec3d_U<T> rev(MVec3d_U<T> const& v)
+{
+    // only the trivector part switches signs
+    return MVec3d_U<T>(v.c0, v.c1, v.c2, -v.c3);
+}
+
 } // namespace hd::ga
 
 

@@ -2,8 +2,9 @@
 
 // author: Daniel Hug, 2024
 
-#include <cmath>    // abs
-#include <concepts> // std::floating_point<T>
+#include <algorithm> // std::clamp
+#include <cmath>     // std::abs, std::sin, std::cos
+#include <concepts>  // std::floating_point<T>
 #include <iostream>
 #include <limits>
 #include <stdexcept>
@@ -24,7 +25,7 @@ namespace hd::ga {
 
 template <typename T = value_t>
     requires(std::floating_point<T>)
-struct BiVec3d : public Vec3d<T> {
+struct BiVec3d {
 
     // assumes a right-handed orthonormal vector basis {e1, e2, e3}
     // using components {x, y, z}, such that for each vector v:
@@ -40,33 +41,67 @@ struct BiVec3d : public Vec3d<T> {
     // normals of the corresponding plane elements represented by
     // bivector components yz, zx and xy
     // i.e. they can by converted to each other by a duality transformation
-
-    // if we would introduce aliases via references,
-    // we would double the memory needed for each bivector
-    // => So we don't! And just go on with using x, y, z
     //
-    // T& yz = Vec3d<T>::x; // maps to basis bivector e2^e3
-    // T& zx = Vec3d<T>::y; // maps to basis bivector e3^e1
-    // T& xy = Vec3d<T>::z; // maps to basis bivector e1^e2
+    // T.x <=> bivector yz <=> Vec3d<T>::x; // maps to basis bivector e2^e3
+    // T.y <=> bivector zx <=> Vec3d<T>::y; // maps to basis bivector e3^e1
+    // T.z <=> bivector xy <=> Vec3d<T>::z; // maps to basis bivector e1^e2
 
-    // => everything is directly re-used from Vec3d<T> w/o modification.
+    // duality operations:
+    // e2^e3 rev(I_3d) = e2^e3 e3^e2^e1 = e_23321 = e_1           = e1
+    // e3^e1 rev(I_3d) = e3^e1 e3^e2^e1 = e_31321 = e_33112 = e_2 = e2
+    // e1^e2 rev(I_3d) = e1^e2 e3^e2^e1 = e_12321 = e_11223 = e_3 = e3
+
+    // => everything otherwise is identical to Vec3d<T> w/o modification.
 
     BiVec3d() = default;
 
-    BiVec3d(T x_in, T y_in, T z_in) : Vec3d<T>(x_in, y_in, z_in) {}
+    BiVec3d(T x_in, T y_in, T z_in) : x(x_in), y(y_in), z(z_in) {}
 
     template <typename U>
         requires(std::floating_point<U>)
-    BiVec3d(BiVec3d<U> const& v) : Vec3d<U>(reinterpret_cast<Vec3d<U> const&>(v))
+    BiVec3d(BiVec3d<U> const& v) : x(v.x), y(v.y), z(v.z)
     {
     }
+
+    T x{};
+    T y{};
+    T z{};
+
+    // equality
+    template <typename U>
+        requires(std::floating_point<U>)
+    bool operator==(BiVec3d<U> const& rhs) const
+    {
+        using ctype = std::common_type_t<T, U>;
+        // componentwise comparison
+        // equality implies same magnitude and direction
+        // comparison is not exact, but accepts epsilon deviations
+        auto abs_delta_x = std::abs(rhs.x - x);
+        auto abs_delta_y = std::abs(rhs.y - y);
+        auto abs_delta_z = std::abs(rhs.z - z);
+        auto constexpr delta_eps =
+            ctype(5.0) * std::max<ctype>(std::numeric_limits<T>::epsilon(),
+                                         std::numeric_limits<U>::epsilon());
+        if (abs_delta_x < delta_eps && abs_delta_y < delta_eps && abs_delta_z < delta_eps)
+            return true;
+        return false;
+    }
+
+    // unary minus (must be declared a friend otherwise doesn't work)
+    friend inline constexpr BiVec3d<T> operator-(BiVec3d<T> const& v)
+    {
+        return BiVec3d<T>(-v.x, -v.y, -v.z);
+    }
+
+    template <typename U>
+    friend std::ostream& operator<<(std::ostream& os, BiVec3d<U> const& v);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 // BiVec3d<T> core operations
 ////////////////////////////////////////////////////////////////////////////////
 
-// adding vectors
+// adding bivectors
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
 inline constexpr BiVec3d<std::common_type_t<T, U>> operator+(BiVec3d<T> const& v1,
@@ -75,7 +110,7 @@ inline constexpr BiVec3d<std::common_type_t<T, U>> operator+(BiVec3d<T> const& v
     return BiVec3d<std::common_type_t<T, U>>(v1.x + v2.x, v1.y + v2.y, v1.z + v2.z);
 }
 
-// substracting vectors
+// substracting bivectors
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
 inline constexpr BiVec3d<std::common_type_t<T, U>> operator-(BiVec3d<T> const& v1,
@@ -85,7 +120,7 @@ inline constexpr BiVec3d<std::common_type_t<T, U>> operator-(BiVec3d<T> const& v
 }
 
 
-// multiply a vector with a scalar (in both constellations)
+// multiply a bivector with a scalar (in both constellations)
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
 inline constexpr BiVec3d<std::common_type_t<T, U>> operator*(BiVec3d<T> const& v, U s)
@@ -100,7 +135,7 @@ inline constexpr BiVec3d<std::common_type_t<T, U>> operator*(T s, BiVec3d<U> con
     return BiVec3d<std::common_type_t<T, U>>(v.x * s, v.y * s, v.z * s);
 }
 
-// devide a vector by a scalar
+// devide a bivector by a scalar
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
 inline constexpr BiVec3d<std::common_type_t<T, U>> operator/(BiVec3d<T> const& v, U s)
@@ -128,9 +163,6 @@ inline constexpr std::common_type_t<T, U> dot(BiVec3d<T> const& A, BiVec3d<U> co
 }
 
 // return squared magnitude of bivector
-//
-// TODO: Check whether this the right way to calculate the magnitude
-//
 template <typename T> inline constexpr T sq_nrm(BiVec3d<T> const& v)
 {
     return v.x * v.x + v.y * v.y + v.z * v.z;
@@ -171,7 +203,7 @@ template <typename T> inline constexpr BiVec3d<T> inv(BiVec3d<T> const& v)
 template <typename T> inline constexpr BiVec3d<T> rev(BiVec3d<T> const& v)
 {
     // all bivector parts switch sign
-    return MVec3d<T>(-v.x, -v.y, -v.z);
+    return BiVec3d<T>(-v.x, -v.y, -v.z);
 }
 
 // return the angle between two bivectors
@@ -186,7 +218,8 @@ inline std::common_type_t<T, U> angle(BiVec3d<T> const& v1, BiVec3d<U> const& v2
             "vector norm product too small for calculation of angle" +
             std::to_string(nrm_prod) + "\n");
     }
-    return std::acos(std::abs(dot(v1, v2)) / nrm_prod);
+    // std::clamp must be used to take care of numerical inaccuracies
+    return std::acos(std::clamp(dot(v1, v2) / nrm_prod, -1.0, 1.0));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
