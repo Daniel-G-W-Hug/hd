@@ -51,13 +51,13 @@ struct MVec3d_E {
     MVec3d_E(T s, T yz, T zx, T xy) : c0(s), c1(yz), c2(zx), c3(xy) {}
 
     // assign a scalar part exclusively (other grades = 0)
-    MVec3d_E(Scalar<T> s) : c0(s) {}
+    MVec3d_E(Scalar3d<T> s) : c0(s) {}
 
     // assign a bivector part exclusively (other grades = 0)
     MVec3d_E(BiVec3d<T> b) : c1(b.x), c2(b.y), c3(b.z) {}
 
     // assign scalar and bivector parts
-    MVec3d_E(Scalar<T> s, BiVec3d<T> b) : c0(s), c1(b.x), c2(b.y), c3(b.z) {}
+    MVec3d_E(Scalar3d<T> s, BiVec3d<T> b) : c0(s), c1(b.x), c2(b.y), c3(b.z) {}
 
     // floating point type conversion
     template <typename U>
@@ -172,9 +172,9 @@ inline constexpr MVec3d_E<std::common_type_t<T, U>> operator/(MVec3d_E<T> const&
 // grade 0: gr0() - scalar
 // grade 2: gr2() - bivector
 
-template <typename T> inline constexpr Scalar<T> gr0(MVec3d_E<T> const& v)
+template <typename T> inline constexpr Scalar3d<T> gr0(MVec3d_E<T> const& v)
 {
-    return Scalar<T>(v.c0);
+    return Scalar3d<T>(v.c0);
 }
 
 template <typename T> inline constexpr BiVec3d<T> gr2(MVec3d_E<T> const& v)

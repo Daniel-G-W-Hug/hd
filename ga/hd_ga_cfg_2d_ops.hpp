@@ -123,7 +123,7 @@ inline constexpr MVec2d_E<std::common_type_t<T, U>> gpr(Vec2d<T> const& a,
                                                         Vec2d<U> const& b)
 {
     using ctype = std::common_type_t<T, U>;
-    return MVec2d_E<ctype>(Scalar<ctype>(dot(a, b)), wdg(a, b));
+    return MVec2d_E<ctype>(Scalar2d<ctype>(dot(a, b)), wdg(a, b));
 }
 
 // define geometric multiplication with operator*(a,b) as an alias for gpr(a,b)
@@ -402,6 +402,48 @@ inline constexpr MVec2d_E<std::common_type_t<T, U>> operator*(MVec2d_E<T> const&
 {
     using ctype = std::common_type_t<T, U>;
     return gpr<ctype>(a, b);
+}
+
+// return the dual(M) of the multivector M
+// if M represents the subspace B as subspace of R^2 then
+// dual(M) represents the orthogonal subspace B^perp (perpendicular to B)
+// => returns the orthogonal complement
+//
+// dual by left multiplication with Im_2d
+// as defined in Doran/Lasenby "GA for physicists"
+template <typename T>
+    requires(std::floating_point<T>)
+inline constexpr MVec2d<T> dual(MVec2d<T> const& M)
+{
+    return MVec2d<T>(-M.c3, M.c2, -M.c1, M.c0);
+}
+
+template <typename T>
+    requires(std::floating_point<T>)
+inline constexpr MVec2d_E<T> dual(MVec2d_E<T> const& M)
+{
+    return MVec2d_E<T>(-M.c1, M.c0);
+}
+
+template <typename T>
+    requires(std::floating_point<T>)
+inline constexpr Scalar2d<T> dual(PScalar2d<T> const& ps)
+{
+    return Scalar2d<T>(-T(ps));
+}
+
+template <typename T>
+    requires(std::floating_point<T>)
+inline constexpr Vec2d<T> dual(Vec2d<T> const& v)
+{
+    return Vec2d<T>(v.y, -v.x);
+}
+
+template <typename T>
+    requires(std::floating_point<T>)
+inline constexpr PScalar2d<T> dual(Scalar2d<T> const& s)
+{
+    return PScalar2d<T>(T(s));
 }
 
 } // namespace hd::ga

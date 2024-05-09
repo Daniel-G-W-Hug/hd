@@ -306,7 +306,7 @@ inline constexpr MVec3d_E<std::common_type_t<T, U>> gpr(Vec3d<T> const& a,
                                                         Vec3d<U> const& b)
 {
     using ctype = std::common_type_t<T, U>;
-    return MVec3d_E<ctype>(Scalar<ctype>(dot(a, b)), wdg(a, b));
+    return MVec3d_E<ctype>(Scalar3d<ctype>(dot(a, b)), wdg(a, b));
 }
 
 // define geometric multiplication with operator*(a,b) as an alias for gpr(a,b)
@@ -386,7 +386,7 @@ inline constexpr MVec3d_E<std::common_type_t<T, U>> gpr(BiVec3d<T> const& a,
                                                         BiVec3d<U> const& b)
 {
     using ctype = std::common_type_t<T, U>;
-    return MVec3d_E<ctype>(Scalar<ctype>(dot(a, b)), cmt(a, b));
+    return MVec3d_E<ctype>(Scalar3d<ctype>(dot(a, b)), cmt(a, b));
 }
 
 // define geometric multiplication with operator*(a,b) as an alias for gpr(a,b)
@@ -451,7 +451,7 @@ inline constexpr MVec3d_E<std::common_type_t<T, U>> gpr(PScalar3d<T> A,
 {
     using ctype = std::common_type_t<T, U>;
     return ctype(A) *
-           MVec3d_E<ctype>(Scalar<ctype>(-B.c3), BiVec3d<ctype>(B.c0, B.c1, B.c2));
+           MVec3d_E<ctype>(Scalar3d<ctype>(-B.c3), BiVec3d<ctype>(B.c0, B.c1, B.c2));
 }
 
 // define geometric multiplication with operator*(A,b) as an alias for gpr(A,b)
@@ -559,7 +559,7 @@ inline constexpr MVec3d_E<std::common_type_t<T, U>> gpr(MVec3d_U<U> const& A,
                                                         PScalar3d<T> B)
 {
     using ctype = std::common_type_t<T, U>;
-    return MVec3d_E<ctype>(Scalar<ctype>(-A.c3), BiVec3d<ctype>(A.c0, A.c1, A.c2)) *
+    return MVec3d_E<ctype>(Scalar3d<ctype>(-A.c3), BiVec3d<ctype>(A.c0, A.c1, A.c2)) *
            ctype(B);
 }
 
@@ -659,7 +659,7 @@ inline constexpr MVec3d_E<std::common_type_t<T, U>> gpr(MVec3d_E<T> const& a,
 {
     using ctype = std::common_type_t<T, U>;
     return MVec3d_E<ctype>(
-        Scalar<ctype>(a.c0 * b.c0 - a.c1 * b.c1 - a.c2 * b.c2 - a.c3 * b.c3),
+        Scalar3d<ctype>(a.c0 * b.c0 - a.c1 * b.c1 - a.c2 * b.c2 - a.c3 * b.c3),
         BiVec3d<ctype>(a.c0 * b.c1 + a.c1 * b.c0 - a.c2 * b.c3 + a.c3 * b.c2,
                        a.c0 * b.c2 + a.c1 * b.c3 + a.c2 * b.c0 - a.c3 * b.c1,
                        a.c0 * b.c3 - a.c1 * b.c2 + a.c2 * b.c1 + a.c3 * b.c0));
@@ -683,7 +683,7 @@ inline constexpr MVec3d_E<std::common_type_t<T, U>> gpr(MVec3d_U<T> const& a,
 {
     using ctype = std::common_type_t<T, U>;
     return MVec3d_E<ctype>(
-        Scalar<ctype>(a.c0 * b.c0 + a.c1 * b.c1 + a.c2 * b.c2 - a.c3 * b.c3),
+        Scalar3d<ctype>(a.c0 * b.c0 + a.c1 * b.c1 + a.c2 * b.c2 - a.c3 * b.c3),
         BiVec3d<ctype>(a.c0 * b.c3 + a.c1 * b.c2 - a.c2 * b.c1 + a.c3 * b.c0,
                        -a.c0 * b.c2 + a.c1 * b.c3 + a.c2 * b.c0 + a.c3 * b.c1,
                        a.c0 * b.c1 - a.c1 * b.c0 + a.c2 * b.c3 + a.c3 * b.c2));
@@ -878,7 +878,8 @@ template <typename T, typename U>
 inline constexpr MVec3d_E<std::common_type_t<T, U>> exp(BiVec3d<T> const& I, U theta)
 {
     using ctype = std::common_type_t<T, U>;
-    return MVec3d_E<ctype>(Scalar<ctype>(std::cos(theta)), unitized(I) * std::sin(theta));
+    return MVec3d_E<ctype>(Scalar3d<ctype>(std::cos(theta)),
+                           unitized(I) * std::sin(theta));
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -888,7 +889,7 @@ inline constexpr MVec3d_E<std::common_type_t<T, U>> exp(BiVec3d<T> const& I, U t
 //       2.) a rotation angle in that plane
 // Output:
 //           a rotor representing the requested rotation,
-//           for applying the sandwich product as in rot(v,rotor)
+//           for applying the sandwich product as in rotate(v,rotor)
 //
 //////////////////////////////////////////////////////////////////////////////////////////
 template <typename T, typename U>
@@ -897,14 +898,14 @@ inline constexpr MVec3d_E<std::common_type_t<T, U>> rotor(BiVec3d<T> const& I, U
 {
     using ctype = std::common_type_t<T, U>;
     ctype half_angle = -0.5 * theta;
-    return MVec3d_E<ctype>(Scalar<ctype>(std::cos(half_angle)),
+    return MVec3d_E<ctype>(Scalar3d<ctype>(std::cos(half_angle)),
                            unitized(I) * std::sin(half_angle));
 }
 
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr Vec3d<std::common_type_t<T, U>> rot(Vec3d<T> const& v,
-                                                     MVec3d_E<U> const& rotor)
+inline constexpr Vec3d<std::common_type_t<T, U>> rotate(Vec3d<T> const& v,
+                                                        MVec3d_E<U> const& rotor)
 {
     using ctype = std::common_type_t<T, U>;
 

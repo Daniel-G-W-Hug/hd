@@ -14,11 +14,13 @@ namespace hd::ga {
 // using value_t = float;
 using value_t = double;
 
-struct scalar_tag {};
+struct scalar2d_tag {};
+struct scalar3d_tag {};
 struct pscalar2d_tag {};
 struct pscalar3d_tag {};
 
-template <typename T> using Scalar = Strong_t<T, scalar_tag>;
+template <typename T> using Scalar2d = Strong_t<T, scalar2d_tag>;
+template <typename T> using Scalar3d = Strong_t<T, scalar3d_tag>;
 template <typename T> using PScalar2d = Strong_t<T, pscalar2d_tag>;
 template <typename T> using PScalar3d = Strong_t<T, pscalar3d_tag>;
 

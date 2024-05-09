@@ -43,7 +43,7 @@ struct MVec3d {
     }
 
     // assign a scalar part exclusively (other grades = 0)
-    MVec3d(Scalar<T> s) : c0(s) {}
+    MVec3d(Scalar3d<T> s) : c0(s) {}
 
     // assign a vector part exclusively (other grades = 0)
     MVec3d(Vec3d<T> const& v) : c1(v.x), c2(v.y), c3(v.z) {}
@@ -54,7 +54,7 @@ struct MVec3d {
     // assign a geometric product resulting from a product of two vectors
     // via dot(v1,v2) and wdg(v1,v2) or via dot(v1,v2) and cmt(v1,v2) directly
     // (other grades = 0)
-    MVec3d(Scalar<T> s, BiVec3d<T> const& v) : c0(s), c4(v.x), c5(v.y), c6(v.z) {}
+    MVec3d(Scalar3d<T> s, BiVec3d<T> const& v) : c0(s), c4(v.x), c5(v.y), c6(v.z) {}
 
     // assign from a quaternion, i.e. from the even subalgebra
     MVec3d(MVec3d_E<T> v) : c0(v.c0), c4(v.c1), c5(v.c2), c6(v.c3) {}
@@ -195,9 +195,9 @@ inline constexpr MVec3d<std::common_type_t<T, U>> operator/(MVec3d<T> const& v, 
 // grade 2: gr2() - bivector
 // grade 3: gr3() - trivector (= pseudoscalar in 3d)
 
-template <typename T> inline constexpr Scalar<T> gr0(MVec3d<T> const& v)
+template <typename T> inline constexpr Scalar3d<T> gr0(MVec3d<T> const& v)
 {
-    return Scalar<T>(v.c0);
+    return Scalar3d<T>(v.c0);
 }
 
 template <typename T> inline constexpr Vec3d<T> gr1(MVec3d<T> const& v)

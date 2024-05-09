@@ -18,7 +18,10 @@ namespace hd::ga {
 
 // The scalar type is the same type for all algebras
 // or space dimensions, respectively. We use the default floating point types.
-using scalar = Scalar<value_t>;
+// BUT: for unique overloading we need unique types for 2d and 3d that can
+//      be distinguished
+using scalar2d = Scalar2d<value_t>;
+using scalar3d = Scalar3d<value_t>;
 
 // The pseudoscalar is a one-dimensional entity, i.e. it has scalar character.
 // The pseudoscalar describes the "unit volume" of the respective space.

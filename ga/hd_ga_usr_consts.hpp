@@ -20,8 +20,8 @@ auto const e1m_2d = MVec2d<value_t>{e1_2d}; // e1_2d as multivector
 auto const e2m_2d = MVec2d<value_t>{e2_2d}; // e2_2d as multivector
 
 auto const I_2d = PScalar2d<value_t>(1.0);
-auto const Im_2d = MVec2d<value_t>{I_2d};   // I_2d as multivector
-auto const Ic_2d = MVec2d_E<value_t>{I_2d}; // I_2d as even grade multivector
+auto const Im_2d = MVec2d<value_t>{I_2d};     // I_2d as multivector
+auto const Im_2d_E = MVec2d_E<value_t>{I_2d}; // I_2d as even grade multivector
 
 ////////////////////////////////////////////////////////////////////////////////
 // 3D constants
