@@ -168,9 +168,6 @@ template <typename T> inline Vec2d<T> inv(Vec2d<T> const& v)
     return Vec2d<T>(v.x * inv, v.y * inv);
 }
 
-// return magnitude of the PSeudoscalar
-template <typename T> inline T nrm(PScalar2d<T> const& v) { return std::abs(T(v)); }
-
 // wedge product (returns a bivector, which is the pseudoscalar in 2d)
 // wdg(v1,v2) = |v1| |v2| sin(theta)
 // where theta: -pi <= theta <= pi (different to definition of angle for dot product!)
