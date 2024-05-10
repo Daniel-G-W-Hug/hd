@@ -232,6 +232,12 @@ inline std::common_type_t<T, U> angle(Vec3d<T> const& v1, Vec3d<U> const& v2)
 // }
 
 // cross-product between two vectors (returns a vector in 3d)
+//
+// following identities hold, which allow to replace cross-product expressions:
+//
+//     a x b       = -dual(a^b) = - I_3d * (a^b)
+//     a x (b x c) = -dot(a, wdg(b,c))
+//
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
 inline Vec3d<std::common_type_t<T, U>> cross(Vec3d<T> const& v1, Vec3d<U> const& v2)

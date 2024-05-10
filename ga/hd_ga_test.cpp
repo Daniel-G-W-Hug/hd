@@ -1438,6 +1438,55 @@ TEST_SUITE("Geometric Algebra")
         CHECK(v5 == v1);
     }
 
+    TEST_CASE("Vec3d: cross-product")
+    {
+        fmt::println("Vec3d: cross-product");
+
+        Vec3d u{1.0, 1.0, 0.0};
+        Vec3d v{0.0, 1.0, 1.0};
+        Vec3d w{1.0, 1.0, 1.0};
+
+        Vec3d u_cross_v = cross(u, v);
+        BiVec3d u_wdg_v = wdg(u, v);
+        auto minus_dual_u_wdg_v = -dual(wdg(u, v));
+
+        // fmt::println("   u          = {: } - vec,   nrm(u)"
+        //              "          = {: .4}",
+        //              u, nrm(u));
+        // fmt::println("   v          = {: } - vec,   nrm(v)"
+        //              "          = {: .4}",
+        //              v, nrm(v));
+        // fmt::println("   uxv        = {: } - vec,   nrm(uxv)"
+        //              "        = {: .4}",
+        //              u_cross_v, nrm(u_cross_v));
+        // fmt::println("   u^v        = {: } - bivec, nrm(u^v)"
+        //              "        = {: .4}",
+        //              u_wdg_v, nrm(u_wdg_v));
+        // fmt::println("   -dual(u^v) = {: } - vec  , nrm(-dual(u^v))"
+        //              " = {: .4}",
+        //              minus_dual_u_wdg_v, nrm(minus_dual_u_wdg_v));
+        // fmt::println("");
+        // fmt::println("   u                = {: } - vec, nrm(u)"
+        //              "                = {: .4}",
+        //              u, nrm(u));
+        // fmt::println("   v                = {: } - vec, nrm(v)"
+        //              "                = {: .4}",
+        //              v, nrm(v));
+        // fmt::println("   w                = {: } - vec, nrm(w)"
+        //              "                = {: .4}",
+        //              w, nrm(w));
+        // fmt::println("   u x (v x w)      = {: } - vec, nrm(u x v x w)"
+        //              "        = {: .4}",
+        //              cross(u, cross(v, w)), nrm(cross(u, cross(v, w))));
+        // fmt::println("   -dot(u, wdg(v,w) = {: } - vec, nrm(-dot(u, wdg(v,w))"
+        //              " = {: .4}",
+        //              -dot(u, wdg(v, w)), nrm(-dot(u, wdg(v, w))));
+        // fmt::println("");
+
+        CHECK(u_cross_v == minus_dual_u_wdg_v);
+        CHECK(cross(u, cross(v, w)) == -dot(u, wdg(v, w)));
+    }
+
     ////////////////////////////////////////////////////////////////////////////////
     // MVec3d<T> basic test cases
     ////////////////////////////////////////////////////////////////////////////////
@@ -1949,14 +1998,13 @@ TEST_SUITE("Geometric Algebra")
         // fmt::println("");
         // fmt::println("   gpr12_m = gpr(mb1, mb2) = {}", gpr12_m);
         // fmt::println("   gpr21_m = gpr(mb2, mb1) = {}", gpr21_m);
-        // fmt::println("   gpr12_m_sym  = 0.5 * (gpr12_d + gpr21_d) = {}", gpr12_m_sym);
-        // fmt::println("   gpr12_m_asym = 0.5 * (gpr12_m - gpr21_m) = {}", gpr12_m_asym);
-        // fmt::println("");
-        // fmt::println("   gpr12_d = gpr(b1, b2) = {}", gpr12_d);
-        // fmt::println("   gpr21_d = gpr(b2, b1) = {}", gpr21_d);
-        // fmt::println("   gpr12_d_sym  = 0.5 * (gpr12_d + gpr21_d) = {}", gpr12_d_sym);
-        // fmt::println("   gpr12_d_asym = 0.5 * (gpr12_d - gpr21_d) = {}", gpr12_d_asym);
-        // fmt::println("");
+        // fmt::println("   gpr12_m_sym  = 0.5 * (gpr12_d + gpr21_d) = {}",
+        // gpr12_m_sym); fmt::println("   gpr12_m_asym = 0.5 * (gpr12_m - gpr21_m) =
+        // {}", gpr12_m_asym); fmt::println(""); fmt::println("   gpr12_d = gpr(b1,
+        // b2) = {}", gpr12_d); fmt::println("   gpr21_d = gpr(b2, b1) = {}",
+        // gpr21_d); fmt::println("   gpr12_d_sym  = 0.5 * (gpr12_d + gpr21_d) = {}",
+        // gpr12_d_sym); fmt::println("   gpr12_d_asym = 0.5 * (gpr12_d - gpr21_d) =
+        // {}", gpr12_d_asym); fmt::println("");
 
         CHECK(gr2(mb1) == b1);
     }
