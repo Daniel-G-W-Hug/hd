@@ -20,8 +20,28 @@
 
 namespace hd::ga {
 
-// return magnitude of the PSeudoscalar
-template <typename T> inline T nrm(PScalar2d<T> const& v) { return std::abs(T(v)); }
+////////////////////////////////////////////////////////////////////////////////
+// PScalar2d<T> basic operations
+////////////////////////////////////////////////////////////////////////////////
+
+// return squared magnitude of the pseudoscalar
+template <typename T> inline constexpr T sq_nrm(PScalar2d<T> const& ps)
+{
+    return T(ps) * T(ps);
+}
+
+// return magnitude of the pseudoscalar
+template <typename T> inline constexpr T nrm(PScalar2d<T> const& ps)
+{
+    return std::abs(T(ps));
+}
+
+// return inverse of the pseudoscalar (A^(-1) = rev(A)/|A|^2 = (-1)^(k*(k-1)/2)*A/|A|^2
+// k is the dimension of the space of the pseudoscalar formed by k orthogonal vectors
+template <typename T> inline constexpr T inv(PScalar2d<T> const& ps)
+{
+    return -T(ps) / sq_nrm(ps);
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 // Vec2d<T> projections and rejections
