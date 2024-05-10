@@ -768,6 +768,207 @@ TEST_SUITE("Geometric Algebra")
         CHECK(v1.y == gpr(I_2d, v1).x);
     }
 
+    ////////////////////////////////////////////////////////////////////////////////
+    // MVec2d_E<T> operations test cases
+    ////////////////////////////////////////////////////////////////////////////////
+
+    TEST_CASE("MVec2d_E: modelling complex numbers - basics")
+    {
+        fmt::println("MVec2d_E: modelling complex numbers - basics");
+
+        // defining a complex number in all three forms as multivector
+        auto u = Vec2d{1.0, 0.0};
+        auto v = Vec2d{std::cos(pi / 6.0), std::sin(pi / 6.0)}; // unit vec +30%
+
+        auto angle_uv = angle(u, v);
+
+        auto uv = gpr(u, v); // complex number with real part and bivector part
+        auto v2 = exp(I_2d, angle_uv);
+        auto re = gr0(uv);
+        auto im = gr2(uv);
+        auto r = sqrt(re * re + im * im);
+
+        MVec2d_E a{1.0, 0.0};
+        MVec2d_E b{1.0, 1.0};
+        MVec2d_E c{a + b};
+        MVec2d_E d{a - b};
+        MVec2d_E e{2.0 * b};
+        MVec2d_E f{b * 2.0};
+        MVec2d_E g{-e};
+        MVec2d_E h{0.0, 1.0};
+        MVec2d_E as = gpr(a, a);
+        MVec2d_E hs = gpr(h, h);
+
+        MVec2d_E i = gpr(b, c);
+        MVec2d_E j = b * c; // defined operator*(MVec2d_E,MVec2d_E) as gpr(a,b)
+        auto k = I_2d;
+        MVec2d_E l = exp(I_2d, pi / 2);
+        MVec2d_E m = Im_2d_E;
+        MVec2d n = Im_2d;
+        // fmt::println("   Multivector form of complex numbers:");
+        // fmt::println("   u                     = {}", u);
+        // fmt::println("   v                     = {}", v);
+        // fmt::println("   angle(u,v)            = {:.3}°", angle_uv * 180 / pi);
+        // fmt::println("   uv = gpr(u,v)         = {}", uv);
+        // fmt::println("   re = gr0(uv)          = {}", re);
+        // fmt::println("   im = gr2(uv)          = {}", im);
+        // fmt::println("   r = sqrt(re^2 + im^2) = {}", r);
+        // fmt::println("");
+        // fmt::println("   Using the even subalgebra only (std form of complex
+        // numbers):");
+        // // declaring angle_uv a PScalar2d makes it a bivector angle,
+        // // i.e. a multiple of the bivector I_2d
+        // // ATTENTION: if you don't declare it as such, the normal exponential function
+        // //            will be called, resulting in a scalar result!
+        // fmt::println("   v2=exp(angle_uv) = {}", v2);
+        // fmt::println("");
+        // fmt::println("   a         = {}", a);
+        // fmt::println("   b         = {}", b);
+        // fmt::println("   c = a+b   = {}", c);
+        // fmt::println("   d = a-b   = {}", d);
+        // fmt::println("   e = 2.0*b = {}", e);
+        // fmt::println("   f = b*2.0 = {}", f);
+        // fmt::println("   g = -e    = {}", g);
+        // fmt::println("");
+        // fmt::println("   h =            = {}", h);
+        // fmt::println("   as = gpr(a,a)  = {}", as);
+        // fmt::println("   hs = gpr(h,h)  = {}", hs);
+        // fmt::println("   b*h = gpr(b,h) = {}", gpr(b, h));
+        // fmt::println("   h*b = gpr(h,b) = {}", gpr(h, b));
+        // fmt::println("   b*h = b*h      = {}", b * h);
+        // fmt::println("   h*b = h*b      = {}", h * b);
+        // fmt::println("");
+        // fmt::println("   i = gpr(b,c) = {}", i);
+        // fmt::println("   j = b*c      = {}", j);
+        // fmt::println("");
+        // fmt::println("   k = I_2d                         = {}", k);
+        // fmt::println("   l = exp(PScalar2d<double>(pi/2)) = {:.3f}", l);
+        // fmt::println("   m = Im_2d_E                        = {}", m);
+        // fmt::println("   n = Im_2d                        = {}", n);
+
+        CHECK(c == a + b);
+        CHECK(d == a - b);
+        CHECK(e == 2.0 * b);
+        CHECK(f == b * 2.0);
+        CHECK(g == -e);
+        CHECK(as == a);
+        CHECK(hs == MVec2d_E(-1.0, 0.0));
+        CHECK(v.x == v2.c0);
+        CHECK(v.y == v2.c1);
+        CHECK(gpr(b, h) ==
+              gpr(h, b)); // in 2d the pseudoscalar commutes commutes with complex numbers
+        CHECK(i == j);
+        CHECK(l == m);
+        CHECK(rev(b + c) == rev(b) + rev(c));
+        CHECK(rev(b * c) == rev(b) * rev(c));
+        CHECK(nrm(b * c) == nrm(b) * nrm(c));
+        CHECK(b * c == c * b);
+
+        CHECK(sq_nrm(MVec2d_E{1.0, 1.0}) == 2.0);
+        CHECK(nrm(MVec2d_E{1.0, 1.0}) == std::sqrt(2.0));
+        CHECK(rev(MVec2d_E{1.0, 1.0}) == MVec2d_E{1.0, -1.0});
+        CHECK(std::abs(nrm(unitized(MVec2d_E{1.0, 1.0})) - 1.0) < eps);
+
+        CHECK(MVec2d_E{-1.0, 1.0} * inv(MVec2d_E{-1.0, 1.0}) == MVec2d_E{1.0, 0.0});
+        CHECK(gr0(MVec2d_E{-1.0, 1.0} * rev(MVec2d_E{-1.0, 1.0})) ==
+              sq_nrm(MVec2d_E{-1.0, 1.0}));
+        CHECK(std::abs(gr2(MVec2d_E{-1.0, 1.0} * rev(MVec2d_E{-1.0, 1.0}))) < eps);
+
+        CHECK(angle(MVec2d_E{1.0, 0.0}) == 0);
+        CHECK(angle(MVec2d_E{1.0, 1.0}) == pi / 4.0);
+        CHECK(angle(MVec2d_E{0.0, 1.0}) == pi / 2.0);
+        CHECK(angle(MVec2d_E{-1.0, 1.0}) == pi * 3.0 / 4.0);
+        CHECK(angle(MVec2d_E{-1.0, 0.0}) == pi);
+        CHECK(angle(MVec2d_E{1.0, -1.0}) == -pi / 4.0);
+        CHECK(angle(MVec2d_E{0.0, -1.0}) == -pi / 2.0);
+        CHECK(angle(MVec2d_E{-1.0, -1.0}) == -pi * 3.0 / 4.0);
+
+        CHECK(Vec2d{1.0, 0.0} * Vec2d{1.1, 1.1} ==
+              rev(Vec2d{1.1, 1.1} * Vec2d{1.0, 0.0}));
+        CHECK(exp(I_2d, pi / 4) == rev(exp(I_2d, -pi / 4)));
+    }
+
+    TEST_CASE("MVec2d_E: modelling complex numbers - products")
+    {
+        fmt::println("MVec2d_E: modelling complex numbers - products");
+
+        // std::vector<std::tuple<double, MVec2d_E<double>>> c_v;
+        // for (int i = -12; i <= 12; ++i) {
+        //     double phi = i * pi / 12;
+        //     MVec2d_E c = exp(PScalar2d<double>(phi));
+        //     c_v.push_back(std::make_tuple(phi, c));
+        //     fmt::println("   i={: 3}: phi={: .4f}, phi={: 4.0f}°, c={: .3f},"
+        //                  " angle={: .4f}",
+        //                  i, phi, phi * 180 / pi, c, angle(c));
+        // }
+        // fmt::println("");
+
+        // auto v = Vec2d<double>{1.0, 0.0};
+        // // auto v = Vec2d<double>{1.0, 1.0};
+        // for (auto const& [phi, c] : c_v) {
+        //     auto u1 = v * c;
+        //     auto u2 = c * v;
+        //     fmt::println("   phi={: .4f}, phi={:> 4.0f}°, c={: .3f},"
+        //                  "  u1={: .3f}, u2={: .3f}",
+        //                  phi, phi * 180 / pi, c, u1, u2);
+        // }
+        // fmt::println("");
+
+
+        CHECK(MVec2d_E{2.0, 3.0} * MVec2d{-1.0, 1.5, -2.0, -3.0} ==
+              MVec2d{2.0, 0.0, 0.0, 3.0} * MVec2d{-1.0, 1.5, -2.0, -3.0});
+        CHECK(MVec2d_E{2.0, 3.0} * Vec2d{1.5, -2.0} ==
+              gr1(MVec2d{2.0, 0.0, 0.0, 3.0} * MVec2d{0.0, 1.5, -2.0, 0.0}));
+
+        CHECK(gr0(Vec2d{1.5, -2.0} * Vec2d{2.0, 3.0}) ==
+              gr0(MVec2d{0.0, 1.5, -2.0, 0.0} * MVec2d{0.0, 2.0, 3.0, 0.0}));
+        CHECK(gr2(Vec2d{1.5, -2.0} * Vec2d{2.0, 3.0}) ==
+              gr2(MVec2d{0.0, 1.5, -2.0, 0.0} * MVec2d{0.0, 2.0, 3.0, 0.0}));
+
+        // multiply from left
+        CHECK(PScalar2d<double>(1.5) * MVec2d{-1.0, 1.5, -2.0, -3.0} ==
+              MVec2d{0.0, 0.0, 0.0, 1.5} * MVec2d{-1.0, 1.5, -2.0, -3.0});
+
+        CHECK(MVec2d(PScalar2d<double>(1.5) * MVec2d_E{-1.0, -3.0}) ==
+              MVec2d{0.0, 0.0, 0.0, 1.5} * MVec2d{-1.0, 0.0, 0.0, -3.0});
+
+        CHECK(MVec2d(PScalar2d<double>(1.5) * Vec2d{-1.0, -3.0}) ==
+              MVec2d{0.0, 0.0, 0.0, 1.5} * MVec2d{0.0, -1.0, -3.0, 0.0});
+
+        // multiply from right
+        CHECK(MVec2d{-1.0, 1.5, -2.0, -3.0} * PScalar2d<double>(1.5) ==
+              MVec2d{-1.0, 1.5, -2.0, -3.0} * MVec2d{0.0, 0.0, 0.0, 1.5});
+
+        CHECK(MVec2d_E{-1.0, -3.0} * MVec2d(PScalar2d<double>(1.5)) ==
+              MVec2d{-1.0, 0.0, 0.0, -3.0} * MVec2d{0.0, 0.0, 0.0, 1.5});
+
+        CHECK(MVec2d(Vec2d{-1.0, -3.0} * PScalar2d<double>(1.5)) ==
+              MVec2d{0.0, -1.0, -3.0, 0.0} * MVec2d{0.0, 0.0, 0.0, 1.5});
+
+        // two bivectors
+        CHECK(MVec2d(Scalar2d<double>(PScalar2d<double>(1.5) * PScalar2d<double>(3.0))) ==
+              MVec2d{0.0, 0.0, 0.0, 1.5} * MVec2d{0.0, 0.0, 0.0, 3.0});
+
+        // MVec2d_E tests multiply from left
+        CHECK(MVec2d_E{-1.0, -3.0} * MVec2d(-1.0, 1.5, -2.0, -3.0) ==
+              MVec2d{-1.0, 0.0, 0.0, -3.0} * MVec2d{-1.0, 1.5, -2.0, -3.0});
+
+        CHECK(MVec2d(MVec2d_E{-1.0, -3.0} * Vec2d(1.5, -2.0)) ==
+              MVec2d{-1.0, 0.0, 0.0, -3.0} * MVec2d{0.0, 1.5, -2.0, 0.0});
+
+        // MVec2d_E tests multiply from right
+        CHECK(MVec2d(-1.0, 1.5, -2.0, -3.0) * MVec2d_E{-1.0, -3.0} ==
+              MVec2d{-1.0, 1.5, -2.0, -3.0} * MVec2d{-1.0, 0.0, 0.0, -3.0});
+
+        CHECK(MVec2d(Vec2d(1.5, -2.0) * MVec2d_E{-1.0, -3.0}) ==
+              MVec2d{0.0, 1.5, -2.0, 0.0} * MVec2d{-1.0, 0.0, 0.0, -3.0});
+
+        // multiply two MVec2d_E
+        CHECK(MVec2d(MVec2d_E(-3.0, 2.0) * MVec2d_E{-1.0, -3.0}) ==
+              MVec2d{-3.0, 0.0, 0.0, 2.0} * MVec2d{-1.0, 0.0, 0.0, -3.0});
+    }
+
+
     TEST_CASE("MVec2d: dualization")
     {
         fmt::println("MVec2d: dualization");
@@ -1761,207 +1962,6 @@ TEST_SUITE("Geometric Algebra")
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    // MVec2d_E<T> operations test cases
-    ////////////////////////////////////////////////////////////////////////////////
-
-    TEST_CASE("MVec2d_E: modelling complex numbers - basics")
-    {
-        fmt::println("MVec2d_E: modelling complex numbers - basics");
-
-        // defining a complex number in all three forms as multivector
-        auto u = Vec2d{1.0, 0.0};
-        auto v = Vec2d{std::cos(pi / 6.0), std::sin(pi / 6.0)}; // unit vec +30%
-
-        auto angle_uv = angle(u, v);
-
-        auto uv = gpr(u, v); // complex number with real part and bivector part
-        auto v2 = exp(I_2d, angle_uv);
-        auto re = gr0(uv);
-        auto im = gr2(uv);
-        auto r = sqrt(re * re + im * im);
-
-        MVec2d_E a{1.0, 0.0};
-        MVec2d_E b{1.0, 1.0};
-        MVec2d_E c{a + b};
-        MVec2d_E d{a - b};
-        MVec2d_E e{2.0 * b};
-        MVec2d_E f{b * 2.0};
-        MVec2d_E g{-e};
-        MVec2d_E h{0.0, 1.0};
-        MVec2d_E as = gpr(a, a);
-        MVec2d_E hs = gpr(h, h);
-
-        MVec2d_E i = gpr(b, c);
-        MVec2d_E j = b * c; // defined operator*(MVec2d_E,MVec2d_E) as gpr(a,b)
-        auto k = I_2d;
-        MVec2d_E l = exp(I_2d, pi / 2);
-        MVec2d_E m = Im_2d_E;
-        MVec2d n = Im_2d;
-        // fmt::println("   Multivector form of complex numbers:");
-        // fmt::println("   u                     = {}", u);
-        // fmt::println("   v                     = {}", v);
-        // fmt::println("   angle(u,v)            = {:.3}°", angle_uv * 180 / pi);
-        // fmt::println("   uv = gpr(u,v)         = {}", uv);
-        // fmt::println("   re = gr0(uv)          = {}", re);
-        // fmt::println("   im = gr2(uv)          = {}", im);
-        // fmt::println("   r = sqrt(re^2 + im^2) = {}", r);
-        // fmt::println("");
-        // fmt::println("   Using the even subalgebra only (std form of complex
-        // numbers):");
-        // // declaring angle_uv a PScalar2d makes it a bivector angle,
-        // // i.e. a multiple of the bivector I_2d
-        // // ATTENTION: if you don't declare it as such, the normal exponential function
-        // //            will be called, resulting in a scalar result!
-        // fmt::println("   v2=exp(angle_uv) = {}", v2);
-        // fmt::println("");
-        // fmt::println("   a         = {}", a);
-        // fmt::println("   b         = {}", b);
-        // fmt::println("   c = a+b   = {}", c);
-        // fmt::println("   d = a-b   = {}", d);
-        // fmt::println("   e = 2.0*b = {}", e);
-        // fmt::println("   f = b*2.0 = {}", f);
-        // fmt::println("   g = -e    = {}", g);
-        // fmt::println("");
-        // fmt::println("   h =            = {}", h);
-        // fmt::println("   as = gpr(a,a)  = {}", as);
-        // fmt::println("   hs = gpr(h,h)  = {}", hs);
-        // fmt::println("   b*h = gpr(b,h) = {}", gpr(b, h));
-        // fmt::println("   h*b = gpr(h,b) = {}", gpr(h, b));
-        // fmt::println("   b*h = b*h      = {}", b * h);
-        // fmt::println("   h*b = h*b      = {}", h * b);
-        // fmt::println("");
-        // fmt::println("   i = gpr(b,c) = {}", i);
-        // fmt::println("   j = b*c      = {}", j);
-        // fmt::println("");
-        // fmt::println("   k = I_2d                         = {}", k);
-        // fmt::println("   l = exp(PScalar2d<double>(pi/2)) = {:.3f}", l);
-        // fmt::println("   m = Im_2d_E                        = {}", m);
-        // fmt::println("   n = Im_2d                        = {}", n);
-
-        CHECK(c == a + b);
-        CHECK(d == a - b);
-        CHECK(e == 2.0 * b);
-        CHECK(f == b * 2.0);
-        CHECK(g == -e);
-        CHECK(as == a);
-        CHECK(hs == MVec2d_E(-1.0, 0.0));
-        CHECK(v.x == v2.c0);
-        CHECK(v.y == v2.c1);
-        CHECK(gpr(b, h) ==
-              gpr(h, b)); // in 2d the pseudoscalar commutes commutes with complex numbers
-        CHECK(i == j);
-        CHECK(l == m);
-        CHECK(rev(b + c) == rev(b) + rev(c));
-        CHECK(rev(b * c) == rev(b) * rev(c));
-        CHECK(nrm(b * c) == nrm(b) * nrm(c));
-        CHECK(b * c == c * b);
-
-        CHECK(sq_nrm(MVec2d_E{1.0, 1.0}) == 2.0);
-        CHECK(nrm(MVec2d_E{1.0, 1.0}) == std::sqrt(2.0));
-        CHECK(rev(MVec2d_E{1.0, 1.0}) == MVec2d_E{1.0, -1.0});
-        CHECK(std::abs(nrm(unitized(MVec2d_E{1.0, 1.0})) - 1.0) < eps);
-
-        CHECK(MVec2d_E{-1.0, 1.0} * inv(MVec2d_E{-1.0, 1.0}) == MVec2d_E{1.0, 0.0});
-        CHECK(gr0(MVec2d_E{-1.0, 1.0} * rev(MVec2d_E{-1.0, 1.0})) ==
-              sq_nrm(MVec2d_E{-1.0, 1.0}));
-        CHECK(std::abs(gr2(MVec2d_E{-1.0, 1.0} * rev(MVec2d_E{-1.0, 1.0}))) < eps);
-
-        CHECK(angle(MVec2d_E{1.0, 0.0}) == 0);
-        CHECK(angle(MVec2d_E{1.0, 1.0}) == pi / 4.0);
-        CHECK(angle(MVec2d_E{0.0, 1.0}) == pi / 2.0);
-        CHECK(angle(MVec2d_E{-1.0, 1.0}) == pi * 3.0 / 4.0);
-        CHECK(angle(MVec2d_E{-1.0, 0.0}) == pi);
-        CHECK(angle(MVec2d_E{1.0, -1.0}) == -pi / 4.0);
-        CHECK(angle(MVec2d_E{0.0, -1.0}) == -pi / 2.0);
-        CHECK(angle(MVec2d_E{-1.0, -1.0}) == -pi * 3.0 / 4.0);
-
-        CHECK(Vec2d{1.0, 0.0} * Vec2d{1.1, 1.1} ==
-              rev(Vec2d{1.1, 1.1} * Vec2d{1.0, 0.0}));
-        CHECK(exp(I_2d, pi / 4) == rev(exp(I_2d, -pi / 4)));
-    }
-
-
-    TEST_CASE("MVec2d_E: modelling complex numbers - products")
-    {
-        fmt::println("MVec2d_E: modelling complex numbers - products");
-
-        // std::vector<std::tuple<double, MVec2d_E<double>>> c_v;
-        // for (int i = -12; i <= 12; ++i) {
-        //     double phi = i * pi / 12;
-        //     MVec2d_E c = exp(PScalar2d<double>(phi));
-        //     c_v.push_back(std::make_tuple(phi, c));
-        //     fmt::println("   i={: 3}: phi={: .4f}, phi={: 4.0f}°, c={: .3f},"
-        //                  " angle={: .4f}",
-        //                  i, phi, phi * 180 / pi, c, angle(c));
-        // }
-        // fmt::println("");
-
-        // auto v = Vec2d<double>{1.0, 0.0};
-        // // auto v = Vec2d<double>{1.0, 1.0};
-        // for (auto const& [phi, c] : c_v) {
-        //     auto u1 = v * c;
-        //     auto u2 = c * v;
-        //     fmt::println("   phi={: .4f}, phi={:> 4.0f}°, c={: .3f},"
-        //                  "  u1={: .3f}, u2={: .3f}",
-        //                  phi, phi * 180 / pi, c, u1, u2);
-        // }
-        // fmt::println("");
-
-
-        CHECK(MVec2d_E{2.0, 3.0} * MVec2d{-1.0, 1.5, -2.0, -3.0} ==
-              MVec2d{2.0, 0.0, 0.0, 3.0} * MVec2d{-1.0, 1.5, -2.0, -3.0});
-        CHECK(MVec2d_E{2.0, 3.0} * Vec2d{1.5, -2.0} ==
-              gr1(MVec2d{2.0, 0.0, 0.0, 3.0} * MVec2d{0.0, 1.5, -2.0, 0.0}));
-
-        CHECK(gr0(Vec2d{1.5, -2.0} * Vec2d{2.0, 3.0}) ==
-              gr0(MVec2d{0.0, 1.5, -2.0, 0.0} * MVec2d{0.0, 2.0, 3.0, 0.0}));
-        CHECK(gr2(Vec2d{1.5, -2.0} * Vec2d{2.0, 3.0}) ==
-              gr2(MVec2d{0.0, 1.5, -2.0, 0.0} * MVec2d{0.0, 2.0, 3.0, 0.0}));
-
-        // multiply from left
-        CHECK(PScalar2d<double>(1.5) * MVec2d{-1.0, 1.5, -2.0, -3.0} ==
-              MVec2d{0.0, 0.0, 0.0, 1.5} * MVec2d{-1.0, 1.5, -2.0, -3.0});
-
-        CHECK(MVec2d(PScalar2d<double>(1.5) * MVec2d_E{-1.0, -3.0}) ==
-              MVec2d{0.0, 0.0, 0.0, 1.5} * MVec2d{-1.0, 0.0, 0.0, -3.0});
-
-        CHECK(MVec2d(PScalar2d<double>(1.5) * Vec2d{-1.0, -3.0}) ==
-              MVec2d{0.0, 0.0, 0.0, 1.5} * MVec2d{0.0, -1.0, -3.0, 0.0});
-
-        // multiply from right
-        CHECK(MVec2d{-1.0, 1.5, -2.0, -3.0} * PScalar2d<double>(1.5) ==
-              MVec2d{-1.0, 1.5, -2.0, -3.0} * MVec2d{0.0, 0.0, 0.0, 1.5});
-
-        CHECK(MVec2d_E{-1.0, -3.0} * MVec2d(PScalar2d<double>(1.5)) ==
-              MVec2d{-1.0, 0.0, 0.0, -3.0} * MVec2d{0.0, 0.0, 0.0, 1.5});
-
-        CHECK(MVec2d(Vec2d{-1.0, -3.0} * PScalar2d<double>(1.5)) ==
-              MVec2d{0.0, -1.0, -3.0, 0.0} * MVec2d{0.0, 0.0, 0.0, 1.5});
-
-        // two bivectors
-        CHECK(MVec2d(Scalar2d<double>(PScalar2d<double>(1.5) * PScalar2d<double>(3.0))) ==
-              MVec2d{0.0, 0.0, 0.0, 1.5} * MVec2d{0.0, 0.0, 0.0, 3.0});
-
-        // MVec2d_E tests multiply from left
-        CHECK(MVec2d_E{-1.0, -3.0} * MVec2d(-1.0, 1.5, -2.0, -3.0) ==
-              MVec2d{-1.0, 0.0, 0.0, -3.0} * MVec2d{-1.0, 1.5, -2.0, -3.0});
-
-        CHECK(MVec2d(MVec2d_E{-1.0, -3.0} * Vec2d(1.5, -2.0)) ==
-              MVec2d{-1.0, 0.0, 0.0, -3.0} * MVec2d{0.0, 1.5, -2.0, 0.0});
-
-        // MVec2d_E tests multiply from right
-        CHECK(MVec2d(-1.0, 1.5, -2.0, -3.0) * MVec2d_E{-1.0, -3.0} ==
-              MVec2d{-1.0, 1.5, -2.0, -3.0} * MVec2d{-1.0, 0.0, 0.0, -3.0});
-
-        CHECK(MVec2d(Vec2d(1.5, -2.0) * MVec2d_E{-1.0, -3.0}) ==
-              MVec2d{0.0, 1.5, -2.0, 0.0} * MVec2d{-1.0, 0.0, 0.0, -3.0});
-
-        // multiply two MVec2d_E
-        CHECK(MVec2d(MVec2d_E(-3.0, 2.0) * MVec2d_E{-1.0, -3.0}) ==
-              MVec2d{-3.0, 0.0, 0.0, 2.0} * MVec2d{-1.0, 0.0, 0.0, -3.0});
-    }
-
-    ////////////////////////////////////////////////////////////////////////////////
     // MVec3d_E<T> and MVec3d_U<T> operations test cases
     ////////////////////////////////////////////////////////////////////////////////
 
@@ -2072,50 +2072,90 @@ TEST_SUITE("Geometric Algebra")
         fmt::println("MVec3d: dualization");
 
 
-        Vec2d v{1.0, 2.0};                    // 2d vector
-        MVec2d vm{10.0, 1.0, 2.0, 30.0};      // full 2d multivector
-        MVec2d vm_even{10.0, 0.0, 0.0, 30.0}; // full 2d multivector - even content
-        MVec2d_E vm_E{10.0, 30.0};            // even grade 2d multivector
+        Vec3d v{1.0, 2.0, 3.0};                                   // 3d vector
+        BiVec3d B{10.0, 20.0, 30.0};                              // 3d bivector
+        MVec3d vm{100.0, 1.0, 2.0, 3.0, 10.0, 20.0, 30.0, 300.0}; // full 3d multivector
 
-        // dual by left multiplication with Im_2d
+        // full 3d multivector - even content
+        MVec3d vm_even{100.0, 0.0, 0.0, 0.0, 10.0, 20.0, 30.0, 0.0};
+        // even grade 3d multivector
+        MVec3d_E vm_E{100.0, 10.0, 20.0, 30.0};
+
+        // full 3d multivector - uneven content
+        MVec3d vm_uneven{0.0, 1.0, 2.0, 3.0, 0.0, 0.0, 0.0, 300.0};
+        // uneven grade 3d multivector
+        MVec3d_U vm_U{1.0, 2.0, 3.0, 300.0};
+
+        // dual by left multiplication with Im_3d
         // as defined in Doran/Lasenby "GA for physicists"
 
-        auto vm_dual_manual = Im_2d * vm;
+        auto vm_dual_manual = Im_3d * vm;
         auto vm_dual = dual(vm);
 
-        auto vm_dual_even_manual = Im_2d * vm_even;
+        auto vm_dual_even_manual = Im_3d * vm_even;
         auto vm_dual_even = dual(vm_even);
 
-        auto vm_dual_manual_E = Im_2d_E * vm_E;
+        auto vm_dual_uneven_manual = Im_3d * vm_uneven;
+        auto vm_dual_uneven = dual(vm_uneven);
+
+        // result is uneven, naming chosen for consistency
+        auto vm_dual_manual_E = I_3d * vm_E;
         auto vm_dual_E = dual(vm_E);
 
-        auto v_dual_manual = I_2d * v;
+        // result is even, naming chosen for consistency
+        auto vm_dual_manual_U = Im_3d_U * vm_U;
+        auto vm_dual_U = dual(vm_U);
+
+        auto v_dual_manual = I_3d * v;
         auto v_dual = dual(v);
 
-        // fmt::println("   I_2d    = {}", I_2d);
-        // fmt::println("   Im_2d   = {}", Im_2d);
-        // fmt::println("   Im_2d_E = {}", Im_2d_E);
+        auto B_dual_manual = I_3d * B;
+        auto B_dual = dual(B);
+
+        // fmt::println("   I_3d    = {}", I_3d);
+        // fmt::println("   Im_3d   = {}", Im_3d);
+        // fmt::println("   Im_3d_U = {}", Im_3d_U);
+        // fmt::println("");
+        // fmt::println("   v             = {}", v);
+        // fmt::println("   B             = {}", B);
         // fmt::println("");
         // fmt::println("   vm            = {}", vm);
-        // fmt::println("   Im_2d*vm      = {}", vm_dual_manual);
+        // fmt::println("   Im_3d*vm      = {}", vm_dual_manual);
         // fmt::println("   dual(vm)      = {}", vm_dual);
         // fmt::println("");
         // fmt::println("   vm_even       = {}", vm_even);
-        // fmt::println("   Im_2d*vm_even = {}", vm_dual_even_manual);
+        // fmt::println("   Im_3d*vm_even = {}", vm_dual_even_manual);
         // fmt::println("   dual(vm_even) = {}", vm_dual_even);
         // fmt::println("");
         // fmt::println("   vm_E          = {}", vm_E);
-        // fmt::println("   Im_2d_E*vm_E  = {}", vm_dual_manual_E);
+        // fmt::println("   Im_3d_E*vm_E  = {}", vm_dual_manual_E);
         // fmt::println("   dual(vm_E)    = {}", vm_dual_E);
         // fmt::println("");
-        // fmt::println("   v             = {}", v);
-        // fmt::println("   I_2d * v      = {}", v_dual_manual);
-        // fmt::println("   dual(v)       = {}", v_dual);
+        // fmt::println("   vm_uneven       = {}", vm_uneven);
+        // fmt::println("   Im_3d*vm_uneven = {}", vm_dual_uneven_manual);
+        // fmt::println("   dual(vm_uneven) = {}", vm_dual_uneven);
+        // fmt::println("");
+        // fmt::println("   vm_U          = {}", vm_U);
+        // fmt::println("   Im_3d_U*vm_U  = {}", vm_dual_manual_U);
+        // fmt::println("   dual(vm_U)    = {}", vm_dual_U);
+        // fmt::println("");
+        // fmt::println("   v               = {}", v);
+        // fmt::println("   I_3d * v        = {} - bivec ", v_dual_manual);
+        // fmt::println("   dual(v)         = {} - bivec ", v_dual);
+        // fmt::println("");
+        // fmt::println("   B               = {}", B);
+        // fmt::println("   I_3d * B        = {} - vec", B_dual_manual);
+        // fmt::println("   dual(B)         = {} - vec", B_dual);
 
         CHECK(vm_dual == vm_dual_manual);
         CHECK(vm_dual_even == vm_dual_even_manual);
+        CHECK(vm_dual_uneven == vm_dual_uneven_manual);
         CHECK(vm_dual_E == vm_dual_manual_E);
-        CHECK(v_dual == v_dual_manual);
+        CHECK(vm_dual_U == vm_dual_manual_U);
+        CHECK(dual(v) == BiVec3d{1.0, 2.0, 3.0});
+        CHECK(dual(B) == -Vec3d{10.0, 20.0, 30.0});
+        CHECK(dual(Scalar3d<double>(5)) == PScalar3d<double>(5));
+        CHECK(dual(PScalar3d<double>(5)) == Scalar3d<double>(-5));
     }
 
 } // TEST_SUITE("Geometric Algebra")

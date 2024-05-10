@@ -917,4 +917,60 @@ inline constexpr Vec3d<std::common_type_t<T, U>> rotate(Vec3d<T> const& v,
     return Vec3d<ctype>(gr1<ctype>(rotor * v * rev(rotor)));
 }
 
+// return the dual(M) of the multivector M
+// if M represents the subspace B as subspace of R^2 then
+// dual(M) represents the orthogonal subspace B^perp (perpendicular to B)
+// => returns the orthogonal complement
+//
+// dual by left multiplication with Im_3d
+// as defined in Doran/Lasenby "GA for physicists"
+template <typename T>
+    requires(std::floating_point<T>)
+inline constexpr MVec3d<T> dual(MVec3d<T> const& M)
+{
+    return MVec3d<T>(-M.c7, -M.c4, -M.c5, -M.c6, M.c1, M.c2, M.c3, M.c0);
+}
+
+template <typename T>
+    requires(std::floating_point<T>)
+inline constexpr MVec3d_U<T> dual(MVec3d_E<T> const& M)
+{
+    return MVec3d_U<T>(-M.c1, -M.c2, -M.c3, M.c0);
+}
+
+template <typename T>
+    requires(std::floating_point<T>)
+inline constexpr MVec3d_E<T> dual(MVec3d_U<T> const& M)
+{
+    return MVec3d_E<T>(-M.c3, M.c0, M.c1, M.c2);
+}
+
+template <typename T>
+    requires(std::floating_point<T>)
+inline constexpr Scalar3d<T> dual(PScalar3d<T> const& ps)
+{
+    return Scalar3d<T>(-T(ps));
+}
+
+template <typename T>
+    requires(std::floating_point<T>)
+inline constexpr BiVec3d<T> dual(Vec3d<T> const& v)
+{
+    return BiVec3d<T>(v.x, v.y, v.z);
+}
+
+template <typename T>
+    requires(std::floating_point<T>)
+inline constexpr Vec3d<T> dual(BiVec3d<T> const& B)
+{
+    return Vec3d<T>(-B.x, -B.y, -B.z);
+}
+
+template <typename T>
+    requires(std::floating_point<T>)
+inline constexpr PScalar3d<T> dual(Scalar3d<T> const& s)
+{
+    return PScalar3d<T>(T(s));
+}
+
 } // namespace hd::ga

@@ -45,6 +45,7 @@ auto const e31c_3d = MVec3d_E<value_t>{e31_3d}; // e31_3d as even grade multivec
 auto const e12c_3d = MVec3d_E<value_t>{e12_3d}; // e12_3d as even grade multivector
 
 auto const I_3d = PScalar3d<value_t>(1.0);
-auto const Im_3d = MVec3d<value_t>{I_3d}; // I_3d as multivector
+auto const Im_3d = MVec3d<value_t>{I_3d};     // I_3d as multivector
+auto const Im_3d_U = MVec3d_U<value_t>{I_3d}; // I_3d as uneven multivector
 
 } // namespace hd::ga
