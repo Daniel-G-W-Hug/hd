@@ -778,7 +778,7 @@ TEST_SUITE("Geometric Algebra")
 
         // defining a complex number in all three forms as multivector
         auto u = Vec2d{1.0, 0.0};
-        auto v = Vec2d{std::cos(pi / 6.0), std::sin(pi / 6.0)}; // unit vec +30%
+        auto v = Vec2d{std::cos(pi / 6.0), std::sin(pi / 6.0)}; // unit vec +30°
 
         auto angle_uv = angle(u, v);
 
@@ -886,6 +886,13 @@ TEST_SUITE("Geometric Algebra")
         CHECK(Vec2d{1.0, 0.0} * Vec2d{1.1, 1.1} ==
               rev(Vec2d{1.1, 1.1} * Vec2d{1.0, 0.0}));
         CHECK(exp(I_2d, pi / 4) == rev(exp(I_2d, -pi / 4)));
+        CHECK(exp(I_2d, -angle_uv) * u == u * exp(I_2d, angle_uv)); // 2d rotation direct
+        CHECK(exp(I_2d, -angle_uv) * u == v);
+        CHECK(rotate(u, rotor(I_2d, angle_uv)) == v); // 2d rotation with double product
+                                                      // completely as in the 3d case
+                                                      // more effort computationally,
+                                                      // but independent of dimension of
+                                                      // space
     }
 
     TEST_CASE("MVec2d_E: modelling complex numbers - products")

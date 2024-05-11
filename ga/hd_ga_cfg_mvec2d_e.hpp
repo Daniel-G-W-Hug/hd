@@ -245,45 +245,6 @@ inline T angle(MVec2d_E<T> const& v)
     return 0.0; // zero as input => define 0 as corresponding angle
 }
 
-// exponential function for setup of complex numbers and rotations
-// as geometric multivectors with a scalar and a bivector part
-//
-// r = 1 is the vector length of the complex number in polar form
-// theta is the bivector angle (i.e. a multiple of the bivector I_2d)
-// such that uv = r exp(I_2d, theta) = a + I_2d b
-// with r = |u| |v| = sqrt(a^2 + b^2) = 1
-template <typename T, typename U>
-    requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr MVec2d_E<std::common_type_t<T, U>>
-exp([[maybe_unused]] PScalar2d<T> const& I, U theta)
-{
-    // PScalar2d<T> is just used here for a unique overload of exp()
-    // and to make the function signature similar to the 3D case
-    using ctype = std::common_type_t<T, U>;
-    return MVec2d_E<ctype>(Scalar2d<ctype>(std::cos(theta)),
-                           PScalar2d<ctype>(std::sin(theta)));
-}
-
-// Inputs:
-//         - a 2d pseudoscalar representing the plane of 2d space
-//         - a rotation angle in the plane of 2d space
-// Output:
-//         - a rotor representing the requested rotation,
-//           when applying the sandwich product with the rotor as in rotate(v,rotor)
-//
-template <typename T, typename U>
-    requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr MVec2d_E<std::common_type_t<T, U>>
-rotor([[maybe_unused]] PScalar2d<T> const& I, U theta)
-{
-    // PScalar2d<T> is just used here to be able to overload exp
-    // and to make the function similar to the 3D case
-    using ctype = std::common_type_t<T, U>;
-    ctype half_angle = 0.5 * theta;
-    return MVec2d_E<ctype>(Scalar2d<ctype>(std::cos(half_angle)),
-                           PScalar2d<ctype>(std::sin(half_angle)));
-}
-
 } // namespace hd::ga
 
 ////////////////////////////////////////////////////////////////////////////////

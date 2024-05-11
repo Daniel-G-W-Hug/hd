@@ -25,20 +25,26 @@ namespace hd::ga {
 ////////////////////////////////////////////////////////////////////////////////
 
 // return squared magnitude of the pseudoscalar
-template <typename T> inline constexpr T sq_nrm(PScalar2d<T> const& ps)
+template <typename T>
+    requires(std::floating_point<T>)
+inline constexpr T sq_nrm(PScalar2d<T> const& ps)
 {
     return T(ps) * T(ps);
 }
 
 // return magnitude of the pseudoscalar
-template <typename T> inline constexpr T nrm(PScalar2d<T> const& ps)
+template <typename T>
+    requires(std::floating_point<T>)
+inline constexpr T nrm(PScalar2d<T> const& ps)
 {
     return std::abs(T(ps));
 }
 
 // return inverse of the pseudoscalar (A^(-1) = rev(A)/|A|^2 = (-1)^(k*(k-1)/2)*A/|A|^2
 // k is the dimension of the space of the pseudoscalar formed by k orthogonal vectors
-template <typename T> inline constexpr T inv(PScalar2d<T> const& ps)
+template <typename T>
+    requires(std::floating_point<T>)
+inline constexpr T inv(PScalar2d<T> const& ps)
 {
     return -T(ps) / sq_nrm(ps);
 }
@@ -425,6 +431,66 @@ inline constexpr MVec2d_E<std::common_type_t<T, U>> operator*(MVec2d_E<T> const&
 {
     using ctype = std::common_type_t<T, U>;
     return gpr<ctype>(a, b);
+}
+
+
+// exponential function for setup of complex numbers and rotations
+// as geometric multivectors with a scalar and a bivector part
+//
+// r = 1 is the vector length of the complex number in polar form
+// theta is the bivector angle (i.e. a multiple of the bivector I_2d)
+// such that uv = r exp(I_2d, theta) = a + I_2d b
+// with r = |u| |v| = sqrt(a^2 + b^2) = 1
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline constexpr MVec2d_E<std::common_type_t<T, U>>
+exp([[maybe_unused]] PScalar2d<T> const& I, U theta)
+{
+    // PScalar2d<T> is just used here for a unique overload of exp()
+    // and to make the function signature similar to the 3D case
+    using ctype = std::common_type_t<T, U>;
+    return MVec2d_E<ctype>(Scalar2d<ctype>(std::cos(theta)),
+                           PScalar2d<ctype>(std::sin(theta)));
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+// Inputs:
+//         - a 2d pseudoscalar representing the plane of 2d space
+//         - a rotation angle in the plane of 2d space
+// Output:
+//         - a rotor representing the requested rotation,
+//           when applying the sandwich product with the rotor as in rotate(v,rotor)
+//
+//////////////////////////////////////////////////////////////////////////////////////////
+//
+// implemented here to make it formally the same with the 3d case (and potentially higher
+// dimensional applications). In 2d the rotation can be directly expressed with less
+// effort as
+//
+// exp(I_2d, -theta) * v = v * exp(I_2d, theta)  to express a 2d rotation of vector v by
+//                                               the angle theta
+//
+//////////////////////////////////////////////////////////////////////////////////////////
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline constexpr MVec2d_E<std::common_type_t<T, U>>
+rotor([[maybe_unused]] PScalar2d<T> const& I, U theta)
+{
+    // PScalar2d<T> is just used here to be able to overload exp
+    // and to make the function similar to the 3D case
+    using ctype = std::common_type_t<T, U>;
+    ctype half_angle = -0.5 * theta;
+    return MVec2d_E<ctype>(Scalar2d<ctype>(std::cos(half_angle)),
+                           PScalar2d<ctype>(std::sin(half_angle)));
+}
+
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline constexpr Vec2d<std::common_type_t<T, U>> rotate(Vec2d<T> const& v,
+                                                        MVec2d_E<U> const& rotor)
+{
+    using ctype = std::common_type_t<T, U>;
+    return Vec2d<ctype>(rotor * v * rev(rotor));
 }
 
 // return the dual(M) of the multivector M

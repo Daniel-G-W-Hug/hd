@@ -29,20 +29,26 @@ namespace hd::ga {
 ////////////////////////////////////////////////////////////////////////////////
 
 // return squared magnitude of the pseudoscalar
-template <typename T> inline constexpr T sq_nrm(PScalar3d<T> const& ps)
+template <typename T>
+    requires(std::floating_point<T>)
+inline constexpr T sq_nrm(PScalar3d<T> const& ps)
 {
     return T(ps) * T(ps);
 }
 
 // return magnitude of the pseudoscalar
-template <typename T> inline constexpr T nrm(PScalar3d<T> const& ps)
+template <typename T>
+    requires(std::floating_point<T>)
+inline constexpr T nrm(PScalar3d<T> const& ps)
 {
     return std::abs(T(ps));
 }
 
 // return inverse of the pseudoscalar (A^(-1) = rev(A)/|A|^2 = (-1)^(k*(k-1)/2)*A/|A|^2
 // k is the dimension of the space of the pseudoscalar formed by k orthogonal vectors
-template <typename T> inline constexpr T inv(PScalar3d<T> const& ps)
+template <typename T>
+    requires(std::floating_point<T>)
+inline constexpr T inv(PScalar3d<T> const& ps)
 {
     return -T(ps) / sq_nrm(ps);
 }
