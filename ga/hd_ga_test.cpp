@@ -2120,6 +2120,9 @@ TEST_SUITE("Geometric Algebra")
         // using a bivector directly:
         CHECK(rotate(Vec3d{1.0, 0.0, 0.0}, rotor(e12_3d, pi / 4)) ==
               unitized(Vec3d{1.0, 1.0, 0.0}));
+
+        // direct rotation of a bivector
+        CHECK(rotate(BiVec3d{0.0, 0.0, 1.0}, rotor(e23_3d, pi / 2)) == -e31_3d);
     }
 
     TEST_CASE("MVec3d: dualization")

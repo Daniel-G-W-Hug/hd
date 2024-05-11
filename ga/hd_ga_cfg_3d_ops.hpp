@@ -921,6 +921,13 @@ inline constexpr MVec3d_E<std::common_type_t<T, U>> exp(BiVec3d<T> const& I, U t
 //           for applying the sandwich product as in rotate(v,rotor)
 //
 //////////////////////////////////////////////////////////////////////////////////////////
+//
+// for a rotation about an axis n (n = unitized vector) choose the ansatz n*B = I_3d
+// an multiply both sides with n from the left (remember n*n = |n|^2 = 1)
+//
+// => choose: B = n*I_3d
+//
+//////////////////////////////////////////////////////////////////////////////////////////
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
 inline constexpr MVec3d_E<std::common_type_t<T, U>> rotor(BiVec3d<T> const& I, U theta)
@@ -942,8 +949,23 @@ inline constexpr Vec3d<std::common_type_t<T, U>> rotate(Vec3d<T> const& v,
     // MVec3d_U<ctype> tmp = rotor * v;
     // MVec3d_U<ctype> res = tmp * reverse rotor;
 
-    // trivector part of res is 0 due to symmetric product rev(rotor) * v * rotor
+    // trivector part of res is 0 due to symmetric product  rotor * v * rev(rotor)
     return Vec3d<ctype>(gr1<ctype>(rotor * v * rev(rotor)));
+}
+
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline constexpr BiVec3d<std::common_type_t<T, U>> rotate(BiVec3d<T> const& v,
+                                                          MVec3d_E<U> const& rotor)
+{
+    using ctype = std::common_type_t<T, U>;
+
+    // MVec3d_E<ctype> reverse_rotor = rev(rotor);
+    // MVec3d_E<ctype> tmp = rotor * v;
+    // MVec3d_E<ctype> res = tmp * reverse rotor;
+
+    // scalar part of res is 0 due to symmetric product  rotor * v * rev(rotor)
+    return BiVec3d<ctype>(gr2<ctype>(rotor * v * rev(rotor)));
 }
 
 // return the dual(M) of the multivector M
