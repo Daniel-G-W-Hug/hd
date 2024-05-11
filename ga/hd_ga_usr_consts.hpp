@@ -1,14 +1,19 @@
 #pragma once
 
-#include "hd_ga_cfg_bivec3d.hpp" // BiVec3d<T>
-#include "hd_ga_cfg_mvec2d.hpp"  // Vec2d<T>
-#include "hd_ga_cfg_mvec3d.hpp"  // Vec3d<T>
-#include "hd_ga_cfg_strong_t.hpp"
 #include "hd_ga_cfg_value_t.hpp" // defines value_t either as float oder double
-#include "hd_ga_cfg_vec2d.hpp"   // Vec2d<T>
+
+#include "hd_ga_cfg_strong_t.hpp"
+
+#include "hd_ga_cfg_mvec2d.hpp" // MVec2d<T>
+#include "hd_ga_cfg_vec2d.hpp"  // Vec2d<T>
+
+#include "hd_ga_cfg_bivec3d.hpp" // BiVec3d<T>
+#include "hd_ga_cfg_mvec3d.hpp"  // MVec3d<T>
 #include "hd_ga_cfg_vec3d.hpp"   // Vec3d<T>
 
 namespace hd::ga {
+
+value_t eps{5.0 * std::numeric_limits<value_t>::epsilon()};
 
 ////////////////////////////////////////////////////////////////////////////////
 // 2D constants

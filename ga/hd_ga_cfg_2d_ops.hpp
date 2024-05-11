@@ -493,6 +493,15 @@ inline constexpr Vec2d<std::common_type_t<T, U>> rotate(Vec2d<T> const& v,
     return Vec2d<ctype>(rotor * v * rev(rotor));
 }
 
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline constexpr MVec2d<std::common_type_t<T, U>> rotate(MVec2d<T> const& M,
+                                                         MVec2d_E<U> const& rotor)
+{
+    using ctype = std::common_type_t<T, U>;
+    return MVec2d<ctype>(rotor * M * rev(rotor));
+}
+
 // return the dual(M) of the multivector M
 // if M represents the subspace B as subspace of R^2 then
 // dual(M) represents the orthogonal subspace B^perp (perpendicular to B)

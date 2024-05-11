@@ -968,6 +968,15 @@ inline constexpr BiVec3d<std::common_type_t<T, U>> rotate(BiVec3d<T> const& v,
     return BiVec3d<ctype>(gr2<ctype>(rotor * v * rev(rotor)));
 }
 
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline constexpr MVec3d<std::common_type_t<T, U>> rotate(MVec3d<T> const& v,
+                                                         MVec3d_E<U> const& rotor)
+{
+    using ctype = std::common_type_t<T, U>;
+    return MVec3d<ctype>(rotor * v * rev(rotor));
+}
+
 // return the dual(M) of the multivector M
 // if M represents the subspace B as subspace of R^2 then
 // dual(M) represents the orthogonal subspace B^perp (perpendicular to B)

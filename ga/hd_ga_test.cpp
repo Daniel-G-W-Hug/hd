@@ -2123,6 +2123,12 @@ TEST_SUITE("Geometric Algebra")
 
         // direct rotation of a bivector
         CHECK(rotate(BiVec3d{0.0, 0.0, 1.0}, rotor(e23_3d, pi / 2)) == -e31_3d);
+
+        // example see Macdonald "Linear and Geometric Algebra", Exercise 7.12, p. 127
+        auto Bv =
+            wdg(e2_3d, e1_3d + std::sqrt(3.0) * e3_3d); // bivector describing the plane
+        CHECK(std::abs(nrm(Bv) - 2.0) < eps);
+        CHECK(rotate(Bv, rotor(e31_3d, pi / 3)) == -2.0 * e12_3d);
     }
 
     TEST_CASE("MVec3d: dualization")
