@@ -164,7 +164,8 @@ template <typename T, typename U>
 inline constexpr Vec3d<std::common_type_t<T, U>> project_onto(Vec3d<T> const& v1,
                                                               Vec3d<U> const& v2)
 {
-    return dot(v1, v2) * Vec3d<std::common_type_t<T, U>>(inv(v2));
+    using ctype = std::common_type_t<T, U>;
+    return dot(v1, v2) * Vec3d<ctype>(inv(v2));
 }
 
 // projection of v1 onto v2 (v2 must already be unitized to nrm(v2) == 1)
@@ -187,8 +188,8 @@ inline constexpr Vec3d<std::common_type_t<T, U>> project_onto(Vec3d<T> const& v1
     Vec3d<ctype> a = dot(v1, v2);
     BiVec3d<ctype> Bi = inv(v2);
     // use the formular equivalent to the geometric product to save computational cost
-    // aBi = dot(a,Bi) + wdg(a,Bi)
-    // v_parallel = gr1(aBi) = dot(a,Bi)
+    // gpr(a,Bi) = dot(a,Bi) + wdg(a,Bi)
+    // v_parallel = gr1(gpr(a,Bi)) = dot(a,Bi)
     return Vec3d<ctype>(dot(a, Bi));
 }
 
@@ -206,8 +207,8 @@ project_onto_unitized(Vec3d<T> const& v1, BiVec3d<U> const& v2)
     // up to the sign v2 already is it's own inverse
     BiVec3d<ctype> Bi = -v2;
     // use the formular equivalent to the geometric product to save computational cost
-    // aBi = dot(a,Bi) + wdg(a,Bi)
-    // v_parallel = gr1(aBi) = dot(a,Bi)
+    // gpr(a,Bi) = dot(a,Bi) + wdg(a,Bi)
+    // v_parallel = gr1(gpr(a,Bi)) = dot(a,Bi)
     return Vec3d<ctype>(dot(a, Bi));
 }
 
@@ -219,12 +220,13 @@ inline constexpr Vec3d<std::common_type_t<T, U>> reject_from(Vec3d<T> const& v1,
                                                              Vec3d<U> const& v2)
 {
     using ctype = std::common_type_t<T, U>;
-    BiVec3d<ctype> A = wdg(v1, v2);
-    Vec3d<ctype> bi = inv(v2);
+    BiVec3d<ctype> B = wdg(v1, v2);
+    Vec3d<ctype> v2_inv = inv(v2);
     // use the formular equivalent to the geometric product to save computational cost
-    // Abi = dot(A,bi) + wdg(A,bi)
-    // v_perp = gr1(Abi) = dot(A,bi)
-    return Vec3d<ctype>(dot(A, bi));
+    // gpr(B,b_inv) = dot(B,b_inv) + wdg(A,bi)
+    // v_perp = gr1(gpr(B,b_inv)) = dot(B,b_inv)
+    // (the trivector part is zero, because v2 is part of the bivector in the product)
+    return Vec3d<ctype>(dot(B, v2_inv));
 }
 
 // rejection of vector v1 from a unitized vector v2
@@ -236,12 +238,13 @@ inline constexpr Vec3d<std::common_type_t<T, U>> reject_from_unitized(Vec3d<T> c
 {
     // requires v2 to be unitized
     using ctype = std::common_type_t<T, U>;
-    BiVec3d<ctype> A = wdg(v1, v2);
-    Vec3d<ctype> bi = v2;
+    BiVec3d<ctype> B = wdg(v1, v2);
+    Vec3d<ctype> v2_inv = v2; // v2 is its own inverse, if unitized
     // use the formular equivalent to the geometric product to save computational cost
-    // Abi = dot(A,bi) + wdg(A,bi)
-    // v_perp = gr1(Abi) = dot(A,bi)
-    return Vec3d<ctype>(dot(A, bi));
+    // gpr(B,b_inv) = dot(B,b_inv) + wdg(A,bi)
+    // v_perp = gr1(gpr(B,b_inv)) = dot(B,b_inv)
+    // (the trivector part is zero, because v2 is part of the bivector in the product)
+    return Vec3d<ctype>(dot(B, v2_inv));
 }
 
 // rejection of vector v1 from a bivector v2
@@ -254,9 +257,8 @@ inline constexpr Vec3d<std::common_type_t<T, U>> reject_from(Vec3d<T> const& v1,
     using ctype = std::common_type_t<T, U>;
     PScalar3d<ctype> a = wdg(v1, v2);
     BiVec3d<ctype> B = inv(v2);
-    // trivector * bivector = vector (derived from full geometric product to save
-    // costs)
-    return Vec3d<ctype>(-a * B.x, -a * B.y, -a * B.z);
+    // trivector * bivector = vector
+    return gpr(a, B);
 }
 
 // rejection of vector v1 from a unitized bivector v2

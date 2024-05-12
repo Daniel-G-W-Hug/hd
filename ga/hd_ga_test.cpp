@@ -1372,6 +1372,7 @@ TEST_SUITE("Geometric Algebra")
 
         Vec3d v1{5.0, 1.0, 1.0};
         Vec3d v2{2.0, 2.0, 1.0};
+
         Vec3d v2u = unitized(v2);
 
         Vec3d v3{project_onto(v1, v2)};
@@ -1382,25 +1383,33 @@ TEST_SUITE("Geometric Algebra")
         Vec3d v7{reject_from_unitized(v1, v2u)};
         Vec3d v8{v6 + v7};
 
-        // fmt::println("v1  = {: .8f}, nrm(v1) = {: .8f}", v1, nrm(v1));
-        // fmt::println("v2  = {: .8f}, nrm(v2) = {: .8f}", v2, nrm(v2));
-        // fmt::println("v2u = {: .8f}, nrm(v2) = {: .8f}", v2u, nrm(v2u));
+        // fmt::println("v1  = {: .4f}, nrm(v1) = {: .4f}", v1, nrm(v1));
+        // fmt::println("v2  = {: .4f}, nrm(v2) = {: .4f}", v2, nrm(v2));
+        // fmt::println("v2u = {: .4f}, nrm(v2) = {: .4f}", v2u, nrm(v2u));
         // fmt::println("");
-        // fmt::println("v3 = project_onto(v1, v2) = {: .8f}, nrm(v3) = {: .8f}", v3,
+        // fmt::println("v3 = project_onto(v1, v2) = {: .4f}, nrm(v3) = {: .4f}", v3,
         //              nrm(v3));
-        // fmt::println("v4 = reject_from(v1, v2)  = {: .8f}, nrm(v4) = {: .8f}", v4,
+        // fmt::println("v4 = reject_from(v1, v2)  = {: .4f}, nrm(v4) = {: .4f}", v4,
         //              nrm(v4));
-        // fmt::println("v5 = v3 + v4              = {: .8f}, nrm(v5) = {: .8f}", v5,
+        // fmt::println("v5 = v3 + v4              = {: .4f}, nrm(v5) = {: .4f}", v5,
         //              nrm(v5));
-        // fmt::println("v6 = project_onto_unitized(v1, v2u) = {: .8f}, nrm(v6) = {: .8f}
-        // ",
+        // fmt::println("");
+        // fmt::println("v6 = project_onto_unitized(v1, v2u) = {: .4f},"
+        //              " nrm(v6) = {: .4f}",
         //              v6, nrm(v6));
-        // fmt::println("v7 = reject_from_unitized(v1, v2u)  = {: .8f}, nrm(v7) = {: .8f}
-        // ",
+        // fmt::println("v7 = reject_from_unitized(v1, v2u)  = {: .4f},"
+        //              " nrm(v7) = {: .4f}",
         //              v7, nrm(v7));
-        // fmt::println("v8 = v6 + v7                        = {: .8f}, nrm(v8) = {: .8f}
-        // ",
+        // fmt::println("v8 = v6 + v7                        = {: .4f},"
+        //              " nrm(v8) = {: .4f}",
         //              v8, nrm(v8));
+        // // this helps to understand, why the dot-product is sufficient
+        // auto w = wdg(v1, v2);
+        // auto i = inv(v2);
+        // fmt::println("wdg(v1,v2)         = {: .4f}", w);
+        // fmt::println("inv(v2)            = {: .4f}", i);
+        // fmt::println("wdg(v1,v2)*inv(v2) = {: .4f}", gpr(w, i));
+        // fmt::println("");
 
         CHECK(v3 + v4 == v5);
         CHECK(v5 == v1);
