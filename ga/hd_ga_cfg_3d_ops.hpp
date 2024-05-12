@@ -57,28 +57,31 @@ inline constexpr T inv(PScalar3d<T> const& ps)
 // Vec3d<T> & BiVec3d<T> mixed geometric operations
 ////////////////////////////////////////////////////////////////////////////////
 
-// return the dot product of a bivector and a vector (= a vector)
-// dot(A,b) = gr0( gpr(A,b) )
+// return the dot product of a bivector A and a vector b
+// dot(A,b) = gr1( gpr(A,b) )
+// => returns a vector
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline Vec3d<std::common_type_t<T, U>> dot(BiVec3d<T> const& v1, Vec3d<U> const& v2)
+inline Vec3d<std::common_type_t<T, U>> dot(BiVec3d<T> const& A, Vec3d<U> const& b)
 {
     // this implementation is only valid in an orthonormal basis
-    return Vec3d<std::common_type_t<T, U>>(
-        v1.z * v2.y - v1.y * v2.z, v1.x * v2.z - v1.z * v2.x, v1.y * v2.x - v1.x * v2.y);
+    using ctype = std::common_type_t<T, U>;
+    return Vec3d<ctype>(A.z * b.y - A.y * b.z, A.x * b.z - A.z * b.x,
+                        A.y * b.x - A.x * b.y);
 }
 
-// return the dot product of a vector and a bivector (= a vector)
+// return the dot product of a vector a and a bivector B
 // dot(a,B) = gr1( gpr(a,B) )
+// => returns a vector
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline Vec3d<std::common_type_t<T, U>> dot(Vec3d<T> const& v1, BiVec3d<U> const& v2)
+inline Vec3d<std::common_type_t<T, U>> dot(Vec3d<T> const& a, BiVec3d<U> const& B)
 {
     // this implementation is only valid in an orthonormal basis
-    return Vec3d<std::common_type_t<T, U>>(
-        v1.z * v2.y - v1.y * v2.z, v1.x * v2.z - v1.z * v2.x, v1.y * v2.x - v1.x * v2.y);
+    using ctype = std::common_type_t<T, U>;
+    return Vec3d<ctype>(a.z * B.y - a.y * B.z, a.x * B.z - a.z * B.x,
+                        a.y * B.x - a.x * B.y);
 }
-
 
 // return commutator product cmt(A,B) of two bivectors A and B (= a bivector)
 // cmt(A,B) = 0.5*(AB-BA) = gr2( gpr(A,B) )
@@ -111,6 +114,8 @@ inline std::common_type_t<T, U> angle(Vec3d<T> const& v1, BiVec3d<U> const& v2)
     return std::acos(std::clamp(dot(v1, v2) / nrm_prod, -1.0, 1.0));
 }
 
+// return the angle between of a bivector and a vector
+// range of angle: 0 <= angle <= pi
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
 inline std::common_type_t<T, U> angle(BiVec3d<T> const& v1, Vec3d<U> const& v2)
@@ -132,26 +137,31 @@ template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
 inline BiVec3d<std::common_type_t<T, U>> wdg(Vec3d<T> const& v1, Vec3d<U> const& v2)
 {
-    return BiVec3d<std::common_type_t<T, U>>(
-        v1.y * v2.z - v1.z * v2.y, v1.z * v2.x - v1.x * v2.z, v1.x * v2.y - v1.y * v2.x);
+    using ctype = std::common_type_t<T, U>;
+    return BiVec3d<ctype>(v1.y * v2.z - v1.z * v2.y, v1.z * v2.x - v1.x * v2.z,
+                          v1.x * v2.y - v1.y * v2.x);
 }
 
-// wedge product between a vector and a bivector (returns a trivector in 3d)
+// wedge product between a vector a and a bivector B
 // wdg(a,B) = gr3( gpr(a,B) )
+// => returns a trivector
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
 inline PScalar3d<std::common_type_t<T, U>> wdg(Vec3d<T> const& a, BiVec3d<U> const& B)
 {
-    return PScalar3d<std::common_type_t<T, U>>(a.x * B.x + a.y * B.y + a.z * B.z);
+    using ctype = std::common_type_t<T, U>;
+    return PScalar3d<ctype>(a.x * B.x + a.y * B.y + a.z * B.z);
 }
 
-// wedge product between a bivector and a vector (returns a trivector in 3d)
-// wdg(A,b) = gr3( gpr(A,b) )
+// wedge product between a bivector A and a vector b
+// wdg(A,b) = gr3( gpr(A,b)
+// => returns a trivector
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
 inline PScalar3d<std::common_type_t<T, U>> wdg(BiVec3d<T> const& A, Vec3d<U> const& b)
 {
-    return PScalar3d<std::common_type_t<T, U>>(A.x * b.x + A.y * b.y + A.z * b.z);
+    using ctype = std::common_type_t<T, U>;
+    return PScalar3d<ctype>(A.x * b.x + A.y * b.y + A.z * b.z);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
