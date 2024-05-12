@@ -165,7 +165,7 @@ inline PScalar3d<std::common_type_t<T, U>> wdg(BiVec3d<T> const& A, Vec3d<U> con
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// Vec3d<T> and BiVec3d<T> projections and rejections
+// Vec3d<T> and BiVec3d<T> projections, rejections and reflections
 ////////////////////////////////////////////////////////////////////////////////
 
 // projection of a vector v1 onto vector v2
@@ -285,6 +285,52 @@ reject_from_unitized(Vec3d<T> const& v1, BiVec3d<U> const& v2)
     // trivector * bivector = vector (derived from full geometric product to save
     // costs)
     return Vec3d<ctype>(-a * B.x, -a * B.y, -a * B.z);
+}
+
+// reflect a vector u on a hyperplane B orthogonal to vector b
+//
+// hyperplane: a n-1 dimensional subspace in a space of dimension n (a line in 2d space)
+// orthogonal to vector b: the hyperplane is dual to b (i.e. a one dimensional subspace)
+//
+// HINT: choose gpr(b,B) = I_3d => B = grp(b,I_3d)  (for normalized b)
+//
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline constexpr Vec3d<std::common_type_t<T, U>> reflect_on_hyp(Vec3d<T> const& u,
+                                                                Vec3d<U> const& b)
+{
+    using ctype = std::common_type_t<T, U>;
+    return Vec3d<ctype>(gr1(-b * u * inv(b)));
+}
+
+// reflect a vector u in an arbitrary bivector, i.e. a plane
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline constexpr Vec3d<std::common_type_t<T, U>> reflect_on(Vec3d<T> const& u,
+                                                            BiVec3d<U> const& B)
+{
+    using ctype = std::common_type_t<T, U>;
+    return Vec3d<ctype>(gr1(-B * u * inv(B)));
+}
+
+// reflect a bivector UB in an arbitrary bivector B (both modelling planes)
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline constexpr BiVec3d<std::common_type_t<T, U>> reflect_on(BiVec3d<T> const& UB,
+                                                              BiVec3d<U> const& B)
+{
+    using ctype = std::common_type_t<T, U>;
+    return BiVec3d<ctype>(gr2(B * UB * inv(B)));
+}
+
+// reflect a vector u another vector
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline constexpr Vec3d<std::common_type_t<T, U>> reflect_on_vec(Vec3d<T> const& u,
+                                                                Vec3d<U> const& b)
+{
+    using ctype = std::common_type_t<T, U>;
+    return Vec3d<ctype>(gr1(b * u * inv(b)));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -860,10 +906,35 @@ inline constexpr MVec3d_U<std::common_type_t<T, U>> gpr(MVec3d_U<T> const& A,
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
 inline constexpr MVec3d_U<std::common_type_t<T, U>> operator*(MVec3d_U<T> const& A,
-                                                              MVec3d_E<U> const& b)
+                                                              MVec3d_E<U> const& B)
 {
     using ctype = std::common_type_t<T, U>;
-    return gpr<ctype>(A, b);
+    return gpr<ctype>(A, B);
+}
+
+// geometric product AB of a multivector A from the uneven subalgebra (3d case)
+// with a bivector B
+// => returns an uneven multivector
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline constexpr MVec3d_U<std::common_type_t<T, U>> gpr(MVec3d_U<T> const& A,
+                                                        BiVec3d<U> const& B)
+{
+    using ctype = std::common_type_t<T, U>;
+    return MVec3d_U<ctype>(Vec3d<ctype>(-A.c1 * B.z + A.c2 * B.y - A.c3 * B.x,
+                                        A.c0 * B.z - A.c2 * B.x - A.c3 * B.y,
+                                        -A.c0 * B.y + A.c1 * B.x - A.c3 * B.z),
+                           PScalar3d<ctype>(A.c0 * B.x + A.c1 * B.y + A.c2 * B.z));
+}
+
+// define complex multiplication with operator*(a,b) as an alias for gpr(a,b)
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline constexpr MVec3d_U<std::common_type_t<T, U>> operator*(MVec3d_U<T> const& A,
+                                                              BiVec3d<U> const& B)
+{
+    using ctype = std::common_type_t<T, U>;
+    return gpr<ctype>(A, B);
 }
 
 // geometric product AB of a multivector A from the even subalgebra (3d case)
@@ -891,6 +962,32 @@ inline constexpr MVec3d_U<std::common_type_t<T, U>> operator*(MVec3d_E<T> const&
     using ctype = std::common_type_t<T, U>;
     return gpr<ctype>(A, B);
 }
+
+// geometric product AB of a bivector A
+// with a multivector B of the uneven subalgebra
+// => returns an uneven multivector
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline constexpr MVec3d_U<std::common_type_t<T, U>> gpr(BiVec3d<T> const& A,
+                                                        MVec3d_U<U> const& B)
+{
+    using ctype = std::common_type_t<T, U>;
+    return MVec3d_U<ctype>(Vec3d<ctype>(-A.x * B.c3 - A.y * B.c2 + A.z * B.c1,
+                                        +A.x * B.c2 - A.y * B.c3 - A.z * B.c0,
+                                        -A.x * B.c1 + A.y * B.c0 - A.z * B.c3),
+                           PScalar3d<ctype>(+A.x * B.c0 + A.y * B.c1 + A.z * B.c2));
+}
+
+// define complex multiplication with operator*(a,b) as an alias for gpr(a,b)
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline constexpr MVec3d_U<std::common_type_t<T, U>> operator*(BiVec3d<T> const& A,
+                                                              MVec3d_U<U> const& B)
+{
+    using ctype = std::common_type_t<T, U>;
+    return gpr<ctype>(A, B);
+}
+
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // exponential function with bivector as argument for setup of quaternions

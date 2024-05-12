@@ -245,8 +245,8 @@ TEST_SUITE("Geometric Algebra")
         vec2d v3{2.0, 6.0};
         vec2d v4{inv(v3)};
 
-        // fmt::println("v1 = {: .8f}, nrm(v1) = {: .8f}", v1, nrm(v1));
-        // fmt::println("v2 = unitized(v1) = {: .8f}, nrm(v2) = {: .8f}", v2, nrm(v2));
+        // fmt::println("v1 = {: .4f}, nrm(v1) = {: .4f}", v1, nrm(v1));
+        // fmt::println("v2 = unitized(v1) = {: .4f}, nrm(v2) = {: .4f}", v2, nrm(v2));
 
         CHECK(std::abs(sq_nrm(v1) - 5.0) < eps);
         CHECK(std::abs(sq_nrm(v2) - 1.0) < eps);
@@ -279,7 +279,7 @@ TEST_SUITE("Geometric Algebra")
             //              " angle={: .4f}",
             //              i, phi, rad_to_deg(phi), c, angle(e2_2d, c));
         }
-        fmt::println("");
+        // fmt::println("");
 
         for (int i = -12; i <= 12; ++i) {
             double phi = i * pi / 12;
@@ -335,9 +335,9 @@ TEST_SUITE("Geometric Algebra")
         }
     }
 
-    TEST_CASE("Vec2d: operations - project / reject")
+    TEST_CASE("Vec2d: operations - project / reject / reflect")
     {
-        fmt::println("Vec2d: operations - project / reject");
+        fmt::println("Vec2d: operations - project / reject / reflect");
 
         vec2d v1{5.0, 1.0};
         vec2d v2{2.0, 2.0};
@@ -351,30 +351,50 @@ TEST_SUITE("Geometric Algebra")
         vec2d v7{reject_from_unitized(v1, v2u)};
         vec2d v8{v6 + v7};
 
-        // fmt::println("v1  = {: .8f}, nrm(v1) = {: .8f}", v1, nrm(v1));
-        // fmt::println("v2  = {: .8f}, nrm(v2) = {: .8f}", v2, nrm(v2));
-        // fmt::println("v2u = {: .8f}, nrm(v2) = {: .8f}", v2u, nrm(v2u));
+        // fmt::println("v1  = {: .4f}, nrm(v1) = {: .4f}", v1, nrm(v1));
+        // fmt::println("v2  = {: .4f}, nrm(v2) = {: .4f}", v2, nrm(v2));
+        // fmt::println("v2u = {: .4f}, nrm(v2) = {: .4f}", v2u, nrm(v2u));
         // fmt::println("");
-        // fmt::println("v3 = project_onto(v1, v2) = {: .8f}, nrm(v3) = {: .8f}", v3,
-        //              nrm(v3));
-        // fmt::println("v4 = reject_from(v1, v2)  = {: .8f}, nrm(v4) = {: .8f}", v4,
-        //              nrm(v4));
-        // fmt::println("v5 = v3 + v4              = {: .8f}, nrm(v5) = {: .8f}", v5,
-        //              nrm(v5));
-        // fmt::println("v6 = project_onto_unitized(v1, v2u) = {: .8f}, nrm(v6) = {:
-        // .8f}",
+        // fmt::println("v3 = project_onto(v1, v2) = {: .4f},"
+        //              " nrm(v3) = {: .4f}",
+        //              v3, nrm(v3));
+        // fmt::println("v4 = reject_from(v1, v2)  = {: .4f},"
+        //              " nrm(v4) = {: .4f}",
+        //              v4, nrm(v4));
+        // fmt::println("v5 = v3 + v4              = {: .4f},"
+        //              " nrm(v5) = {: .4f}",
+        //              v5, nrm(v5));
+        // fmt::println("");
+        // fmt::println("v6 = project_onto_unitized(v1, v2u) ="
+        //              " {: .4f}, nrm(v6) = {: .4f}",
         //              v6, nrm(v6));
-        // fmt::println("v7 = reject_from_unitized(v1, v2u)  = {: .8f}, nrm(v7) = {:
-        // .8f}",
+        // fmt::println("v7 = reject_from_unitized(v1, v2u)  ="
+        //              " {: .4f}, nrm(v7) = {: .4f}",
         //              v7, nrm(v7));
-        // fmt::println("v8 = v6 + v7                        = {: .8f}, nrm(v8) = {:
-        // .8f}",
+        // fmt::println("v8 = v6 + v7                        ="
+        //              " {: .4f}, nrm(v8) = {: .4f}",
         //              v8, nrm(v8));
+        // fmt::println("");
+
+        vec2d v{1.0, 3.0};
+        vec2d b{e1_2d + e2_2d};
+
+        // fmt::println("v  = {}", v);
+        // fmt::println("b  = {}", b);
+        // fmt::println("reflect_on_vec(v,b)  = {}", reflect_on_vec(v, b));
+        // fmt::println("reflect_on(v,b)  = {}", reflect_on_hyp(v, b));
+        // fmt::println("");
+
 
         CHECK(v3 + v4 == v5);
         CHECK(v5 == v1);
         CHECK(v6 + v7 == v8);
         CHECK(v8 == v1);
+
+        CHECK(reflect_on_vec(v, b).x == 3);
+        CHECK(reflect_on_vec(v, b).y == 1);
+        CHECK(reflect_on_hyp(v, b).x == -3);
+        CHECK(reflect_on_hyp(v, b).y == -1);
 
         // checking time required
         //
@@ -453,9 +473,9 @@ TEST_SUITE("Geometric Algebra")
         // fmt::println("    fmt: pd = {}", pd);
         // fmt::println("    fmt: pd = {:.8f}", pd);
 
-        // std::vector<MVec2d<double>> vp1{{1.0, 1.0, 1.0, 2.0}, {0.5, 1.5, 2.0, 2.5}};
-        // fmt::println("    fmt: vp1 = {}", fmt::join(vp1, ", "));
-        // fmt::println("    fmt: vp1 = {:.e}", fmt::join(vp1, ", "));
+        // std::vector<MVec2d<double>> vp1{{1.0, 1.0, 1.0, 2.0},
+        // {0.5, 1.5, 2.0, 2.5}}; fmt::println("    fmt: vp1 = {}", fmt::join(vp1, ",
+        // ")); fmt::println("    fmt: vp1 = {:.e}", fmt::join(vp1, ", "));
 
         CHECK(pf == pd);
     }
@@ -539,8 +559,8 @@ TEST_SUITE("Geometric Algebra")
         CHECK(w12 == gr2(wdm_mv12));
     }
 
-    TEST_CASE(
-        "MVec2d geometric product tests - recovering vectors from the geometric product")
+    TEST_CASE("MVec2d geometric product tests - recovering vectors from the "
+              "geometric product")
     {
         fmt::println("MVec2d: geometric product tests - recovering vectors from the "
                      "geometric product");
@@ -750,10 +770,10 @@ TEST_SUITE("Geometric Algebra")
         // fmt::println("   a = gr0(uv)         = {}", a);
         // fmt::println("   b = gr2(uv)         = {}", b);
         // fmt::println("   r = sqrt(a^2 + b^2) = {}", r);
-        // fmt::println("   r exp(angle_uv) = {}", r * exp(PScalar2d<double>(angle_uv)));
-        // HINT:declaring angle_uv a PScalar2d makes it a bivector angle,
-        // i.e. a multiple of the bivector I_2d
-        // ATTENTION: if you don't declare it as such, the normal exponential function
+        // fmt::println("   r exp(angle_uv) = {}", r *
+        // exp(PScalar2d<double>(angle_uv))); HINT:declaring angle_uv a PScalar2d
+        // makes it a bivector angle, i.e. a multiple of the bivector I_2d ATTENTION:
+        // if you don't declare it as such, the normal exponential function
         //            will be called, resulting in a scalar result!
 
         CHECK(gr0(vc) == gr0(vcm));
@@ -818,7 +838,8 @@ TEST_SUITE("Geometric Algebra")
         // numbers):");
         // // declaring angle_uv a PScalar2d makes it a bivector angle,
         // // i.e. a multiple of the bivector I_2d
-        // // ATTENTION: if you don't declare it as such, the normal exponential function
+        // // ATTENTION: if you don't declare it as such, the normal exponential
+        // function
         // //            will be called, resulting in a scalar result!
         // fmt::println("   v2=exp(angle_uv) = {}", v2);
         // fmt::println("");
@@ -856,7 +877,8 @@ TEST_SUITE("Geometric Algebra")
         CHECK(v.x == v2.c0);
         CHECK(v.y == v2.c1);
         CHECK(gpr(b, h) ==
-              gpr(h, b)); // in 2d the pseudoscalar commutes commutes with complex numbers
+              gpr(h,
+                  b)); // in 2d the pseudoscalar commutes commutes with complex numbers
         CHECK(i == j);
         CHECK(l == m);
         CHECK(rev(b + c) == rev(b) + rev(c));
@@ -1209,12 +1231,12 @@ TEST_SUITE("Geometric Algebra")
         Vec3d v3{2.0, 6.0, -4.0};
         Vec3d v4{inv(v3)};
 
-        // fmt::println("v1 = {: .8f}, nrm(v1) = {: .8f}", v1, nrm(v1));
-        // fmt::println("v2 = unitized(v1) = {: .8f}, nrm(v2) = {: .8f}", v2, nrm(v2));
-        // fmt::println("v3 = {: .8f}, nrm(v1) = {: .8f}", v3, nrm(v3));
+        // fmt::println("v1 = {: .4f}, nrm(v1) = {: .4f}", v1, nrm(v1));
+        // fmt::println("v2 = unitized(v1) = {: .4f}, nrm(v2) = {: .4f}", v2,
+        // nrm(v2)); fmt::println("v3 = {: .4f}, nrm(v1) = {: .4f}", v3, nrm(v3));
         // fmt::println(
-        //     "v4 = inv(v3) = {: .8f}, nrm(v3) = {: .8f}, nrm(v3)*nrm(v4) = {: .8f}", v4,
-        //     nrm(v4), nrm(v3) * nrm(v4));
+        //     "v4 = inv(v3) = {: .4f}, nrm(v3) = {: .4f}, nrm(v3)*nrm(v4) = {: .4f}",
+        //     v4, nrm(v4), nrm(v3) * nrm(v4));
 
         CHECK(std::abs(sq_nrm(v1) - 9.0) < eps);
         CHECK(std::abs(sq_nrm(v2) - 1.0) < eps);
@@ -1234,29 +1256,29 @@ TEST_SUITE("Geometric Algebra")
         Vec3d v7{0.0, -1.0, 0.0};
         Vec3d v8{unitized(Vec3d(1.0, -1.0, 0.0))};
 
-        // fmt::println("v1 = {: .8f}, nrm(v1) = {:.8f}, angle(v1,v1) = {:.8f}, {:.8f}",
-        // v1,
+        // fmt::println("v1 = {: .4f}, nrm(v1) = {:.8f}, angle(v1,v1) = {:.8f},
+        // {:.8f}", v1,
         //              nrm(v1), angle(v1, v1), angle(v1, v1) / pi);
-        // fmt::println("v2 = {: .8f}, nrm(v2) = {:.8f}, angle(v1,v2) = {:.8f}, {:.8f}",
-        // v2,
+        // fmt::println("v2 = {: .4f}, nrm(v2) = {:.8f}, angle(v1,v2) = {:.8f},
+        // {:.8f}", v2,
         //              nrm(v2), angle(v1, v2), angle(v1, v2) / pi);
-        // fmt::println("v3 = {: .8f}, nrm(v3) = {:.8f}, angle(v1,v3) = {:.8f}, {:.8f}",
-        // v3,
+        // fmt::println("v3 = {: .4f}, nrm(v3) = {:.8f}, angle(v1,v3) = {:.8f},
+        // {:.8f}", v3,
         //              nrm(v3), angle(v1, v3), angle(v1, v3) / pi);
-        // fmt::println("v4 = {: .8f}, nrm(v4) = {:.8f}, angle(v1,v4) = {:.8f}, {:.8f}",
-        // v4,
+        // fmt::println("v4 = {: .4f}, nrm(v4) = {:.8f}, angle(v1,v4) = {:.8f},
+        // {:.8f}", v4,
         //              nrm(v4), angle(v1, v4), angle(v1, v4) / pi);
-        // fmt::println("v5 = {: .8f}, nrm(v5) = {:.8f}, angle(v1,v5) = {:.8f}, {:.8f}",
-        // v5,
+        // fmt::println("v5 = {: .4f}, nrm(v5) = {:.8f}, angle(v1,v5) = {:.8f},
+        // {:.8f}", v5,
         //              nrm(v5), angle(v1, v5), angle(v1, v5) / pi);
-        // fmt::println("v6 = {: .8f}, nrm(v6) = {:.8f}, angle(v1,v6) = {:.8f}, {:.8f}",
-        // v6,
+        // fmt::println("v6 = {: .4f}, nrm(v6) = {:.8f}, angle(v1,v6) = {:.8f},
+        // {:.8f}", v6,
         //              nrm(v6), angle(v1, v6), angle(v1, v6) / pi);
-        // fmt::println("v7 = {: .8f}, nrm(v7) = {:.8f}, angle(v1,v7) = {:.8f}, {:.8f}",
-        // v7,
+        // fmt::println("v7 = {: .4f}, nrm(v7) = {:.8f}, angle(v1,v7) = {:.8f},
+        // {:.8f}", v7,
         //              nrm(v7), angle(v1, v7), angle(v1, v7) / pi);
-        // fmt::println("v8 = {: .8f}, nrm(v8) = {:.8f}, angle(v1,v8) = {:.8f}, {:.8f}",
-        // v8,
+        // fmt::println("v8 = {: .4f}, nrm(v8) = {:.8f}, angle(v1,v8) = {:.8f},
+        // {:.8f}", v8,
         //              nrm(v8), angle(v1, v8), angle(v1, v8) / pi);
 
         CHECK(std::abs(angle(v1, v1) - 0.0) < eps);
@@ -1331,29 +1353,29 @@ TEST_SUITE("Geometric Algebra")
         Vec3d v7{0.0, -1.0, 0.0};
         Vec3d v8{unitized(Vec3d(1.0, -1.0, 0.0))};
 
-        // fmt::println("v1 = {: .8f}, wdg(v1,v1) = {: .8f}, "
-        //              "angle = {: .8f}",
+        // fmt::println("v1 = {: .4f}, wdg(v1,v1) = {: .4f}, "
+        //              "angle = {: .4f}",
         //              v1, wdg(v1, v1), angle(v1, v1));
-        // fmt::println("v2 = {: .8f}, wdg(v1,v2) = {: .8f}, "
-        //              "angle = {: .8f}",
+        // fmt::println("v2 = {: .4f}, wdg(v1,v2) = {: .4f}, "
+        //              "angle = {: .4f}",
         //              v2, wdg(v1, v2), angle(v1, v2));
-        // fmt::println("v3 = {: .8f}, wdg(v1,v3) = {: .8f}, "
-        //              "angle = {: .8f}",
+        // fmt::println("v3 = {: .4f}, wdg(v1,v3) = {: .4f}, "
+        //              "angle = {: .4f}",
         //              v3, wdg(v1, v3), angle(v1, v3));
-        // fmt::println("v4 = {: .8f}, wdg(v1,v4) = {: .8f}, "
-        //              "angle = {: .8f}",
+        // fmt::println("v4 = {: .4f}, wdg(v1,v4) = {: .4f}, "
+        //              "angle = {: .4f}",
         //              v4, wdg(v1, v4), angle(v1, v4));
-        // fmt::println("v5 = {: .8f}, wdg(v1,v5) = {: .8f}, "
-        //              "angle = {: .8f}",
+        // fmt::println("v5 = {: .4f}, wdg(v1,v5) = {: .4f}, "
+        //              "angle = {: .4f}",
         //              v5, wdg(v1, v5), angle(v1, v5));
-        // fmt::println("v6 = {: .8f}, wdg(v1,v6) = {: .8f}, "
-        //              "angle = {: .8f}",
+        // fmt::println("v6 = {: .4f}, wdg(v1,v6) = {: .4f}, "
+        //              "angle = {: .4f}",
         //              v6, wdg(v1, v6), angle(v1, v6));
-        // fmt::println("v7 = {: .8f}, wdg(v1,v7) = {: .8f}, "
-        //              "angle = {: .8f}",
+        // fmt::println("v7 = {: .4f}, wdg(v1,v7) = {: .4f}, "
+        //              "angle = {: .4f}",
         //              v7, wdg(v1, v7), angle(v1, v7));
-        // fmt::println("v8 = {: .8f}, wdg(v1,v8) = {: .8f}, "
-        //              "angle = {: .8f}",
+        // fmt::println("v8 = {: .4f}, wdg(v1,v8) = {: .4f}, "
+        //              "angle = {: .4f}",
         //              v8, wdg(v1, v8), angle(v1, v8));
 
         CHECK(std::abs(nrm(wdg(v1, v1)) - sin(angle(v1, v1))) < eps);
@@ -1366,9 +1388,9 @@ TEST_SUITE("Geometric Algebra")
         CHECK(std::abs(nrm(wdg(v1, v8)) - sin(angle(v1, v8))) < eps);
     }
 
-    TEST_CASE("Vec3d: operations - project / reject (vector - vector)")
+    TEST_CASE("Vec3d: operations - project / reject / reflect (vector - vector)")
     {
-        fmt::println("Vec3d: operations - project / reject (vector - vector)");
+        fmt::println("Vec3d: operations - project / reject / reflect (vector - vector)");
 
         Vec3d v1{5.0, 1.0, 1.0};
         Vec3d v2{2.0, 2.0, 1.0};
@@ -1411,10 +1433,27 @@ TEST_SUITE("Geometric Algebra")
         // fmt::println("wdg(v1,v2)*inv(v2) = {: .4f}", gpr(w, i));
         // fmt::println("");
 
+        vec3d v{4.0, 1.0, 1.0};
+        vec3d b{e2_3d};
+        auto B = BiVec3d{e12_3d};
+
+        // auto UB = BiVec3d{e23_3d + e12_3d};
+        // fmt::println("v   = {}", v);
+        // fmt::println("b   = {}", b);
+        // fmt::println("B   = {}", B);
+        // fmt::println("UB  = {}", UB);
+        // fmt::println("reflect_on_vec(v,b)  = {}", reflect_on_vec(v, b));
+        // fmt::println("reflect_on_hyp(v,e3_3d)  = {}", reflect_on_hyp(v, e3_3d));
+        // fmt::println("reflect_on(v,B)  = {}", reflect_on(v, B));
+        // fmt::println("reflect_on(UB,B) = {}", reflect_on(UB, B));
+        // fmt::println("");
+
         CHECK(v3 + v4 == v5);
         CHECK(v5 == v1);
         CHECK(v6 + v7 == v8);
         CHECK(v8 == v1);
+
+        CHECK(reflect_on_hyp(v, e3_3d) == reflect_on(v, B));
 
         // checking time required
         //
@@ -1429,9 +1468,10 @@ TEST_SUITE("Geometric Algebra")
         // start); fmt::println("The measurement took {}", elapsed);
     }
 
-    TEST_CASE("Vec3d: operations - project / reject (vector - bivector)")
+    TEST_CASE("Vec3d: operations - project / reject / reflect (vector - bivector)")
     {
-        fmt::println("Vec3d: operations - project / reject (vector - bivector)");
+        fmt::println(
+            "Vec3d: operations - project / reject / reflect (vector - bivector)");
 
         Vec3d v1{5.0, 3.0, 1.0};
         BiVec3d v2 = wdg(Vec3d{0.0, 0.0, 2.0}, Vec3d{2.0, 0.0, 0.0});
@@ -1440,18 +1480,21 @@ TEST_SUITE("Geometric Algebra")
         Vec3d v4{reject_from(v1, v2)};
         Vec3d v5{v3 + v4};
 
-        // fmt::println("v1  = {: .8f}, nrm(v1) = {: .8f}", v1, nrm(v1));
-        // fmt::println("v2  = {: .8f}, nrm(v2) = {: .8f}", v2, nrm(v2));
+        // fmt::println("v1  = {: .4f}, nrm(v1) = {: .4f}", v1, nrm(v1));
+        // fmt::println("v2  = {: .4f}, nrm(v2) = {: .4f}", v2, nrm(v2));
         // fmt::println("");
-        // fmt::println("v3 = project_onto(v1, v2) = {: .8f}, nrm(v3) = {: .8f}", v3,
+        // fmt::println("v3 = project_onto(v1, v2) = {: .4f}, nrm(v3) = {: .4f}", v3,
         //              nrm(v3));
-        // fmt::println("v4 = reject_from(v1, v2)  = {: .8f}, nrm(v4) = {: .8f}", v4,
+        // fmt::println("v4 = reject_from(v1, v2)  = {: .4f}, nrm(v4) = {: .4f}", v4,
         //              nrm(v4));
-        // fmt::println("v5 = v3 + v4              = {: .8f}, nrm(v5) = {: .8f}", v5,
+        // fmt::println("v5 = v3 + v4              = {: .4f}, nrm(v5) = {: .4f}", v5,
         //              nrm(v5));
 
         CHECK(v3 + v4 == v5);
         CHECK(v5 == v1);
+
+        // from Macdonald, "Linear and Geometric Algebra", Exercise 7.14, p. 129
+        CHECK(reflect_on(wdg(e1_3d + e3_3d, e2_3d), e12_3d) == wdg(e1_3d - e3_3d, e2_3d));
     }
 
     TEST_CASE("Vec3d: cross-product")

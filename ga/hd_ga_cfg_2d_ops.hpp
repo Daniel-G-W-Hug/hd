@@ -50,7 +50,7 @@ inline constexpr T inv(PScalar2d<T> const& ps)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// Vec2d<T> projections and rejections
+// Vec2d<T> projections, rejections and reflections
 ////////////////////////////////////////////////////////////////////////////////
 
 // projection of v1 onto v2
@@ -104,6 +104,30 @@ inline constexpr Vec2d<std::common_type_t<T, U>> reject_from_unitized(Vec2d<T> c
     // from "wdg(v1,v2)*inv(v2)" + v2 being already it's own inverse
     PScalar2d<ctype> w = wdg(v1, v2); // bivector with component e12
     return Vec2d<ctype>(v2.y * w, -v2.x * w);
+}
+
+// reflect a vector u on a hyperplane B orthogonal to vector b
+//
+// hyperplane: a n-1 dimensional subspace in a space of dimension n
+// (e.g. a line through the origin in 2d space)
+// orthogonal to vector b: the hyperplane is dual to b
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline constexpr Vec2d<std::common_type_t<T, U>> reflect_on_hyp(Vec2d<T> const& u,
+                                                                Vec2d<U> const& b)
+{
+    using ctype = std::common_type_t<T, U>;
+    return Vec2d<ctype>(-b * u * inv(b));
+}
+
+// reflect a vector u another vector
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline constexpr Vec2d<std::common_type_t<T, U>> reflect_on_vec(Vec2d<T> const& u,
+                                                                Vec2d<U> const& b)
+{
+    using ctype = std::common_type_t<T, U>;
+    return Vec2d<ctype>(b * u * inv(b));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
