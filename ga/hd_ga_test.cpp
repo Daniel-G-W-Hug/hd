@@ -339,8 +339,8 @@ TEST_SUITE("Geometric Algebra")
     {
         fmt::println("Vec2d: operations - project / reject / reflect");
 
-        vec2d v1{5.0, 1.0};
-        vec2d v2{2.0, 2.0};
+        vec2d v1{1.5, 4.0};
+        vec2d v2{3.0, 1.5};
         vec2d v2u = unitized(v2);
 
         vec2d v3{project_onto(v1, v2)};
@@ -387,9 +387,13 @@ TEST_SUITE("Geometric Algebra")
 
 
         CHECK(v3 + v4 == v5);
+        CHECK(std::abs(dot(v3, v4)) < eps);
         CHECK(v5 == v1);
         CHECK(v6 + v7 == v8);
+        CHECK(std::abs(dot(v6, v7)) < eps);
         CHECK(v8 == v1);
+
+        CHECK(inv(v2) * wdg(v2, v1) == wdg(v1, v2) * inv(v2));
 
         CHECK(reflect_on_vec(v, b).x == 3);
         CHECK(reflect_on_vec(v, b).y == 1);
