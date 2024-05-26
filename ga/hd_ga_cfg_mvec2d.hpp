@@ -91,12 +91,6 @@ struct MVec2d {
         return false;
     }
 
-    // unary minus (must be declared a friend otherwise doesn't work)
-    friend inline MVec2d<T> operator-(MVec2d<T> const& v)
-    {
-        return MVec2d<T>(-v.c0, -v.c1, -v.c2, -v.c3);
-    }
-
     template <typename U>
     friend std::ostream& operator<<(std::ostream& os, MVec2d<U> const& v);
 };
@@ -113,6 +107,14 @@ std::ostream& operator<<(std::ostream& os, MVec2d<T> const& v)
 ////////////////////////////////////////////////////////////////////////////////
 // MVec2d<T> core operations
 ////////////////////////////////////////////////////////////////////////////////
+
+// unary minus
+template <typename T>
+    requires(std::floating_point<T>)
+inline constexpr MVec2d<T> operator-(MVec2d<T> const& v)
+{
+    return MVec2d<T>(-v.c0, -v.c1, -v.c2, -v.c3);
+}
 
 // add multivectors
 template <typename T, typename U>

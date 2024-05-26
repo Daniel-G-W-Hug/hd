@@ -110,12 +110,6 @@ struct MVec3d {
         return false;
     }
 
-    // unary minus (must be declared a friend otherwise doesn't work)
-    friend inline MVec3d<T> operator-(MVec3d<T> const& v)
-    {
-        return MVec3d<T>(-v.c0, -v.c1, -v.c2, -v.c3, -v.c4, -v.c5, -v.c6, -v.c7);
-    }
-
     template <typename U>
     friend std::ostream& operator<<(std::ostream& os, MVec3d<U> const& v);
 };
@@ -133,6 +127,14 @@ std::ostream& operator<<(std::ostream& os, MVec3d<T> const& v)
 ////////////////////////////////////////////////////////////////////////////////
 // MVec3d<T> core operations
 ////////////////////////////////////////////////////////////////////////////////
+
+// unary minus
+template <typename T>
+    requires(std::floating_point<T>)
+inline constexpr MVec3d<T> operator-(MVec3d<T> const& v)
+{
+    return MVec3d<T>(-v.c0, -v.c1, -v.c2, -v.c3, -v.c4, -v.c5, -v.c6, -v.c7);
+}
 
 // add multivectors
 template <typename T, typename U>

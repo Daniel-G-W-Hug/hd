@@ -63,9 +63,6 @@ struct Vec2d {
         return false;
     }
 
-    // unary minus (must be declared a friend otherwise doesn't work)
-    friend inline Vec2d<T> operator-(Vec2d<T> const& v) { return Vec2d<T>(-v.x, -v.y); }
-
     template <typename U>
     friend std::ostream& operator<<(std::ostream& os, Vec2d<U> const& v);
 };
@@ -73,6 +70,14 @@ struct Vec2d {
 ////////////////////////////////////////////////////////////////////////////////
 // Vec2d<T> core operations
 ////////////////////////////////////////////////////////////////////////////////
+
+// unary minus
+template <typename T>
+    requires(std::floating_point<T>)
+inline constexpr Vec2d<T> operator-(Vec2d<T> const& v)
+{
+    return Vec2d<T>(-v.x, -v.y);
+}
 
 // adding vectors
 template <typename T, typename U>

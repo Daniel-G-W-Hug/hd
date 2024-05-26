@@ -87,12 +87,6 @@ struct BiVec3d {
         return false;
     }
 
-    // unary minus (must be declared a friend otherwise doesn't work)
-    friend inline BiVec3d<T> operator-(BiVec3d<T> const& v)
-    {
-        return BiVec3d<T>(-v.x, -v.y, -v.z);
-    }
-
     template <typename U>
     friend std::ostream& operator<<(std::ostream& os, BiVec3d<U> const& v);
 };
@@ -100,6 +94,14 @@ struct BiVec3d {
 ////////////////////////////////////////////////////////////////////////////////
 // BiVec3d<T> core operations
 ////////////////////////////////////////////////////////////////////////////////
+
+// unary minus
+template <typename T>
+    requires(std::floating_point<T>)
+inline constexpr BiVec3d<T> operator-(BiVec3d<T> const& v)
+{
+    return BiVec3d<T>(-v.x, -v.y, -v.z);
+}
 
 // adding bivectors
 template <typename T, typename U>
