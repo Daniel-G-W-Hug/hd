@@ -88,7 +88,7 @@ struct BiVec3d {
     }
 
     // unary minus (must be declared a friend otherwise doesn't work)
-    friend inline constexpr BiVec3d<T> operator-(BiVec3d<T> const& v)
+    friend inline BiVec3d<T> operator-(BiVec3d<T> const& v)
     {
         return BiVec3d<T>(-v.x, -v.y, -v.z);
     }

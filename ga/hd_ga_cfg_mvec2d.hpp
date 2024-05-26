@@ -92,7 +92,7 @@ struct MVec2d {
     }
 
     // unary minus (must be declared a friend otherwise doesn't work)
-    friend inline constexpr MVec2d<T> operator-(MVec2d<T> const& v)
+    friend inline MVec2d<T> operator-(MVec2d<T> const& v)
     {
         return MVec2d<T>(-v.c0, -v.c1, -v.c2, -v.c3);
     }

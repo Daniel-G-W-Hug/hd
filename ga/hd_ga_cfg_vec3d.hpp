@@ -66,7 +66,7 @@ struct Vec3d {
     }
 
     // unary minus (must be declared a friend otherwise doesn't work)
-    friend inline constexpr Vec3d<T> operator-(Vec3d<T> const& v)
+    friend inline Vec3d<T> operator-(Vec3d<T> const& v)
     {
         return Vec3d<T>(-v.x, -v.y, -v.z);
     }

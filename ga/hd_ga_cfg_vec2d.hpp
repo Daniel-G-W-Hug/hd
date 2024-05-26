@@ -64,10 +64,7 @@ struct Vec2d {
     }
 
     // unary minus (must be declared a friend otherwise doesn't work)
-    friend inline constexpr Vec2d<T> operator-(Vec2d<T> const& v)
-    {
-        return Vec2d<T>(-v.x, -v.y);
-    }
+    friend inline Vec2d<T> operator-(Vec2d<T> const& v) { return Vec2d<T>(-v.x, -v.y); }
 
     template <typename U>
     friend std::ostream& operator<<(std::ostream& os, Vec2d<U> const& v);
