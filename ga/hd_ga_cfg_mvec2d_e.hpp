@@ -104,7 +104,7 @@ std::ostream& operator<<(std::ostream& os, MVec2d_E<T> const& v)
 // MVec2d_E<T> core operations
 ////////////////////////////////////////////////////////////////////////////////
 
-// unary minus
+// unary minus for multivectors from the even subalgebra
 template <typename T>
     requires(std::floating_point<T>)
 inline constexpr MVec2d_E<T> operator-(MVec2d_E<T> const& v)
@@ -112,7 +112,7 @@ inline constexpr MVec2d_E<T> operator-(MVec2d_E<T> const& v)
     return MVec2d_E<T>(-v.c0, -v.c1);
 }
 
-// add multivectors
+// add multivectors from the even subalgebra
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
 inline constexpr MVec2d_E<std::common_type_t<T, U>> operator+(MVec2d_E<T> const& v1,
@@ -121,7 +121,7 @@ inline constexpr MVec2d_E<std::common_type_t<T, U>> operator+(MVec2d_E<T> const&
     return MVec2d_E<std::common_type_t<T, U>>(v1.c0 + v2.c0, v1.c1 + v2.c1);
 }
 
-// substract multivectors
+// substract multivectors multivectors from the even subalgebra
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
 inline constexpr MVec2d_E<std::common_type_t<T, U>> operator-(MVec2d_E<T> const& v1,
@@ -131,7 +131,7 @@ inline constexpr MVec2d_E<std::common_type_t<T, U>> operator-(MVec2d_E<T> const&
 }
 
 
-// multiply a multivector with a scalar
+// multiply a multivector multivectors from the even subalgebra with a scalar
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
 inline constexpr MVec2d_E<std::common_type_t<T, U>> operator*(MVec2d_E<T> const& v, U s)
@@ -146,7 +146,7 @@ inline constexpr MVec2d_E<std::common_type_t<T, U>> operator*(T s, MVec2d_E<U> c
     return MVec2d_E<std::common_type_t<T, U>>(v.c0 * s, v.c1 * s);
 }
 
-// devide a multivector by a scalar
+// devide a multivector multivectors from the even subalgebra by a scalar
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
 inline constexpr MVec2d_E<std::common_type_t<T, U>> operator/(MVec2d_E<T> const& v, U s)
@@ -159,7 +159,7 @@ inline constexpr MVec2d_E<std::common_type_t<T, U>> operator/(MVec2d_E<T> const&
     return MVec2d_E<std::common_type_t<T, U>>(v.c0 * inv, v.c1 * inv);
 }
 
-// returning various grades of a multivector
+// returning various grades of a multivector from the even subalgebra
 //
 // grade 0: gr0() - scalar
 // grade 2: gr2() - bivector (= pseudoscalar in 2d)
@@ -175,7 +175,8 @@ template <typename T> inline constexpr PScalar2d<T> gr2(MVec2d_E<T> const& v)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// MVec2d_E<T> basic operations
+// MVec2d_E<T> basic operations for complex numbers
+//                                  (= multivectors from the even subalgebra)
 ////////////////////////////////////////////////////////////////////////////////
 
 // return squared magnitude of complex number
@@ -188,14 +189,14 @@ template <typename T> inline T sq_nrm(MVec2d_E<T> const& v)
 // return magnitude of complex number
 template <typename T> inline T nrm(MVec2d_E<T> const& v) { return std::sqrt(sq_nrm(v)); }
 
-// return conjugate complex of complex number,
+// return conjugate complex of a complex number,
 // i.e. the reverse in nomenclature of multivectors
 template <typename T> inline MVec2d_E<T> rev(MVec2d_E<T> const& v)
 {
     return MVec2d_E<T>(v.c0, -v.c1);
 }
 
-// return a complex unitized to nrm(v) == 1.0
+// return a complex number unitized to nrm(v) == 1.0
 template <typename T> inline MVec2d_E<T> unitized(MVec2d_E<T> const& v)
 {
     T n = nrm(v);
@@ -207,7 +208,7 @@ template <typename T> inline MVec2d_E<T> unitized(MVec2d_E<T> const& v)
     return MVec2d_E<T>(v.c0 * inv, v.c1 * inv);
 }
 
-// return the multiplicative inverse of the complex (inv(z) = 1/sq_nrm(z)*rev(z))
+// return the multiplicative inverse of the complex number (inv(z) = 1/sq_nrm(z)*rev(z))
 // with rev(z) being the complex conjugate
 template <typename T> inline MVec2d_E<T> inv(MVec2d_E<T> const& v)
 {
