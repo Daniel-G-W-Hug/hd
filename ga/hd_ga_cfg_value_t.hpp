@@ -11,8 +11,12 @@
 namespace hd::ga {
 
 // select the floating point type used for scalars, vector and bivector components
-// using value_t = float;
-using value_t = double;
+using value_t = float;
+// using value_t = double;
+
+// definition of scalar and pscalar located here, because other
+// modules like vec2d, vec3d, 2d_ops, 3d_ops etc. just need the type defintion,
+// but not the functionality itself (reduce dependencies between files)
 
 struct scalar2d_tag {};
 struct scalar3d_tag {};
@@ -23,7 +27,5 @@ template <typename T> using Scalar2d = Strong_t<T, scalar2d_tag>;
 template <typename T> using Scalar3d = Strong_t<T, scalar3d_tag>;
 template <typename T> using PScalar2d = Strong_t<T, pscalar2d_tag>;
 template <typename T> using PScalar3d = Strong_t<T, pscalar3d_tag>;
-
-value_t sign(value_t value) { return (value >= 0.0) ? 1.0 : -1.0; }
 
 } // namespace hd::ga

@@ -187,7 +187,7 @@ inline std::common_type_t<T, U> angle(Vec3d<T> const& v1, Vec3d<U> const& v2)
             std::to_string(nrm_prod) + "\n");
     }
     // std::clamp must be used to take care of numerical inaccuracies
-    return std::acos(std::clamp(dot(v1, v2) / nrm_prod, -1.0, 1.0));
+    return std::acos(std::clamp(ctype(dot(v1, v2)) / nrm_prod, ctype(-1.0), ctype(1.0)));
 }
 
 
@@ -210,8 +210,9 @@ inline std::common_type_t<T, U> angle(Vec3d<T> const& v1, Vec3d<U> const& v2)
 //             std::to_string(nrm_prod) + "\n");
 //     }
 
-//     auto cos_angle = std::clamp(dot(v1, v2) / nrm_prod, -1.0, 1.0);
-//     auto sin_angle = std::clamp(ctype(nrm(wdg(v1, v2))) / nrm_prod, -1.0, 1.0);
+// auto cos_angle = std::clamp(ctype(dot(v1, v2)) / nrm_prod, ctype(-1.0), ctype(1.0));
+// auto sin_angle = std::clamp(ctype(nrm(wdg(v1, v2))) / nrm_prod, ctype(-1.0),
+// ctype(1.0));
 //     // wdg() does contain magnitude, but no unique value of orientation
 //     // so we chose one arbitrarily => but would deliver only pos. angles!
 

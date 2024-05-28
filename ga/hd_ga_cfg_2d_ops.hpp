@@ -21,35 +21,6 @@
 namespace hd::ga {
 
 ////////////////////////////////////////////////////////////////////////////////
-// PScalar2d<T> basic operations
-////////////////////////////////////////////////////////////////////////////////
-
-// return squared magnitude of the pseudoscalar
-template <typename T>
-    requires(std::floating_point<T>)
-inline constexpr T sq_nrm(PScalar2d<T> const& ps)
-{
-    return T(ps) * T(ps);
-}
-
-// return magnitude of the pseudoscalar
-template <typename T>
-    requires(std::floating_point<T>)
-inline constexpr T nrm(PScalar2d<T> const& ps)
-{
-    return std::abs(T(ps));
-}
-
-// return inverse of the pseudoscalar (A^(-1) = rev(A)/|A|^2 = (-1)^(k*(k-1)/2)*A/|A|^2
-// k is the dimension of the space of the pseudoscalar formed by k orthogonal vectors
-template <typename T>
-    requires(std::floating_point<T>)
-inline constexpr T inv(PScalar2d<T> const& ps)
-{
-    return -T(ps) / sq_nrm(ps);
-}
-
-////////////////////////////////////////////////////////////////////////////////
 // Vec2d<T> projections, rejections and reflections
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -131,15 +102,16 @@ inline constexpr Vec2d<std::common_type_t<T, U>> reflect_on_vec(Vec2d<T> const& 
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// MVec2d<T> geometric operations
+// MVec2d<T> geometric products
 ////////////////////////////////////////////////////////////////////////////////
 
 // geometric product ab for fully populated 2d multivector
 // gpr() ... geometric product
 // Expensive! - Don't use if you don't have to! (16x mul_add)
 //
-// Use equivalent formulae instead for not fully populated multivectors:
+// Use equivalent formulae instead for not fully populated multivectors, e.g.:
 // ab = dot(a,b) + wdg(a,b) = gr0(ab) + gr2(ab) (vector vector = scalar + bivector)
+//
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
 inline constexpr MVec2d<std::common_type_t<T, U>> gpr(MVec2d<T> const& A,
@@ -160,8 +132,7 @@ template <typename T, typename U>
 inline constexpr MVec2d<std::common_type_t<T, U>> operator*(MVec2d<T> const& A,
                                                             MVec2d<U> const& B)
 {
-    using ctype = std::common_type_t<T, U>;
-    return gpr<ctype>(A, B);
+    return gpr(A, B);
 }
 
 // geometric product ab for two vectors (returns a multivector of the even subalgebra)
@@ -185,8 +156,7 @@ template <typename T, typename U>
 inline constexpr MVec2d_E<std::common_type_t<T, U>> operator*(Vec2d<T> const& a,
                                                               Vec2d<U> const& b)
 {
-    using ctype = std::common_type_t<T, U>;
-    return gpr<ctype>(a, b);
+    return gpr(a, b);
 }
 
 // geometric product AB of a bivector A multiplied from the left
@@ -206,8 +176,7 @@ template <typename T, typename U>
 inline constexpr MVec2d<std::common_type_t<T, U>> operator*(PScalar2d<T> A,
                                                             MVec2d<U> const& B)
 {
-    using ctype = std::common_type_t<T, U>;
-    return gpr<ctype>(A, B);
+    return gpr(A, B);
 }
 
 // geometric product AB of a bivector A multiplied from the left
@@ -251,8 +220,7 @@ template <typename T, typename U>
 inline constexpr Vec2d<std::common_type_t<T, U>> operator*(PScalar2d<T> A,
                                                            Vec2d<U> const& b)
 {
-    using ctype = std::common_type_t<T, U>;
-    return gpr<ctype>(A, b);
+    return gpr(A, b);
 }
 
 // geometric product AB of a bivector B multiplied from the right
@@ -272,8 +240,7 @@ template <typename T, typename U>
 inline constexpr MVec2d<std::common_type_t<T, U>> operator*(MVec2d<T> const& A,
                                                             PScalar2d<U> B)
 {
-    using ctype = std::common_type_t<T, U>;
-    return gpr<ctype>(A, B);
+    return gpr(A, B);
 }
 
 // geometric product AB of a bivector B multiplied from the right
@@ -317,11 +284,10 @@ template <typename T, typename U>
 inline constexpr Vec2d<std::common_type_t<T, U>> operator*(Vec2d<T> const& a,
                                                            PScalar2d<U> B)
 {
-    using ctype = std::common_type_t<T, U>;
-    return gpr<ctype>(a, B);
+    return gpr(a, B);
 }
 
-// geometric product AB of two bivectors
+// geometric product AB of two bivectors (pseudoscalars in 2d)
 // gpr(bivector, bivector) => returns a scalar
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
@@ -336,13 +302,29 @@ template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
 inline constexpr std::common_type_t<T, U> operator*(PScalar2d<T> A, PScalar2d<U> B)
 {
-    using ctype = std::common_type_t<T, U>;
-    return gpr<ctype>(A, B);
+    return gpr(A, B);
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// MVec2d_E<T> operations
-////////////////////////////////////////////////////////////////////////////////
+// geometric product aB for a full 2d multivector B with a vector a
+// => return a multivector
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline constexpr MVec2d<std::common_type_t<T, U>> gpr(Vec2d<T> const& a,
+                                                      MVec2d<U> const& B)
+{
+    using ctype = std::common_type_t<T, U>;
+    return MVec2d<ctype>(a.x * B.c1 + a.y * B.c2, a.x * B.c0 - a.y * B.c3,
+                         a.x * B.c3 + a.y * B.c0, a.x * B.c2 - a.y * B.c1);
+}
+
+// define geometric multiplication with operator*(a,B) as an alias for gpr(a,B)
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline constexpr MVec2d<std::common_type_t<T, U>> operator*(Vec2d<T> const& a,
+                                                            MVec2d<U> const& B)
+{
+    return gpr(a, B);
+}
 
 // geometric product aB for a full 2d multivector B with a multivector from
 // the even subalgebra a (only gr0 and gr2 components, i.e. a MVec2d_E)
@@ -363,8 +345,7 @@ template <typename T, typename U>
 inline constexpr MVec2d<std::common_type_t<T, U>> operator*(MVec2d_E<T> const& a,
                                                             MVec2d<U> const& B)
 {
-    using ctype = std::common_type_t<T, U>;
-    return gpr<ctype>(a, B);
+    return gpr(a, B);
 }
 
 // geometric product ab for a 2d vector b with a multivector from
@@ -385,8 +366,7 @@ template <typename T, typename U>
 inline constexpr Vec2d<std::common_type_t<T, U>> operator*(MVec2d_E<T> const& a,
                                                            Vec2d<U> const& b)
 {
-    using ctype = std::common_type_t<T, U>;
-    return gpr<ctype>(a, b);
+    return gpr(a, b);
 }
 
 // geometric product Ab for a full 2d multivector A with a multivector from
@@ -408,8 +388,28 @@ template <typename T, typename U>
 inline constexpr MVec2d<std::common_type_t<T, U>> operator*(MVec2d<T> const& A,
                                                             MVec2d_E<U> const& b)
 {
+    return gpr(A, b);
+}
+
+// geometric product Ab for a full 2d multivector A with a vector b
+// => returns a multivector
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline constexpr MVec2d<std::common_type_t<T, U>> gpr(MVec2d<T> const& A,
+                                                      Vec2d<U> const& b)
+{
     using ctype = std::common_type_t<T, U>;
-    return gpr<ctype>(A, b);
+    return MVec2d<ctype>(A.c1 * b.x + A.c2 * b.y, A.c0 * b.x + A.c3 * b.y,
+                         -A.c3 * b.x + A.c0 * b.y, -A.c2 * b.x + A.c1 * b.y);
+}
+
+// define geometric multiplication with operator*(A,b) as an alias for gpr(A,b)
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline constexpr MVec2d<std::common_type_t<T, U>> operator*(MVec2d<T> const& A,
+                                                            Vec2d<U> const& b)
+{
+    return gpr(A, b);
 }
 
 // geometric product aB for a full 2d vector a with a multivector from
@@ -430,8 +430,7 @@ template <typename T, typename U>
 inline constexpr Vec2d<std::common_type_t<T, U>> operator*(Vec2d<T> const& a,
                                                            MVec2d_E<U> const& b)
 {
-    using ctype = std::common_type_t<T, U>;
-    return gpr<ctype>(a, b);
+    return gpr(a, b);
 }
 
 // geometric product ab for two multivectors from the even subalgebra (2d case)
@@ -457,6 +456,9 @@ inline constexpr MVec2d_E<std::common_type_t<T, U>> operator*(MVec2d_E<T> const&
     return gpr<ctype>(a, b);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// 2d rotation operations
+////////////////////////////////////////////////////////////////////////////////
 
 // exponential function for setup of complex numbers and rotations
 // as geometric multivectors with a scalar and a bivector part
@@ -467,8 +469,8 @@ inline constexpr MVec2d_E<std::common_type_t<T, U>> operator*(MVec2d_E<T> const&
 // with r = |u| |v| = sqrt(a^2 + b^2) = 1
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr MVec2d_E<std::common_type_t<T, U>>
-exp([[maybe_unused]] PScalar2d<T> const& I, U theta)
+inline constexpr MVec2d_E<std::common_type_t<T, U>> exp([[maybe_unused]] PScalar2d<T> I,
+                                                        U theta)
 {
     // PScalar2d<T> is just used here for a unique overload of exp()
     // and to make the function signature similar to the 3D case
@@ -497,8 +499,8 @@ exp([[maybe_unused]] PScalar2d<T> const& I, U theta)
 //////////////////////////////////////////////////////////////////////////////////////////
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr MVec2d_E<std::common_type_t<T, U>>
-rotor([[maybe_unused]] PScalar2d<T> const& I, U theta)
+inline constexpr MVec2d_E<std::common_type_t<T, U>> rotor([[maybe_unused]] PScalar2d<T> I,
+                                                          U theta)
 {
     // PScalar2d<T> is just used here to be able to overload exp
     // and to make the function similar to the 3D case
@@ -526,6 +528,10 @@ inline constexpr MVec2d<std::common_type_t<T, U>> rotate(MVec2d<T> const& M,
     return MVec2d<ctype>(rotor * M * rev(rotor));
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// 2d duality operations
+////////////////////////////////////////////////////////////////////////////////
+
 // return the dual(M) of the multivector M
 // if M represents the subspace B as subspace of R^2 then
 // dual(M) represents the orthogonal subspace B^perp (perpendicular to B)
@@ -535,23 +541,16 @@ inline constexpr MVec2d<std::common_type_t<T, U>> rotate(MVec2d<T> const& M,
 // as defined in Doran/Lasenby "GA for physicists"
 template <typename T>
     requires(std::floating_point<T>)
-inline constexpr MVec2d<T> dual(MVec2d<T> const& M)
-{
-    return MVec2d<T>(-M.c3, M.c2, -M.c1, M.c0);
-}
-
-template <typename T>
-    requires(std::floating_point<T>)
-inline constexpr MVec2d_E<T> dual(MVec2d_E<T> const& M)
-{
-    return MVec2d_E<T>(-M.c1, M.c0);
-}
-
-template <typename T>
-    requires(std::floating_point<T>)
-inline constexpr Scalar2d<T> dual(PScalar2d<T> const& ps)
+inline constexpr Scalar2d<T> dual(PScalar2d<T> ps)
 {
     return Scalar2d<T>(-T(ps));
+}
+
+template <typename T>
+    requires(std::floating_point<T>)
+inline constexpr PScalar2d<T> dual(Scalar2d<T> s)
+{
+    return PScalar2d<T>(T(s));
 }
 
 template <typename T>
@@ -563,9 +562,16 @@ inline constexpr Vec2d<T> dual(Vec2d<T> const& v)
 
 template <typename T>
     requires(std::floating_point<T>)
-inline constexpr PScalar2d<T> dual(Scalar2d<T> const& s)
+inline constexpr MVec2d_E<T> dual(MVec2d_E<T> const& M)
 {
-    return PScalar2d<T>(T(s));
+    return MVec2d_E<T>(-M.c1, M.c0);
+}
+
+template <typename T>
+    requires(std::floating_point<T>)
+inline constexpr MVec2d<T> dual(MVec2d<T> const& M)
+{
+    return MVec2d<T>(-M.c3, M.c2, -M.c1, M.c0);
 }
 
 } // namespace hd::ga

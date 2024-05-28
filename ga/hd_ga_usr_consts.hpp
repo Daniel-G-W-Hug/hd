@@ -13,7 +13,7 @@
 
 namespace hd::ga {
 
-value_t eps{5.0 * std::numeric_limits<value_t>::epsilon()};
+auto const eps{5.0 * std::numeric_limits<value_t>::epsilon()};
 
 ////////////////////////////////////////////////////////////////////////////////
 // 2D constants

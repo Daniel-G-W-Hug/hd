@@ -251,6 +251,11 @@ TEST_SUITE("Geometric Algebra")
         CHECK(std::abs(sq_nrm(v1) - 5.0) < eps);
         CHECK(std::abs(sq_nrm(v2) - 1.0) < eps);
         CHECK(std::abs(dot(v4, v3) - 1.0) < eps);
+
+        auto m = Vec2d{13.0, 5.0};
+        auto prd = m * inv(m);
+        CHECK(std::abs(gr0(prd) - 1.0) < eps);
+        CHECK(std::abs(gr2(prd) - 0.0) < eps);
     }
 
     TEST_CASE("Vec2d: operations - angle")
@@ -900,14 +905,14 @@ TEST_SUITE("Geometric Algebra")
               sq_nrm(MVec2d_E{-1.0, 1.0}));
         CHECK(std::abs(gr2(MVec2d_E{-1.0, 1.0} * rev(MVec2d_E{-1.0, 1.0}))) < eps);
 
-        CHECK(angle(MVec2d_E{1.0, 0.0}) == 0);
-        CHECK(angle(MVec2d_E{1.0, 1.0}) == pi / 4.0);
-        CHECK(angle(MVec2d_E{0.0, 1.0}) == pi / 2.0);
-        CHECK(angle(MVec2d_E{-1.0, 1.0}) == pi * 3.0 / 4.0);
-        CHECK(angle(MVec2d_E{-1.0, 0.0}) == pi);
-        CHECK(angle(MVec2d_E{1.0, -1.0}) == -pi / 4.0);
-        CHECK(angle(MVec2d_E{0.0, -1.0}) == -pi / 2.0);
-        CHECK(angle(MVec2d_E{-1.0, -1.0}) == -pi * 3.0 / 4.0);
+        CHECK(angle_to_re(MVec2d_E{1.0, 0.0}) == 0);
+        CHECK(angle_to_re(MVec2d_E{1.0, 1.0}) == pi / 4.0);
+        CHECK(angle_to_re(MVec2d_E{0.0, 1.0}) == pi / 2.0);
+        CHECK(angle_to_re(MVec2d_E{-1.0, 1.0}) == pi * 3.0 / 4.0);
+        CHECK(angle_to_re(MVec2d_E{-1.0, 0.0}) == pi);
+        CHECK(angle_to_re(MVec2d_E{1.0, -1.0}) == -pi / 4.0);
+        CHECK(angle_to_re(MVec2d_E{0.0, -1.0}) == -pi / 2.0);
+        CHECK(angle_to_re(MVec2d_E{-1.0, -1.0}) == -pi * 3.0 / 4.0);
 
         CHECK(Vec2d{1.0, 0.0} * Vec2d{1.1, 1.1} ==
               rev(Vec2d{1.1, 1.1} * Vec2d{1.0, 0.0}));
@@ -999,6 +1004,11 @@ TEST_SUITE("Geometric Algebra")
         // multiply two MVec2d_E
         CHECK(MVec2d(MVec2d_E(-3.0, 2.0) * MVec2d_E{-1.0, -3.0}) ==
               MVec2d{-3.0, 0.0, 0.0, 2.0} * MVec2d{-1.0, 0.0, 0.0, -3.0});
+
+        auto m = MVec2d_E{13.0, 5.0};
+        auto prd = m * inv(m);
+        CHECK(std::abs(gr0(prd) - 1.0) < eps);
+        CHECK(std::abs(gr2(prd) - 0.0) < eps);
     }
 
 
@@ -1864,6 +1874,12 @@ TEST_SUITE("Geometric Algebra")
         CHECK(C == Cd);
         CHECK(a == gr1(gpr_right));
         CHECK(b == gr1(gpr_left));
+
+        auto m = MVec2d{13.0, -27.0, 3.0, 5.0};
+        auto prd = m * inv(m);
+        CHECK(std::abs(gr0(prd) - 1.0) < eps);
+        CHECK(nrm(gr1(prd)) < eps);
+        CHECK(std::abs(gr2(prd) - 0.0) < eps);
     }
 
     TEST_CASE("MVec3d: geometric product tests - equivalence tests")

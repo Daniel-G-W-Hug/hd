@@ -15,8 +15,10 @@
 #include "hd_ga_cfg_strong_t.hpp" // strong types for scalars & pseudoscalars
 #include "hd_ga_cfg_value_t.hpp"  // default type for scalar, vector & bivector components
 
-#include "hd_ga_cfg_vec2d.hpp" // Vec2d<T>
-#include "hd_ga_cfg_vec3d.hpp" // Vec3d<T>
+#include "hd_ga_cfg_pscalar2d.hpp" // PScalar2d<T>
+#include "hd_ga_cfg_scalar2d.hpp"  // Scalar2d<T>
+#include "hd_ga_cfg_vec2d.hpp"     // Vec2d<T>
+#include "hd_ga_cfg_vec3d.hpp"     // Vec3d<T>
 
 #include "hd_ga_cfg_bivec3d.hpp"  // BiVec3d<T>
 #include "hd_ga_cfg_mvec2d.hpp"   // MVec2d<T>

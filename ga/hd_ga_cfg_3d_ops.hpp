@@ -104,14 +104,15 @@ template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
 inline std::common_type_t<T, U> angle(Vec3d<T> const& v1, BiVec3d<U> const& v2)
 {
-    std::common_type_t<T, U> nrm_prod = nrm(v1) * nrm(v2);
+    using ctype = std::common_type_t<T, U>;
+    ctype nrm_prod = nrm(v1) * nrm(v2);
     if (nrm_prod < std::numeric_limits<std::common_type_t<T, U>>::epsilon()) {
         throw std::runtime_error(
             "vector norm product too small for calculation of angle" +
             std::to_string(nrm_prod) + "\n");
     }
     // std::clamp must be used to take care of numerical inaccuracies
-    return std::acos(std::clamp(dot(v1, v2) / nrm_prod, -1.0, 1.0));
+    return std::acos(std::clamp(ctype(dot(v1, v2)) / nrm_prod, ctype(-1.0), ctype(1.0)));
 }
 
 // return the angle between of a bivector and a vector
@@ -120,14 +121,15 @@ template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
 inline std::common_type_t<T, U> angle(BiVec3d<T> const& v1, Vec3d<U> const& v2)
 {
-    std::common_type_t<T, U> nrm_prod = nrm(v1) * nrm(v2);
+    using ctype = std::common_type_t<T, U>;
+    ctype nrm_prod = nrm(v1) * nrm(v2);
     if (nrm_prod < std::numeric_limits<std::common_type_t<T, U>>::epsilon()) {
         throw std::runtime_error(
             "vector norm product too small for calculation of angle" +
             std::to_string(nrm_prod) + "\n");
     }
     // std::clamp must be used to take care of numerical inaccuracies
-    return std::acos(std::clamp(dot(v1, v2) / nrm_prod, -1.0, 1.0));
+    return std::acos(std::clamp(ctype(dot(v1, v2)) / nrm_prod, ctype(-1.0), ctype(1.0)));
 }
 
 // wedge product between two vectors (returns a bivector in 3d)
@@ -524,8 +526,7 @@ template <typename T, typename U>
 inline constexpr BiVec3d<std::common_type_t<T, U>> operator*(PScalar3d<T> A,
                                                              Vec3d<U> const& b)
 {
-    using ctype = std::common_type_t<T, U>;
-    return gpr<ctype>(A, b);
+    return gpr(A, b);
 }
 
 // geometric product AB of a trivector A multiplied from the left
@@ -547,8 +548,7 @@ template <typename T, typename U>
 inline constexpr MVec3d_E<std::common_type_t<T, U>> operator*(PScalar3d<T> A,
                                                               MVec3d_U<U> const& B)
 {
-    using ctype = std::common_type_t<T, U>;
-    return gpr<ctype>(A, B);
+    return gpr(A, B);
 }
 
 // geometric product Ab of a trivector A multiplied from the left
@@ -568,8 +568,7 @@ template <typename T, typename U>
 inline constexpr Vec3d<std::common_type_t<T, U>> operator*(PScalar3d<T> A,
                                                            BiVec3d<U> const& b)
 {
-    using ctype = std::common_type_t<T, U>;
-    return gpr<ctype>(A, b);
+    return gpr(A, b);
 }
 
 // geometric product AB of a trivector A multiplied from the left
@@ -591,8 +590,7 @@ template <typename T, typename U>
 inline constexpr MVec3d_U<std::common_type_t<T, U>> operator*(PScalar3d<T> A,
                                                               MVec3d_E<U> const& B)
 {
-    using ctype = std::common_type_t<T, U>;
-    return gpr<ctype>(A, B);
+    return gpr(A, B);
 }
 
 // geometric product AB of a trivector B multiplied from the right

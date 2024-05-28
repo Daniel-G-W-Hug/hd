@@ -187,6 +187,63 @@ template <typename T> inline constexpr PScalar2d<T> gr2(MVec2d<T> const& v)
     return PScalar2d<T>(v.c3);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// MVec2d<T> basic operations
+////////////////////////////////////////////////////////////////////////////////
+
+// return squared magnitude of complex number
+// |M|^2 = M rev(M) = (M.c0)^2 + (M.c1)^2 + (M.c2)^2 + (M.c3)^3
+template <typename T> inline T sq_nrm(MVec2d<T> const& v)
+{
+    return v.c0 * v.c0 + v.c1 * v.c1 + v.c2 * v.c2 + v.c3 * v.c3;
+}
+
+// return magnitude of complex number
+template <typename T> inline T nrm(MVec2d<T> const& v) { return std::sqrt(sq_nrm(v)); }
+
+// return the reverse
+template <typename T> inline MVec2d<T> rev(MVec2d<T> const& v)
+{
+    return MVec2d<T>(v.c0, v.c1, v.c2, -v.c3);
+}
+
+// return the Clifford conjugate
+template <typename T> inline MVec2d<T> conj(MVec2d<T> const& v)
+{
+    return MVec2d<T>(v.c0, -v.c1, -v.c2, -v.c3);
+}
+
+// return a multivector unitized to nrm(v) == 1.0
+template <typename T> inline MVec2d<T> unitized(MVec2d<T> const& v)
+{
+    T n = nrm(v);
+    if (n < std::numeric_limits<T>::epsilon()) {
+        throw std::runtime_error("complex norm too small for normalization" +
+                                 std::to_string(n) + "\n");
+    }
+    T inv = 1.0 / n; // for multiplication with inverse of norm
+    return MVec2d<T>(v.c0 * inv, v.c1 * inv, v.c2 * inv, v.c3 * inv);
+}
+
+// return the multiplicative inverse of the multivector
+// inv(M) = 1/( M*conj(M) ) * conj(M)  with M*conj(M) being a scalar value
+template <typename T> inline MVec2d<T> inv(MVec2d<T> const& v)
+{
+    // from manual calculation of M*conj(M) in 2d:
+    T m_conjm = v.c0 * v.c0 + v.c3 * v.c3 - sq_nrm(Vec2d<T>(v.c1, v.c2));
+    //
+    // alternative, but with slightly more computational effort:
+    // T m_conjm = gr0(v * conj(v));
+    //
+    if (std::abs(m_conjm) < std::numeric_limits<T>::epsilon()) {
+        throw std::runtime_error("multivector norm too small for inversion " +
+                                 std::to_string(m_conjm) + "\n");
+        // example: MVec2D(1,1,1,1) is not invertible
+    }
+    T inv = 1.0 / m_conjm; // inverse of squared norm for a vector
+    return inv * conj(v);
+}
+
 } // namespace hd::ga
 
 

@@ -180,7 +180,7 @@ template <typename T> inline constexpr PScalar2d<T> gr2(MVec2d_E<T> const& v)
 ////////////////////////////////////////////////////////////////////////////////
 
 // return squared magnitude of complex number
-// |Z|^2 = Z rev(z) = c0^2 + c1^2
+// |Z|^2 = Z rev(Z) = c0^2 + c1^2
 template <typename T> inline T sq_nrm(MVec2d_E<T> const& v)
 {
     return v.c0 * v.c0 + v.c1 * v.c1;
@@ -225,7 +225,7 @@ template <typename T> inline MVec2d_E<T> inv(MVec2d_E<T> const& v)
 // range of angle: -pi <= angle <= pi
 template <typename T>
     requires(std::floating_point<T>)
-inline T angle(MVec2d_E<T> const& v)
+inline T angle_to_re(MVec2d_E<T> const& v)
 {
     using std::numbers::pi;
     if (v.c0 > 0.0) {

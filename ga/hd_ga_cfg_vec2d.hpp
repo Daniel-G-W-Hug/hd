@@ -197,8 +197,8 @@ inline std::common_type_t<T, U> angle(Vec2d<T> const& v1, Vec2d<U> const& v2)
     }
 
     // std::clamp must be used to take care of numerical inaccuracies
-    auto cos_angle = std::clamp(dot(v1, v2) / nrm_prod, -1.0, 1.0);
-    auto sin_angle = std::clamp(ctype(wdg(v1, v2)) / nrm_prod, -1.0, 1.0);
+    auto cos_angle = std::clamp(ctype(dot(v1, v2)) / nrm_prod, ctype(-1.0), ctype(1.0));
+    auto sin_angle = std::clamp(ctype(wdg(v1, v2)) / nrm_prod, ctype(-1.0), ctype(1.0));
     // wdg() in 2d contains magnitude and orientation, but works this easy only in 2d,
     // because it is already a scalar value
     // (for 3d to be as effective, the 3d vectors would need to be transformed
@@ -234,18 +234,6 @@ std::ostream& operator<<(std::ostream& os, Vec2d<T> const& v)
     return os;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// PScalar2d<T> printing support via iostream
-////////////////////////////////////////////////////////////////////////////////
-
-template <typename T>
-    requires(std::floating_point<T>)
-std::ostream& operator<<(std::ostream& os, PScalar2d<T> const& v)
-{
-    os << "(" << T(v) << ")";
-    return os;
-}
-
 } // namespace hd::ga
 
 
@@ -257,15 +245,6 @@ template <typename T> struct fmt::formatter<hd::ga::Vec2d<T>> : nested_formatter
     auto format(const hd::ga::Vec2d<T>& v, FormatContext& ctx) const
     {
         return fmt::format_to(ctx.out(), "({},{})", nested(v.x), nested(v.y));
-    }
-};
-
-template <typename T>
-struct fmt::formatter<hd::ga::PScalar2d<T>> : nested_formatter<double> {
-    template <typename FormatContext>
-    auto format(const hd::ga::PScalar2d<T>& v, FormatContext& ctx) const
-    {
-        return fmt::format_to(ctx.out(), "({})", nested(double(v)));
     }
 };
 
