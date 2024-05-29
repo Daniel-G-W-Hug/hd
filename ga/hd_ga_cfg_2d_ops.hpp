@@ -546,6 +546,9 @@ inline constexpr Scalar<T> dual2d(PScalar2d<T> ps)
     return Scalar<T>(-T(ps));
 }
 
+// this one is problematic for overloading, because 2d and 3d case
+// transform to different pseudoscalars
+// the 2d and 3d adders in the function name are required for disambiguation
 template <typename T>
     requires(std::floating_point<T>)
 inline constexpr PScalar2d<T> dual2d(Scalar<T> s)
