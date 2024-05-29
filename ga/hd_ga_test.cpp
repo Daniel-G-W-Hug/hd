@@ -601,7 +601,7 @@ TEST_SUITE("Geometric Algebra")
         auto d12 = dot(v1, v2);
         auto w12 = wdg(v1, v2);
         auto mv12 = gpr(mv1, mv2);
-        MVec2d mv12a{Scalar2d<double>(d12), PScalar2d<double>(w12)};
+        MVec2d mv12a{Scalar<double>(d12), PScalar2d<double>(w12)};
 
         auto v2i = inv(v2);
         auto nv2 = nrm(v2);
@@ -632,7 +632,7 @@ TEST_SUITE("Geometric Algebra")
         // shorter version w/o intermediate results
         Vec2d a{1.0, 2.0};
         Vec2d b{0.5, 3.0};
-        MVec2d C{Scalar2d<double>(dot(a, b)), PScalar2d<double>(wdg(a, b))};
+        MVec2d C{Scalar<double>(dot(a, b)), PScalar2d<double>(wdg(a, b))};
         MVec2d gpr_right = gpr(C, MVec2d{inv(b)});
         MVec2d gpr_left = gpr(MVec2d{inv(a)}, C);
 
@@ -663,7 +663,7 @@ TEST_SUITE("Geometric Algebra")
 
         MVec2d ab = gpr(a, b);
         MVec2d abm = gpr(mva, mvb);
-        MVec2d abd{Scalar2d<double>(dot_ab), wdg_ab};
+        MVec2d abd{Scalar<double>(dot_ab), wdg_ab};
 
         // fmt::println("   a                                = {}", a);
         // fmt::println("   mva                              = {}", mva);
@@ -692,7 +692,7 @@ TEST_SUITE("Geometric Algebra")
         MVec2d mv3{v1};
         MVec2d mv4 = v2;
 
-        MVec2d mv5(Scalar2d<double>(5.0));
+        MVec2d mv5(Scalar<double>(5.0));
         MVec2d mv6(PScalar2d<double>(6.0));
 
         // fmt::println("   v1 = {}", v1);
@@ -984,7 +984,7 @@ TEST_SUITE("Geometric Algebra")
               MVec2d{0.0, -1.0, -3.0, 0.0} * MVec2d{0.0, 0.0, 0.0, 1.5});
 
         // two bivectors
-        CHECK(MVec2d(Scalar2d<double>(PScalar2d<double>(1.5) * PScalar2d<double>(3.0))) ==
+        CHECK(MVec2d(Scalar<double>(PScalar2d<double>(1.5) * PScalar2d<double>(3.0))) ==
               MVec2d{0.0, 0.0, 0.0, 1.5} * MVec2d{0.0, 0.0, 0.0, 3.0});
 
         // MVec2d_E tests multiply from left
@@ -1026,16 +1026,16 @@ TEST_SUITE("Geometric Algebra")
         // as defined in Doran/Lasenby "GA for physicists"
 
         auto vm_dual_manual = Im_2d * vm;
-        auto vm_dual = dual(vm);
+        auto vm_dual = dual2d(vm);
 
         auto vm_dual_even_manual = Im_2d * vm_even;
-        auto vm_dual_even = dual(vm_even);
+        auto vm_dual_even = dual2d(vm_even);
 
         auto vm_dual_manual_E = Im_2d_E * vm_E;
-        auto vm_dual_E = dual(vm_E);
+        auto vm_dual_E = dual2d(vm_E);
 
         auto v_dual_manual = I_2d * v;
-        auto v_dual = dual(v);
+        auto v_dual = dual2d(v);
 
         // fmt::println("   I_2d    = {}", I_2d);
         // fmt::println("   Im_2d   = {}", Im_2d);
@@ -1043,26 +1043,26 @@ TEST_SUITE("Geometric Algebra")
         // fmt::println("");
         // fmt::println("   vm            = {}", vm);
         // fmt::println("   Im_2d*vm      = {}", vm_dual_manual);
-        // fmt::println("   dual(vm)      = {}", vm_dual);
+        // fmt::println("   dual2d(vm)      = {}", vm_dual);
         // fmt::println("");
         // fmt::println("   vm_even       = {}", vm_even);
         // fmt::println("   Im_2d*vm_even = {}", vm_dual_even_manual);
-        // fmt::println("   dual(vm_even) = {}", vm_dual_even);
+        // fmt::println("   dual2d(vm_even) = {}", vm_dual_even);
         // fmt::println("");
         // fmt::println("   vm_E          = {}", vm_E);
         // fmt::println("   Im_2d_E*vm_E  = {}", vm_dual_manual_E);
-        // fmt::println("   dual(vm_E)    = {}", vm_dual_E);
+        // fmt::println("   dual2d(vm_E)    = {}", vm_dual_E);
         // fmt::println("");
         // fmt::println("   v             = {}", v);
         // fmt::println("   I_2d * v      = {}", v_dual_manual);
-        // fmt::println("   dual(v)       = {}", v_dual);
+        // fmt::println("   dual2d(v)       = {}", v_dual);
 
         CHECK(vm_dual == vm_dual_manual);
         CHECK(vm_dual_even == vm_dual_even_manual);
         CHECK(vm_dual_E == vm_dual_manual_E);
         CHECK(v_dual == v_dual_manual);
-        CHECK(dual(Scalar2d<double>(5)) == PScalar2d<double>(5));
-        CHECK(dual(PScalar2d<double>(5)) == Scalar2d<double>(-5));
+        CHECK(dual2d(Scalar<double>(5)) == PScalar2d<double>(5));
+        CHECK(dual2d(PScalar2d<double>(5)) == Scalar<double>(-5));
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -1521,7 +1521,7 @@ TEST_SUITE("Geometric Algebra")
 
         Vec3d u_cross_v = cross(u, v);
         BiVec3d u_wdg_v = wdg(u, v);
-        auto minus_dual_u_wdg_v = -dual(wdg(u, v));
+        auto minus_dual_u_wdg_v = -dual3d(wdg(u, v));
 
         // fmt::println("   u          = {: } - vec,   nrm(u)"
         //              "          = {: .4}",
@@ -1535,7 +1535,7 @@ TEST_SUITE("Geometric Algebra")
         // fmt::println("   u^v        = {: } - bivec, nrm(u^v)"
         //              "        = {: .4}",
         //              u_wdg_v, nrm(u_wdg_v));
-        // fmt::println("   -dual(u^v) = {: } - vec  , nrm(-dual(u^v))"
+        // fmt::println("   -dual3d(u^v) = {: } - vec  , nrm(-dual3d(u^v))"
         //              " = {: .4}",
         //              minus_dual_u_wdg_v, nrm(minus_dual_u_wdg_v));
         // fmt::println("");
@@ -1854,7 +1854,7 @@ TEST_SUITE("Geometric Algebra")
         auto wdg_ab = wdg(a, b);
         MVec3d C = gpr(a, b);
         MVec3d Cm = gpr(mva, mvb);
-        MVec3d Cd{Scalar3d<double>(dot_ab), wdg_ab};
+        MVec3d Cd{Scalar<double>(dot_ab), wdg_ab};
 
         MVec3d gpr_right = gpr(C, MVec3d{inv(b)});
         MVec3d gpr_left = gpr(MVec3d{inv(a)}, C);
@@ -1907,7 +1907,7 @@ TEST_SUITE("Geometric Algebra")
 
         MVec3d_E ab = gpr(a, b);
         MVec3d abm = gpr(mva, mvb);
-        MVec3d abd{Scalar3d<double>(dot_ab), wdg_ab};
+        MVec3d abd{Scalar<double>(dot_ab), wdg_ab};
 
         MVec3d_U Ab = gpr(A, b);
         MVec3d Abm = gpr(mvA, mvb);
@@ -1988,11 +1988,11 @@ TEST_SUITE("Geometric Algebra")
         MVec3d mv3{mv1};
         MVec3d mv4 = mv2;
 
-        MVec3d mv5(Scalar3d<double>(5.0));
+        MVec3d mv5(Scalar<double>(5.0));
         MVec3d mv6(PScalar3d<double>(6.0));
         MVec3d mv7{v1};
         MVec3d mv8{b1};
-        MVec3d mv9{Scalar3d<double>(dot(v1, v3)), wdg(v1, v3)};
+        MVec3d mv9{Scalar<double>(dot(v1, v3)), wdg(v1, v3)};
 
         MVec3d mv10{v1, PScalar3d<double>(10.0)};
         // This must not compile! Implict conversion to Vec3d possible
@@ -2000,7 +2000,7 @@ TEST_SUITE("Geometric Algebra")
         // MVec3d mv11{b1, pscalar3d_t(10.0)};
 
         // this does not compile (which is fine, a base cannot convert to derived)
-        // MVec3d mv12{Scalar3d<double>(10.0), v1};
+        // MVec3d mv12{Scalar<double>(10.0), v1};
 
         // fmt::println("   v1 = {}", v1);
         // fmt::println("   v2 = {}", v2);
@@ -2226,27 +2226,27 @@ TEST_SUITE("Geometric Algebra")
         // as defined in Doran/Lasenby "GA for physicists"
 
         auto vm_dual_manual = Im_3d * vm;
-        auto vm_dual = dual(vm);
+        auto vm_dual = dual3d(vm);
 
         auto vm_dual_even_manual = Im_3d * vm_even;
-        auto vm_dual_even = dual(vm_even);
+        auto vm_dual_even = dual3d(vm_even);
 
         auto vm_dual_uneven_manual = Im_3d * vm_uneven;
-        auto vm_dual_uneven = dual(vm_uneven);
+        auto vm_dual_uneven = dual3d(vm_uneven);
 
         // result is uneven, naming chosen for consistency
         auto vm_dual_manual_E = I_3d * vm_E;
-        auto vm_dual_E = dual(vm_E);
+        auto vm_dual_E = dual3d(vm_E);
 
         // result is even, naming chosen for consistency
         auto vm_dual_manual_U = Im_3d_U * vm_U;
-        auto vm_dual_U = dual(vm_U);
+        auto vm_dual_U = dual3d(vm_U);
 
         auto v_dual_manual = I_3d * v;
-        auto v_dual = dual(v);
+        auto v_dual = dual3d(v);
 
         auto B_dual_manual = I_3d * B;
-        auto B_dual = dual(B);
+        auto B_dual = dual3d(B);
 
         // fmt::println("   I_3d    = {}", I_3d);
         // fmt::println("   Im_3d   = {}", Im_3d);
@@ -2257,41 +2257,41 @@ TEST_SUITE("Geometric Algebra")
         // fmt::println("");
         // fmt::println("   vm            = {}", vm);
         // fmt::println("   Im_3d*vm      = {}", vm_dual_manual);
-        // fmt::println("   dual(vm)      = {}", vm_dual);
+        // fmt::println("   dual3d(vm)      = {}", vm_dual);
         // fmt::println("");
         // fmt::println("   vm_even       = {}", vm_even);
         // fmt::println("   Im_3d*vm_even = {}", vm_dual_even_manual);
-        // fmt::println("   dual(vm_even) = {}", vm_dual_even);
+        // fmt::println("   dual3d(vm_even) = {}", vm_dual_even);
         // fmt::println("");
         // fmt::println("   vm_E          = {}", vm_E);
         // fmt::println("   Im_3d_E*vm_E  = {}", vm_dual_manual_E);
-        // fmt::println("   dual(vm_E)    = {}", vm_dual_E);
+        // fmt::println("   dual3d(vm_E)    = {}", vm_dual_E);
         // fmt::println("");
         // fmt::println("   vm_uneven       = {}", vm_uneven);
         // fmt::println("   Im_3d*vm_uneven = {}", vm_dual_uneven_manual);
-        // fmt::println("   dual(vm_uneven) = {}", vm_dual_uneven);
+        // fmt::println("   dual3d(vm_uneven) = {}", vm_dual_uneven);
         // fmt::println("");
         // fmt::println("   vm_U          = {}", vm_U);
         // fmt::println("   Im_3d_U*vm_U  = {}", vm_dual_manual_U);
-        // fmt::println("   dual(vm_U)    = {}", vm_dual_U);
+        // fmt::println("   dual3d(vm_U)    = {}", vm_dual_U);
         // fmt::println("");
         // fmt::println("   v               = {}", v);
         // fmt::println("   I_3d * v        = {} - bivec ", v_dual_manual);
-        // fmt::println("   dual(v)         = {} - bivec ", v_dual);
+        // fmt::println("   dual3d(v)         = {} - bivec ", v_dual);
         // fmt::println("");
         // fmt::println("   B               = {}", B);
         // fmt::println("   I_3d * B        = {} - vec", B_dual_manual);
-        // fmt::println("   dual(B)         = {} - vec", B_dual);
+        // fmt::println("   dual3d(B)         = {} - vec", B_dual);
 
         CHECK(vm_dual == vm_dual_manual);
         CHECK(vm_dual_even == vm_dual_even_manual);
         CHECK(vm_dual_uneven == vm_dual_uneven_manual);
         CHECK(vm_dual_E == vm_dual_manual_E);
         CHECK(vm_dual_U == vm_dual_manual_U);
-        CHECK(dual(v) == BiVec3d{1.0, 2.0, 3.0});
-        CHECK(dual(B) == -Vec3d{10.0, 20.0, 30.0});
-        CHECK(dual(Scalar3d<double>(5)) == PScalar3d<double>(5));
-        CHECK(dual(PScalar3d<double>(5)) == Scalar3d<double>(-5));
+        CHECK(dual3d(v) == BiVec3d{1.0, 2.0, 3.0});
+        CHECK(dual3d(B) == -Vec3d{10.0, 20.0, 30.0});
+        CHECK(dual3d(Scalar<double>(5)) == PScalar3d<double>(5));
+        CHECK(dual3d(PScalar3d<double>(5)) == Scalar<double>(-5));
     }
 
 } // TEST_SUITE("Geometric Algebra")

@@ -147,7 +147,7 @@ inline constexpr MVec2d_E<std::common_type_t<T, U>> gpr(Vec2d<T> const& a,
                                                         Vec2d<U> const& b)
 {
     using ctype = std::common_type_t<T, U>;
-    return MVec2d_E<ctype>(Scalar2d<ctype>(dot(a, b)), wdg(a, b));
+    return MVec2d_E<ctype>(Scalar<ctype>(dot(a, b)), wdg(a, b));
 }
 
 // define geometric multiplication with operator*(a,b) as an alias for gpr(a,b)
@@ -475,7 +475,7 @@ inline constexpr MVec2d_E<std::common_type_t<T, U>> exp([[maybe_unused]] PScalar
     // PScalar2d<T> is just used here for a unique overload of exp()
     // and to make the function signature similar to the 3D case
     using ctype = std::common_type_t<T, U>;
-    return MVec2d_E<ctype>(Scalar2d<ctype>(std::cos(theta)),
+    return MVec2d_E<ctype>(Scalar<ctype>(std::cos(theta)),
                            PScalar2d<ctype>(std::sin(theta)));
 }
 
@@ -506,7 +506,7 @@ inline constexpr MVec2d_E<std::common_type_t<T, U>> rotor([[maybe_unused]] PScal
     // and to make the function similar to the 3D case
     using ctype = std::common_type_t<T, U>;
     ctype half_angle = -0.5 * theta;
-    return MVec2d_E<ctype>(Scalar2d<ctype>(std::cos(half_angle)),
+    return MVec2d_E<ctype>(Scalar<ctype>(std::cos(half_angle)),
                            PScalar2d<ctype>(std::sin(half_angle)));
 }
 
@@ -541,35 +541,35 @@ inline constexpr MVec2d<std::common_type_t<T, U>> rotate(MVec2d<T> const& M,
 // as defined in Doran/Lasenby "GA for physicists"
 template <typename T>
     requires(std::floating_point<T>)
-inline constexpr Scalar2d<T> dual(PScalar2d<T> ps)
+inline constexpr Scalar<T> dual2d(PScalar2d<T> ps)
 {
-    return Scalar2d<T>(-T(ps));
+    return Scalar<T>(-T(ps));
 }
 
 template <typename T>
     requires(std::floating_point<T>)
-inline constexpr PScalar2d<T> dual(Scalar2d<T> s)
+inline constexpr PScalar2d<T> dual2d(Scalar<T> s)
 {
     return PScalar2d<T>(T(s));
 }
 
 template <typename T>
     requires(std::floating_point<T>)
-inline constexpr Vec2d<T> dual(Vec2d<T> const& v)
+inline constexpr Vec2d<T> dual2d(Vec2d<T> const& v)
 {
     return Vec2d<T>(v.y, -v.x);
 }
 
 template <typename T>
     requires(std::floating_point<T>)
-inline constexpr MVec2d_E<T> dual(MVec2d_E<T> const& M)
+inline constexpr MVec2d_E<T> dual2d(MVec2d_E<T> const& M)
 {
     return MVec2d_E<T>(-M.c1, M.c0);
 }
 
 template <typename T>
     requires(std::floating_point<T>)
-inline constexpr MVec2d<T> dual(MVec2d<T> const& M)
+inline constexpr MVec2d<T> dual2d(MVec2d<T> const& M)
 {
     return MVec2d<T>(-M.c3, M.c2, -M.c1, M.c0);
 }

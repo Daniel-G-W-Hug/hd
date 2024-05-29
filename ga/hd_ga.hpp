@@ -17,8 +17,7 @@
 
 #include "hd_ga_cfg_pscalar2d.hpp" // PScalar2d<T>
 #include "hd_ga_cfg_pscalar3d.hpp" // PScalar3d<T>
-#include "hd_ga_cfg_scalar2d.hpp"  // Scalar2d<T>
-#include "hd_ga_cfg_scalar3d.hpp"  // Scalar3d<T>
+#include "hd_ga_cfg_scalar.hpp"    // Scalar<T>
 #include "hd_ga_cfg_vec2d.hpp"     // Vec2d<T>
 #include "hd_ga_cfg_vec3d.hpp"     // Vec3d<T>
 

@@ -421,7 +421,7 @@ inline constexpr MVec3d_E<std::common_type_t<T, U>> gpr(Vec3d<T> const& a,
                                                         Vec3d<U> const& b)
 {
     using ctype = std::common_type_t<T, U>;
-    return MVec3d_E<ctype>(Scalar3d<ctype>(dot(a, b)), wdg(a, b));
+    return MVec3d_E<ctype>(Scalar<ctype>(dot(a, b)), wdg(a, b));
 }
 
 // define geometric multiplication with operator*(a,b) as an alias for gpr(a,b)
@@ -498,7 +498,7 @@ inline constexpr MVec3d_E<std::common_type_t<T, U>> gpr(BiVec3d<T> const& a,
                                                         BiVec3d<U> const& b)
 {
     using ctype = std::common_type_t<T, U>;
-    return MVec3d_E<ctype>(Scalar3d<ctype>(dot(a, b)), cmt(a, b));
+    return MVec3d_E<ctype>(Scalar<ctype>(dot(a, b)), cmt(a, b));
 }
 
 // define geometric multiplication with operator*(a,b) as an alias for gpr(a,b)
@@ -560,7 +560,7 @@ inline constexpr MVec3d_E<std::common_type_t<T, U>> gpr(PScalar3d<T> A,
 {
     using ctype = std::common_type_t<T, U>;
     return ctype(A) *
-           MVec3d_E<ctype>(Scalar3d<ctype>(-B.c3), BiVec3d<ctype>(B.c0, B.c1, B.c2));
+           MVec3d_E<ctype>(Scalar<ctype>(-B.c3), BiVec3d<ctype>(B.c0, B.c1, B.c2));
 }
 
 // define geometric multiplication with operator*(A,b) as an alias for gpr(A,b)
@@ -663,7 +663,7 @@ inline constexpr MVec3d_E<std::common_type_t<T, U>> gpr(MVec3d_U<U> const& A,
                                                         PScalar3d<T> B)
 {
     using ctype = std::common_type_t<T, U>;
-    return MVec3d_E<ctype>(Scalar3d<ctype>(-A.c3), BiVec3d<ctype>(A.c0, A.c1, A.c2)) *
+    return MVec3d_E<ctype>(Scalar<ctype>(-A.c3), BiVec3d<ctype>(A.c0, A.c1, A.c2)) *
            ctype(B);
 }
 
@@ -747,7 +747,7 @@ inline constexpr MVec3d_E<std::common_type_t<T, U>> gpr(MVec3d_E<T> const& a,
 {
     using ctype = std::common_type_t<T, U>;
     return MVec3d_E<ctype>(
-        Scalar3d<ctype>(a.c0 * b.c0 - a.c1 * b.c1 - a.c2 * b.c2 - a.c3 * b.c3),
+        Scalar<ctype>(a.c0 * b.c0 - a.c1 * b.c1 - a.c2 * b.c2 - a.c3 * b.c3),
         BiVec3d<ctype>(a.c0 * b.c1 + a.c1 * b.c0 - a.c2 * b.c3 + a.c3 * b.c2,
                        a.c0 * b.c2 + a.c1 * b.c3 + a.c2 * b.c0 - a.c3 * b.c1,
                        a.c0 * b.c3 - a.c1 * b.c2 + a.c2 * b.c1 + a.c3 * b.c0));
@@ -770,7 +770,7 @@ inline constexpr MVec3d_E<std::common_type_t<T, U>> gpr(MVec3d_U<T> const& a,
 {
     using ctype = std::common_type_t<T, U>;
     return MVec3d_E<ctype>(
-        Scalar3d<ctype>(a.c0 * b.c0 + a.c1 * b.c1 + a.c2 * b.c2 - a.c3 * b.c3),
+        Scalar<ctype>(a.c0 * b.c0 + a.c1 * b.c1 + a.c2 * b.c2 - a.c3 * b.c3),
         BiVec3d<ctype>(a.c0 * b.c3 + a.c1 * b.c2 - a.c2 * b.c1 + a.c3 * b.c0,
                        -a.c0 * b.c2 + a.c1 * b.c3 + a.c2 * b.c0 + a.c3 * b.c1,
                        a.c0 * b.c1 - a.c1 * b.c0 + a.c2 * b.c3 + a.c3 * b.c2));
@@ -818,7 +818,7 @@ inline constexpr MVec3d_E<std::common_type_t<T, U>> gpr(MVec3d_E<T> const& a,
                                                         BiVec3d<U> const& b)
 {
     using ctype = std::common_type_t<T, U>;
-    return MVec3d_E<ctype>(Scalar3d<ctype>(-a.c1 * b.x - a.c2 * b.y - a.c3 * b.z),
+    return MVec3d_E<ctype>(Scalar<ctype>(-a.c1 * b.x - a.c2 * b.y - a.c3 * b.z),
                            BiVec3d<ctype>(a.c0 * b.x - a.c2 * b.z + a.c3 * b.y,
                                           a.c0 * b.y + a.c1 * b.z - a.c3 * b.x,
                                           a.c0 * b.z - a.c1 * b.y + a.c2 * b.x));
@@ -866,7 +866,7 @@ inline constexpr MVec3d_E<std::common_type_t<T, U>> gpr(BiVec3d<T> const& a,
                                                         MVec3d_E<U> const& b)
 {
     using ctype = std::common_type_t<T, U>;
-    return MVec3d_E<ctype>(Scalar3d<ctype>(-a.x * b.c1 - a.y * b.c2 - a.z * b.c3),
+    return MVec3d_E<ctype>(Scalar<ctype>(-a.x * b.c1 - a.y * b.c2 - a.z * b.c3),
                            BiVec3d<ctype>(a.x * b.c0 - a.y * b.c3 + a.z * b.c2,
                                           a.x * b.c3 + a.y * b.c0 - a.z * b.c1,
                                           -a.x * b.c2 + a.y * b.c1 + a.z * b.c0));
@@ -1010,8 +1010,7 @@ template <typename T, typename U>
 inline constexpr MVec3d_E<std::common_type_t<T, U>> exp(BiVec3d<T> const& I, U theta)
 {
     using ctype = std::common_type_t<T, U>;
-    return MVec3d_E<ctype>(Scalar3d<ctype>(std::cos(theta)),
-                           unitized(I) * std::sin(theta));
+    return MVec3d_E<ctype>(Scalar<ctype>(std::cos(theta)), unitized(I) * std::sin(theta));
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -1037,7 +1036,7 @@ inline constexpr MVec3d_E<std::common_type_t<T, U>> rotor(BiVec3d<T> const& I, U
 {
     using ctype = std::common_type_t<T, U>;
     ctype half_angle = -0.5 * theta;
-    return MVec3d_E<ctype>(Scalar3d<ctype>(std::cos(half_angle)),
+    return MVec3d_E<ctype>(Scalar<ctype>(std::cos(half_angle)),
                            unitized(I) * std::sin(half_angle));
 }
 
@@ -1093,49 +1092,49 @@ inline constexpr MVec3d<std::common_type_t<T, U>> rotate(MVec3d<T> const& v,
 // as defined in Doran/Lasenby "GA for physicists"
 template <typename T>
     requires(std::floating_point<T>)
-inline constexpr Scalar3d<T> dual(PScalar3d<T> ps)
+inline constexpr Scalar<T> dual3d(PScalar3d<T> ps)
 {
-    return Scalar3d<T>(-T(ps));
+    return Scalar<T>(-T(ps));
 }
 
 template <typename T>
     requires(std::floating_point<T>)
-inline constexpr PScalar3d<T> dual(Scalar3d<T> s)
+inline constexpr PScalar3d<T> dual3d(Scalar<T> s)
 {
     return PScalar3d<T>(T(s));
 }
 
 template <typename T>
     requires(std::floating_point<T>)
-inline constexpr BiVec3d<T> dual(Vec3d<T> const& v)
+inline constexpr BiVec3d<T> dual3d(Vec3d<T> const& v)
 {
     return BiVec3d<T>(v.x, v.y, v.z);
 }
 
 template <typename T>
     requires(std::floating_point<T>)
-inline constexpr Vec3d<T> dual(BiVec3d<T> const& B)
+inline constexpr Vec3d<T> dual3d(BiVec3d<T> const& B)
 {
     return Vec3d<T>(-B.x, -B.y, -B.z);
 }
 
 template <typename T>
     requires(std::floating_point<T>)
-inline constexpr MVec3d_U<T> dual(MVec3d_E<T> const& M)
+inline constexpr MVec3d_U<T> dual3d(MVec3d_E<T> const& M)
 {
     return MVec3d_U<T>(-M.c1, -M.c2, -M.c3, M.c0);
 }
 
 template <typename T>
     requires(std::floating_point<T>)
-inline constexpr MVec3d_E<T> dual(MVec3d_U<T> const& M)
+inline constexpr MVec3d_E<T> dual3d(MVec3d_U<T> const& M)
 {
     return MVec3d_E<T>(-M.c3, M.c0, M.c1, M.c2);
 }
 
 template <typename T>
     requires(std::floating_point<T>)
-inline constexpr MVec3d<T> dual(MVec3d<T> const& M)
+inline constexpr MVec3d<T> dual3d(MVec3d<T> const& M)
 {
     return MVec3d<T>(-M.c7, -M.c4, -M.c5, -M.c6, M.c1, M.c2, M.c3, M.c0);
 }

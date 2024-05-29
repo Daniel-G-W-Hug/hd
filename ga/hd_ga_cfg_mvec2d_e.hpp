@@ -48,7 +48,7 @@ struct MVec2d_E {
     MVec2d_E(T s, T ps) : c0(s), c1(ps) {}
 
     // assign a scalar part exclusively (other grades = 0)
-    MVec2d_E(Scalar2d<T> s) : c0(s) {}
+    MVec2d_E(Scalar<T> s) : c0(s) {}
 
     // assign a pseudoscalar part exclusively (other grades = 0)
     MVec2d_E(PScalar2d<T> ps) : c1(ps) {}
@@ -56,7 +56,7 @@ struct MVec2d_E {
     // assign a geometric product resulting from a product of two vectors
     // via dot(v1,v2) and wdg(v1,v2) directly (other grades = 0)
     // (less expensive compared to full geometric product)
-    MVec2d_E(Scalar2d<T> s, PScalar2d<T> ps) : c0(s), c1(ps) {}
+    MVec2d_E(Scalar<T> s, PScalar2d<T> ps) : c0(s), c1(ps) {}
 
     // floating point type conversion
     template <typename U>
@@ -164,9 +164,9 @@ inline constexpr MVec2d_E<std::common_type_t<T, U>> operator/(MVec2d_E<T> const&
 // grade 0: gr0() - scalar
 // grade 2: gr2() - bivector (= pseudoscalar in 2d)
 
-template <typename T> inline constexpr Scalar2d<T> gr0(MVec2d_E<T> const& v)
+template <typename T> inline constexpr Scalar<T> gr0(MVec2d_E<T> const& v)
 {
-    return Scalar2d<T>(v.c0);
+    return Scalar<T>(v.c0);
 }
 
 template <typename T> inline constexpr PScalar2d<T> gr2(MVec2d_E<T> const& v)
