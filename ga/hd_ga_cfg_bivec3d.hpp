@@ -214,14 +214,15 @@ template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
 inline std::common_type_t<T, U> angle(BiVec3d<T> const& v1, BiVec3d<U> const& v2)
 {
-    std::common_type_t<T, U> nrm_prod = nrm(v1) * nrm(v2);
-    if (nrm_prod < std::numeric_limits<std::common_type_t<T, U>>::epsilon()) {
+    using ctype = std::common_type_t<T, U>;
+    ctype nrm_prod = nrm(v1) * nrm(v2);
+    if (nrm_prod < std::numeric_limits<ctype>::epsilon()) {
         throw std::runtime_error(
             "vector norm product too small for calculation of angle" +
             std::to_string(nrm_prod) + "\n");
     }
     // std::clamp must be used to take care of numerical inaccuracies
-    return std::acos(std::clamp(dot(v1, v2) / nrm_prod, -1.0, 1.0));
+    return std::acos(std::clamp(ctype(dot(v1, v2)) / nrm_prod, ctype(-1.0), ctype(1.0)));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

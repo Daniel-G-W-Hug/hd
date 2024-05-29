@@ -14,6 +14,7 @@ int main(int argc, char* argv[])
         lua.open_libraries();
 
         register_2d_types(lua);
+        register_3d_types(lua);
         register_functions(lua);
         register_constants(lua);
 

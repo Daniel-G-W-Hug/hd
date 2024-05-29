@@ -13,6 +13,9 @@
 
 namespace hd::ga {
 
+////////////////////////////////////////////////////////////////////////////////
+// general constants
+////////////////////////////////////////////////////////////////////////////////
 auto const eps{5.0 * std::numeric_limits<value_t>::epsilon()};
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -42,15 +45,15 @@ auto const e3m_3d = MVec3d<value_t>{e3_3d}; // e3_3d as multivector
 auto const e23_3d = BiVec3d<value_t>{1.0, 0.0, 0.0};
 auto const e31_3d = BiVec3d<value_t>{0.0, 1.0, 0.0};
 auto const e12_3d = BiVec3d<value_t>{0.0, 0.0, 1.0};
-auto const e23m_3d = MVec3d<value_t>{e23_3d};   // e23_3d as multivector
-auto const e31m_3d = MVec3d<value_t>{e31_3d};   // e31_3d as multivector
-auto const e12m_3d = MVec3d<value_t>{e12_3d};   // e12_3d as multivector
-auto const e23c_3d = MVec3d_E<value_t>{e23_3d}; // e23_3d as even grade multivector
-auto const e31c_3d = MVec3d_E<value_t>{e31_3d}; // e31_3d as even grade multivector
-auto const e12c_3d = MVec3d_E<value_t>{e12_3d}; // e12_3d as even grade multivector
+auto const e23m_3d = MVec3d<value_t>{e23_3d};    // e23_3d as multivector
+auto const e31m_3d = MVec3d<value_t>{e31_3d};    // e31_3d as multivector
+auto const e12m_3d = MVec3d<value_t>{e12_3d};    // e12_3d as multivector
+auto const e23me_3d = MVec3d_E<value_t>{e23_3d}; // e23_3d as even grade multivector
+auto const e31me_3d = MVec3d_E<value_t>{e31_3d}; // e31_3d as even grade multivector
+auto const e12me_3d = MVec3d_E<value_t>{e12_3d}; // e12_3d as even grade multivector
 
 auto const I_3d = PScalar3d<value_t>(1.0);
 auto const Im_3d = MVec3d<value_t>{I_3d};     // I_3d as multivector
-auto const Im_3d_U = MVec3d_U<value_t>{I_3d}; // I_3d as uneven multivector
+auto const Im_3d_U = MVec3d_U<value_t>{I_3d}; // I_3d as uneven grade multivector
 
 } // namespace hd::ga

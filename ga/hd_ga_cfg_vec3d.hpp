@@ -261,18 +261,6 @@ std::ostream& operator<<(std::ostream& os, Vec3d<T> const& v)
     return os;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// PScalar3d<T> printing support via iostream
-////////////////////////////////////////////////////////////////////////////////
-
-template <typename T>
-    requires(std::floating_point<T>)
-std::ostream& operator<<(std::ostream& os, PScalar3d<T> const& v)
-{
-    os << "(" << T(v) << ")";
-    return os;
-}
-
 } // namespace hd::ga
 
 
@@ -285,15 +273,6 @@ template <typename T> struct fmt::formatter<hd::ga::Vec3d<T>> : nested_formatter
     {
         return fmt::format_to(ctx.out(), "({},{},{})", nested(v.x), nested(v.y),
                               nested(v.z));
-    }
-};
-
-template <typename T>
-struct fmt::formatter<hd::ga::PScalar3d<T>> : nested_formatter<double> {
-    template <typename FormatContext>
-    auto format(const hd::ga::PScalar3d<T>& v, FormatContext& ctx) const
-    {
-        return fmt::format_to(ctx.out(), "({})", nested(double(v)));
     }
 };
 

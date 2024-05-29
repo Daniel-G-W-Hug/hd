@@ -20,6 +20,7 @@
 #include "hd_ga_cfg_bivec3d.hpp"
 
 #include "hd_ga_cfg_mvec3d_e.hpp"
+#include "hd_ga_cfg_mvec3d_u.hpp"
 
 namespace hd::ga {
 
@@ -57,7 +58,10 @@ struct MVec3d {
     MVec3d(Scalar3d<T> s, BiVec3d<T> const& v) : c0(s), c4(v.x), c5(v.y), c6(v.z) {}
 
     // assign from a quaternion, i.e. from the even subalgebra
-    MVec3d(MVec3d_E<T> v) : c0(v.c0), c4(v.c1), c5(v.c2), c6(v.c3) {}
+    MVec3d(MVec3d_E<T> const& v) : c0(v.c0), c4(v.c1), c5(v.c2), c6(v.c3) {}
+
+    // assign from the uneven subalgebra
+    MVec3d(MVec3d_U<T> const& v) : c1(v.c0), c2(v.c1), c3(v.c2), c7(v.c3) {}
 
     // assign a geometric product resulting from a product of a vector and a bivector
     MVec3d(Vec3d<T> const& v, PScalar3d<T> ps) : c1(v.x), c2(v.y), c3(v.z), c7(ps) {}
@@ -113,16 +117,6 @@ struct MVec3d {
     template <typename U>
     friend std::ostream& operator<<(std::ostream& os, MVec3d<U> const& v);
 };
-
-// for printing via iostream
-template <typename T>
-    requires(std::floating_point<T>)
-std::ostream& operator<<(std::ostream& os, MVec3d<T> const& v)
-{
-    os << "(" << v.c0 << "," << v.c1 << "," << v.c2 << "," << v.c3 << "," << v.c4 << ","
-       << v.c5 << "," << v.c6 << "," << v.c7 << ")";
-    return os;
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 // MVec3d<T> core operations
@@ -220,12 +214,72 @@ template <typename T> inline constexpr PScalar3d<T> gr3(MVec3d<T> const& v)
 // MVec3d<T> basic operations
 ////////////////////////////////////////////////////////////////////////////////
 
-// return conjugate complex of a multivector,
-// i.e. the reverse in nomenclature of multivectors
+// return squared magnitude
+// |M|^2 = M rev(M) = (M.c0)^2 + (M.c1)^2 + (M.c2)^2 + (M.c3)^3
+//                  + (M.c4)^2 + (M.c5)^2 + (M.c6)^2 + (M.c7)^3
+template <typename T> inline T sq_nrm(MVec3d<T> const& v)
+{
+    return v.c0 * v.c0 + v.c1 * v.c1 + v.c2 * v.c2 + v.c3 * v.c3 + v.c4 * v.c4 +
+           v.c5 * v.c5 + v.c6 * v.c6 + v.c7 * v.c7;
+}
+
+// return magnitude of complex number
+template <typename T> inline T nrm(MVec3d<T> const& v) { return std::sqrt(sq_nrm(v)); }
+
+
+// return the reverse
 template <typename T> inline constexpr MVec3d<T> rev(MVec3d<T> const& v)
 {
     // only bivector and trivector parts switch signs
     return MVec3d<T>(v.c0, v.c1, v.c2, v.c3, -v.c4, -v.c5, -v.c6, -v.c7);
+}
+
+// return the Clifford conjugate
+template <typename T> inline constexpr MVec3d<T> conj(MVec3d<T> const& v)
+{
+    // only vector and bivector parts switch signs
+    return MVec3d<T>(v.c0, -v.c1, -v.c2, -v.c3, -v.c4, -v.c5, -v.c6, v.c7);
+}
+
+
+// return a multivector unitized to nrm(v) == 1.0
+template <typename T> inline MVec3d<T> unitized(MVec3d<T> const& v)
+{
+    T n = nrm(v);
+    if (n < std::numeric_limits<T>::epsilon()) {
+        throw std::runtime_error("complex norm too small for normalization" +
+                                 std::to_string(n) + "\n");
+    }
+    T inv = 1.0 / n; // for multiplication with inverse of norm
+    return MVec3d<T>(v.c0 * inv, v.c1 * inv, v.c2 * inv, v.c3 * inv, v.c4 * inv,
+                     v.c5 * inv, v.c6 * inv, v.c7 * inv);
+}
+
+// return the multiplicative inverse of the multivector
+// inv(M) = 1/( M*conj(M) ) * conj(M)  with M*conj(M) being a scalar value
+template <typename T> inline MVec3d<T> inv(MVec3d<T> const& v)
+{
+    // alternative, but with slightly more computational effort:
+    T m_conjm = gr0(v * conj(v));
+    if (std::abs(m_conjm) < std::numeric_limits<T>::epsilon()) {
+        throw std::runtime_error("multivector norm too small for inversion " +
+                                 std::to_string(m_conjm) + "\n");
+    }
+    T inv = 1.0 / m_conjm; // inverse of squared norm for a vector
+    return inv * conj(v);
+}
+
+
+// ATTENTION: there is a left and a right inverse (see paper of Hitzer, Sangwine)
+
+// for printing via iostream
+template <typename T>
+    requires(std::floating_point<T>)
+std::ostream& operator<<(std::ostream& os, MVec3d<T> const& v)
+{
+    os << "(" << v.c0 << "," << v.c1 << "," << v.c2 << "," << v.c3 << "," << v.c4 << ","
+       << v.c5 << "," << v.c6 << "," << v.c7 << ")";
+    return os;
 }
 
 } // namespace hd::ga

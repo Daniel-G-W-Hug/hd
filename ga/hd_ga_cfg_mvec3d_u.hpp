@@ -16,6 +16,7 @@
 #include "hd_ga_cfg_value_t.hpp"
 
 #include "hd_ga_cfg_bivec3d.hpp"
+#include "hd_ga_cfg_vec3d.hpp"
 
 
 namespace hd::ga {
@@ -96,15 +97,6 @@ struct MVec3d_U {
     template <typename U>
     friend std::ostream& operator<<(std::ostream& os, MVec3d_U<U> const& v);
 };
-
-// for printing via iostream
-template <typename T>
-    requires(std::floating_point<T>)
-std::ostream& operator<<(std::ostream& os, MVec3d_U<T> const& v)
-{
-    os << "(" << v.c0 << "," << v.c1 << "," << v.c2 << "," << v.c3 << ")";
-    return os;
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 // MVec3d_U<T> core operations
@@ -192,6 +184,15 @@ template <typename T> inline constexpr MVec3d_U<T> rev(MVec3d_U<T> const& v)
 {
     // only the trivector part switches signs
     return MVec3d_U<T>(v.c0, v.c1, v.c2, -v.c3);
+}
+
+// for printing via iostream
+template <typename T>
+    requires(std::floating_point<T>)
+std::ostream& operator<<(std::ostream& os, MVec3d_U<T> const& v)
+{
+    os << "(" << v.c0 << "," << v.c1 << "," << v.c2 << "," << v.c3 << ")";
+    return os;
 }
 
 } // namespace hd::ga

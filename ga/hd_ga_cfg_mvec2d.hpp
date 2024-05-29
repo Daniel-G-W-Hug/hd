@@ -191,14 +191,14 @@ template <typename T> inline constexpr PScalar2d<T> gr2(MVec2d<T> const& v)
 // MVec2d<T> basic operations
 ////////////////////////////////////////////////////////////////////////////////
 
-// return squared magnitude of complex number
+// return squared magnitude
 // |M|^2 = M rev(M) = (M.c0)^2 + (M.c1)^2 + (M.c2)^2 + (M.c3)^3
 template <typename T> inline T sq_nrm(MVec2d<T> const& v)
 {
     return v.c0 * v.c0 + v.c1 * v.c1 + v.c2 * v.c2 + v.c3 * v.c3;
 }
 
-// return magnitude of complex number
+// return magnitude
 template <typename T> inline T nrm(MVec2d<T> const& v) { return std::sqrt(sq_nrm(v)); }
 
 // return the reverse

@@ -11,8 +11,8 @@
 namespace hd::ga {
 
 // select the floating point type used for scalars, vector and bivector components
-using value_t = float;
-// using value_t = double;
+// using value_t = float;
+using value_t = double;
 
 // definition of scalar and pscalar located here, because other
 // modules like vec2d, vec3d, 2d_ops, 3d_ops etc. just need the type defintion,

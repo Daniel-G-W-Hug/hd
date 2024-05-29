@@ -42,5 +42,6 @@ using mvec2d = MVec2d<value_t>;     // fully populated 2d multivector
 using mvec2d_e = MVec2d_E<value_t>; // multivector 2d of even subalgebra
 using mvec3d = MVec3d<value_t>;     // fully populated 3d multivector
 using mvec3d_e = MVec3d_E<value_t>; // multivector 3d of even subalgebra
+using mvec3d_u = MVec3d_U<value_t>; // multivector 3d of uneven subalgebra
 
 } // namespace hd::ga
