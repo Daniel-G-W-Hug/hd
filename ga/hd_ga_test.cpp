@@ -1240,11 +1240,11 @@ TEST_SUITE("Geometric Algebra")
         Vec3d v4{inv(v3)};
 
         // fmt::println("v1 = {: .4f}, nrm(v1) = {: .4f}", v1, nrm(v1));
-        // fmt::println("v2 = unitized(v1) = {: .4f}, nrm(v2) = {: .4f}", v2,
-        // nrm(v2)); fmt::println("v3 = {: .4f}, nrm(v1) = {: .4f}", v3, nrm(v3));
+        // fmt::println("v2 = unitized(v1) = {: .4f}, nrm(v2) = {: .4f}", v2, nrm(v2));
+        // fmt::println("v3 = {: .4f}, nrm(v1) = {: .4f}", v3, nrm(v3));
         // fmt::println(
-        //     "v4 = inv(v3) = {: .4f}, nrm(v3) = {: .4f}, nrm(v3)*nrm(v4) = {: .4f}",
-        //     v4, nrm(v4), nrm(v3) * nrm(v4));
+        //     "v4 = inv(v3) = {: .4f}, nrm(v3) = {: .4f}, nrm(v3)*nrm(v4) = {: .4f}", v4,
+        //     nrm(v4), nrm(v3) * nrm(v4));
 
         CHECK(std::abs(sq_nrm(v1) - 9.0) < eps);
         CHECK(std::abs(sq_nrm(v2) - 1.0) < eps);
@@ -1264,30 +1264,30 @@ TEST_SUITE("Geometric Algebra")
         Vec3d v7{0.0, -1.0, 0.0};
         Vec3d v8{unitized(Vec3d(1.0, -1.0, 0.0))};
 
-        // fmt::println("v1 = {: .4f}, nrm(v1) = {:.8f}, angle(v1,v1) = {:.8f},
-        // {:.8f}", v1,
-        //              nrm(v1), angle(v1, v1), angle(v1, v1) / pi);
-        // fmt::println("v2 = {: .4f}, nrm(v2) = {:.8f}, angle(v1,v2) = {:.8f},
-        // {:.8f}", v2,
-        //              nrm(v2), angle(v1, v2), angle(v1, v2) / pi);
-        // fmt::println("v3 = {: .4f}, nrm(v3) = {:.8f}, angle(v1,v3) = {:.8f},
-        // {:.8f}", v3,
-        //              nrm(v3), angle(v1, v3), angle(v1, v3) / pi);
-        // fmt::println("v4 = {: .4f}, nrm(v4) = {:.8f}, angle(v1,v4) = {:.8f},
-        // {:.8f}", v4,
-        //              nrm(v4), angle(v1, v4), angle(v1, v4) / pi);
-        // fmt::println("v5 = {: .4f}, nrm(v5) = {:.8f}, angle(v1,v5) = {:.8f},
-        // {:.8f}", v5,
-        //              nrm(v5), angle(v1, v5), angle(v1, v5) / pi);
-        // fmt::println("v6 = {: .4f}, nrm(v6) = {:.8f}, angle(v1,v6) = {:.8f},
-        // {:.8f}", v6,
-        //              nrm(v6), angle(v1, v6), angle(v1, v6) / pi);
-        // fmt::println("v7 = {: .4f}, nrm(v7) = {:.8f}, angle(v1,v7) = {:.8f},
-        // {:.8f}", v7,
-        //              nrm(v7), angle(v1, v7), angle(v1, v7) / pi);
-        // fmt::println("v8 = {: .4f}, nrm(v8) = {:.8f}, angle(v1,v8) = {:.8f},
-        // {:.8f}", v8,
-        //              nrm(v8), angle(v1, v8), angle(v1, v8) / pi);
+        // fmt::println("v1 = {: .4f}, nrm(v1) = {:.8f}, "
+        //              "angle(v1,v1) = {:.8f}, {:.8f}",
+        //              v1, nrm(v1), angle(v1, v1), angle(v1, v1) / pi);
+        // fmt::println("v2 = {: .4f}, nrm(v2) = {:.8f}, "
+        //              "angle(v1,v2) = {:.8f}, {:.8f}",
+        //              v2, nrm(v2), angle(v1, v2), angle(v1, v2) / pi);
+        // fmt::println("v3 = {: .4f}, nrm(v3) = {:.8f}, "
+        //              "angle(v1,v3) = {:.8f}, {:.8f} ",
+        //              v3, nrm(v3), angle(v1, v3), angle(v1, v3) / pi);
+        // fmt::println("v4 = {: .4f}, nrm(v4) = {:.8f}, "
+        //              "angle(v1,v4) = {:.8f}, {:.8f} ",
+        //              v4, nrm(v4), angle(v1, v4), angle(v1, v4) / pi);
+        // fmt::println("v5 = {: .4f}, nrm(v5) = {:.8f}, "
+        //              "angle(v1,v5) = {:.8f}, {:.8f} ",
+        //              v5, nrm(v5), angle(v1, v5), angle(v1, v5) / pi);
+        // fmt::println("v6 = {: .4f}, nrm(v6) = {:.8f}, "
+        //              "angle(v1,v6) = {:.8f}, {:.8f} ",
+        //              v6, nrm(v6), angle(v1, v6), angle(v1, v6) / pi);
+        // fmt::println("v7 = {: .4f}, nrm(v7) = {:.8f}, "
+        //              "angle(v1,v7) = {:.8f}, {:.8f} ",
+        //              v7, nrm(v7), angle(v1, v7), angle(v1, v7) / pi);
+        // fmt::println("v8 = {: .4f}, nrm(v8) = {:.8f}, "
+        //              "angle(v1,v8) = {:.8f}, {:.8f} ",
+        //              v8, nrm(v8), angle(v1, v8), angle(v1, v8) / pi);
 
         CHECK(std::abs(angle(v1, v1) - 0.0) < eps);
         CHECK(std::abs(angle(v1, v2) - pi * 0.25) < eps);
