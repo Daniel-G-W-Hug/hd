@@ -106,16 +106,15 @@ inline constexpr Vec2d<std::common_type_t<T, U>> reflect_on_vec(Vec2d<T> const& 
 ////////////////////////////////////////////////////////////////////////////////
 
 // geometric product ab for fully populated 2d multivector
-// gpr() ... geometric product
 // Expensive! - Don't use if you don't have to! (16x mul_add)
 //
 // Use equivalent formulae instead for not fully populated multivectors, e.g.:
-// ab = dot(a,b) + wdg(a,b) = gr0(ab) + gr2(ab) (vector vector = scalar + bivector)
+// a*b = dot(a,b) + wdg(a,b) = gr0(a*b) + gr2(a*b) (vector vector = scalar + bivector)
 //
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr MVec2d<std::common_type_t<T, U>> gpr(MVec2d<T> const& A,
-                                                      MVec2d<U> const& B)
+inline constexpr MVec2d<std::common_type_t<T, U>> operator*(MVec2d<T> const& A,
+                                                            MVec2d<U> const& B)
 {
     using ctype = std::common_type_t<T, U>;
     // geometric product with a fully populated 2d multivector
@@ -126,334 +125,188 @@ inline constexpr MVec2d<std::common_type_t<T, U>> gpr(MVec2d<T> const& A,
     return MVec2d<ctype>(c0, c1, c2, c3);
 }
 
-// define geometric multiplication with operator*(A,B) as an alias for gpr(A,B)
-template <typename T, typename U>
-    requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr MVec2d<std::common_type_t<T, U>> operator*(MVec2d<T> const& A,
-                                                            MVec2d<U> const& B)
-{
-    return gpr(A, B);
-}
-
 // geometric product ab for two vectors (returns a multivector of the even subalgebra)
-// ab = dot(a,b) + wdg(a,b) = gr0(ab) + gr2(ab)
+// a*b = dot(a,b) + wdg(a,b) = gr0(ab) + gr2(ab)
 // => vector vector = scalar + bivector
 //
 // HINT: if a full 2d multivector is required as result it must be converted explicitly,
 //       since C++ does not allow overloading on different return types
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr MVec2d_E<std::common_type_t<T, U>> gpr(Vec2d<T> const& a,
-                                                        Vec2d<U> const& b)
+inline constexpr MVec2d_E<std::common_type_t<T, U>> operator*(Vec2d<T> const& a,
+                                                              Vec2d<U> const& b)
 {
     using ctype = std::common_type_t<T, U>;
     return MVec2d_E<ctype>(Scalar<ctype>(dot(a, b)), wdg(a, b));
 }
 
-// define geometric multiplication with operator*(a,b) as an alias for gpr(a,b)
-template <typename T, typename U>
-    requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr MVec2d_E<std::common_type_t<T, U>> operator*(Vec2d<T> const& a,
-                                                              Vec2d<U> const& b)
-{
-    return gpr(a, b);
-}
-
-// geometric product AB of a bivector A multiplied from the left
+// geometric product A*B of a 2d pseudoscalar (=bivector) A multiplied from the left
 // to the multivector B
-// gpr(bivector, multivector) => returns a multivector
-template <typename T, typename U>
-    requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr MVec2d<std::common_type_t<T, U>> gpr(PScalar2d<T> A, MVec2d<U> const& B)
-{
-    using ctype = std::common_type_t<T, U>;
-    return ctype(A) * MVec2d<ctype>(-B.c3, B.c2, -B.c1, B.c0);
-}
-
-// define geometric multiplication with operator*(A,B) as an alias for gpr(A,B)
+// 2d pseudoscalar (=bivector) * multivector => multivector
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
 inline constexpr MVec2d<std::common_type_t<T, U>> operator*(PScalar2d<T> A,
                                                             MVec2d<U> const& B)
 {
-    return gpr(A, B);
-}
-
-// geometric product AB of a bivector A multiplied from the left
-// to the multivector from the even subalgebra B (MVec2d_E)
-// gpr(bivector, even grade multivector) => returns an even grade multivector
-template <typename T, typename U>
-    requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr MVec2d_E<std::common_type_t<T, U>> gpr(PScalar2d<T> A,
-                                                        MVec2d_E<U> const& B)
-{
     using ctype = std::common_type_t<T, U>;
-    return ctype(A) * MVec2d_E<ctype>(-B.c1, B.c0);
+    return ctype(A) * MVec2d<ctype>(-B.c3, B.c2, -B.c1, B.c0);
 }
 
-// define geometric multiplication with operator*(A,B) as an alias for gpr(A,B)
+// geometric product A*B of a bivector A multiplied from the left
+// to the multivector from the even subalgebra B (MVec2d_E)
+// bivector * even grade multivector => even grade multivector
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
 inline constexpr MVec2d_E<std::common_type_t<T, U>> operator*(PScalar2d<T> A,
                                                               MVec2d_E<U> const& B)
 {
     using ctype = std::common_type_t<T, U>;
-    return gpr<ctype>(A, B);
+    return ctype(A) * MVec2d_E<ctype>(-B.c1, B.c0);
 }
 
-// geometric product Ab of a bivector A multiplied from the left
+// geometric product A*b of a bivector A multiplied from the left
 // to the vector b
-// gpr(bivector, vector) => returns a vector
+// bivector * vector => vector
 // this multiplication turns the vector by -90° in the plane e1^e2
 // (positive angle is from e1 towards e2)
-template <typename T, typename U>
-    requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr Vec2d<std::common_type_t<T, U>> gpr(PScalar2d<T> A, Vec2d<U> const& b)
-{
-    using ctype = std::common_type_t<T, U>;
-    return ctype(A) * Vec2d<ctype>(b.y, -b.x);
-}
-
-// define geometric multiplication with operator*(A,b) as an alias for gpr(A,b)
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
 inline constexpr Vec2d<std::common_type_t<T, U>> operator*(PScalar2d<T> A,
                                                            Vec2d<U> const& b)
 {
-    return gpr(A, b);
-}
-
-// geometric product AB of a bivector B multiplied from the right
-// to the multivector A
-// gpr(multivector, bivector) => returns a multivector
-template <typename T, typename U>
-    requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr MVec2d<std::common_type_t<T, U>> gpr(MVec2d<T> const& A, PScalar2d<U> B)
-{
     using ctype = std::common_type_t<T, U>;
-    return MVec2d<ctype>(-A.c3, -A.c2, A.c1, A.c0) * ctype(B);
+    return ctype(A) * Vec2d<ctype>(b.y, -b.x);
 }
 
-// define geometric multiplication with operator*(A,B) as an alias for gpr(A,B)
+// geometric product A*B of a multivector A multiplied from the right by
+// the pseudoscalar (=bivector) B
+// multivector * bivector => multivector
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
 inline constexpr MVec2d<std::common_type_t<T, U>> operator*(MVec2d<T> const& A,
                                                             PScalar2d<U> B)
 {
-    return gpr(A, B);
-}
-
-// geometric product AB of a bivector B multiplied from the right
-// to the even grade multivector A (MVec2d_E)
-// gpr(even grade multivector, bivector) => returns an even grade multivector
-template <typename T, typename U>
-    requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr MVec2d_E<std::common_type_t<T, U>> gpr(MVec2d_E<T> const& A,
-                                                        PScalar2d<U> B)
-{
     using ctype = std::common_type_t<T, U>;
-    return MVec2d_E<ctype>(-A.c1, A.c0) * ctype(B);
+    return MVec2d<ctype>(-A.c3, -A.c2, A.c1, A.c0) * ctype(B);
 }
 
-// define geometric multiplication with operator*(A,B) as an alias for gpr(A,B)
+// geometric product A*B of an even grade multivector A multiplied from the right
+// with the 2d pseudoscalar (=bivector) B
+// even grade multivector * 2d pseudoscalar (=bivector) => even grade multivector
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
 inline constexpr MVec2d_E<std::common_type_t<T, U>> operator*(MVec2d_E<T> const& A,
                                                               PScalar2d<U> B)
 {
     using ctype = std::common_type_t<T, U>;
-    return gpr<ctype>(A, B);
+    return MVec2d_E<ctype>(-A.c1, A.c0) * ctype(B);
 }
 
-// geometric product aB of a bivector B multiplied from the right
-// to the vector a
-// gpr(vector, bivector) => returns a vector
+// geometric product a*B of the vector a multiplied from the right
+// with the 2d pseudoscalar (=bivector) B
+// vector * 2d pseudoscalar (=bivector) => vector
 // this multiplication turns the vector by +90° in the plane e1^e2
 // (positive angle is from e1 towards e2)
-template <typename T, typename U>
-    requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr Vec2d<std::common_type_t<T, U>> gpr(Vec2d<T> const& a, PScalar2d<U> B)
-{
-    using ctype = std::common_type_t<T, U>;
-    return Vec2d<ctype>(-a.y, a.x) * ctype(B);
-}
-
-// define geometric multiplication with operator*(A,b) as an alias for gpr(A,b)
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
 inline constexpr Vec2d<std::common_type_t<T, U>> operator*(Vec2d<T> const& a,
                                                            PScalar2d<U> B)
 {
-    return gpr(a, B);
+    using ctype = std::common_type_t<T, U>;
+    return Vec2d<ctype>(-a.y, a.x) * ctype(B);
 }
 
-// geometric product AB of two bivectors (pseudoscalars in 2d)
-// gpr(bivector, bivector) => returns a scalar
+// geometric product A*B of two 2d pseudoscalars (=bivectors)
+// bivector * bivector => scalar
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr std::common_type_t<T, U> gpr(PScalar2d<T> A, PScalar2d<U> B)
+inline constexpr std::common_type_t<T, U> operator*(PScalar2d<T> A, PScalar2d<U> B)
 {
     using ctype = std::common_type_t<T, U>;
     return -ctype(A) * ctype(B); // bivectors square to -1
 }
 
-// define geometric multiplication with operator*(A,B) as an alias for gpr(A,B)
+// geometric product a*B for a a vector a with a full 2d multivector B
+// vector * multivector => multivector
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr std::common_type_t<T, U> operator*(PScalar2d<T> A, PScalar2d<U> B)
-{
-    return gpr(A, B);
-}
-
-// geometric product aB for a full 2d multivector B with a vector a
-// => return a multivector
-template <typename T, typename U>
-    requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr MVec2d<std::common_type_t<T, U>> gpr(Vec2d<T> const& a,
-                                                      MVec2d<U> const& B)
+inline constexpr MVec2d<std::common_type_t<T, U>> operator*(Vec2d<T> const& a,
+                                                            MVec2d<U> const& B)
 {
     using ctype = std::common_type_t<T, U>;
     return MVec2d<ctype>(a.x * B.c1 + a.y * B.c2, a.x * B.c0 - a.y * B.c3,
                          a.x * B.c3 + a.y * B.c0, a.x * B.c2 - a.y * B.c1);
 }
 
-// define geometric multiplication with operator*(a,B) as an alias for gpr(a,B)
+// geometric product A*B for an even grade multivector A with a full 2d multivector B
+// from the right
+// even grade multivector * multivector => multivector
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr MVec2d<std::common_type_t<T, U>> operator*(Vec2d<T> const& a,
+inline constexpr MVec2d<std::common_type_t<T, U>> operator*(MVec2d_E<T> const& A,
                                                             MVec2d<U> const& B)
 {
-    return gpr(a, B);
-}
-
-// geometric product aB for a full 2d multivector B with a multivector from
-// the even subalgebra a (only gr0 and gr2 components, i.e. a MVec2d_E)
-// => product with MVec2d_E from the left
-template <typename T, typename U>
-    requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr MVec2d<std::common_type_t<T, U>> gpr(MVec2d_E<T> const& a,
-                                                      MVec2d<U> const& B)
-{
     using ctype = std::common_type_t<T, U>;
-    return MVec2d<ctype>(a.c0 * B.c0 - a.c1 * B.c3, a.c0 * B.c1 + a.c1 * B.c2,
-                         a.c0 * B.c2 - a.c1 * B.c1, a.c0 * B.c3 + a.c1 * B.c0);
+    return MVec2d<ctype>(A.c0 * B.c0 - A.c1 * B.c3, A.c0 * B.c1 + A.c1 * B.c2,
+                         A.c0 * B.c2 - A.c1 * B.c1, A.c0 * B.c3 + A.c1 * B.c0);
 }
 
-// define geometric multiplication with operator*(a,B) as an alias for gpr(a,B)
+// geometric product A*b for a multivector from the even subalgebra A
+// with a vector b
+// even grade multivector * vector => vector
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr MVec2d<std::common_type_t<T, U>> operator*(MVec2d_E<T> const& a,
-                                                            MVec2d<U> const& B)
-{
-    return gpr(a, B);
-}
-
-// geometric product ab for a 2d vector b with a multivector from
-// the even subalgebra a (only gr0 and gr2 components, i.e. a MVec2d_E)
-// => product with MVec2d_E from the left
-template <typename T, typename U>
-    requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr Vec2d<std::common_type_t<T, U>> gpr(MVec2d_E<T> const& a,
-                                                     Vec2d<U> const& b)
-{
-    using ctype = std::common_type_t<T, U>;
-    return Vec2d<ctype>(a.c0 * b.x + a.c1 * b.y, a.c0 * b.y - a.c1 * b.x);
-}
-
-// define geometric multiplication with operator*(a,b) as an alias for gpr(a,b)
-template <typename T, typename U>
-    requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr Vec2d<std::common_type_t<T, U>> operator*(MVec2d_E<T> const& a,
+inline constexpr Vec2d<std::common_type_t<T, U>> operator*(MVec2d_E<T> const& A,
                                                            Vec2d<U> const& b)
 {
-    return gpr(a, b);
-}
-
-// geometric product Ab for a full 2d multivector A with a multivector from
-// the even subalgebra b (only gr0 and gr2 components, i.e. a MVec2d_E)
-// => product with MVec2d_E from the right
-template <typename T, typename U>
-    requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr MVec2d<std::common_type_t<T, U>> gpr(MVec2d<T> const& A,
-                                                      MVec2d_E<U> const& b)
-{
     using ctype = std::common_type_t<T, U>;
-    return MVec2d<ctype>(A.c0 * b.c0 - A.c3 * b.c1, A.c1 * b.c0 - A.c2 * b.c1,
-                         A.c1 * b.c1 + A.c2 * b.c0, A.c0 * b.c1 + A.c3 * b.c0);
+    return Vec2d<ctype>(A.c0 * b.x + A.c1 * b.y, A.c0 * b.y - A.c1 * b.x);
 }
 
-// define geometric multiplication with operator*(A,b) as an alias for gpr(A,b)
+// geometric product A*B for a multivector A with an even grade multivector B
+// multivector * even grade multivector => multivector
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
 inline constexpr MVec2d<std::common_type_t<T, U>> operator*(MVec2d<T> const& A,
-                                                            MVec2d_E<U> const& b)
+                                                            MVec2d_E<U> const& B)
 {
-    return gpr(A, b);
+    using ctype = std::common_type_t<T, U>;
+    return MVec2d<ctype>(A.c0 * B.c0 - A.c3 * B.c1, A.c1 * B.c0 - A.c2 * B.c1,
+                         A.c1 * B.c1 + A.c2 * B.c0, A.c0 * B.c1 + A.c3 * B.c0);
 }
 
-// geometric product Ab for a full 2d multivector A with a vector b
-// => returns a multivector
+// geometric product A*b for a multivector A with a vector b
+// multivector * vector => multivector
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr MVec2d<std::common_type_t<T, U>> gpr(MVec2d<T> const& A,
-                                                      Vec2d<U> const& b)
+inline constexpr MVec2d<std::common_type_t<T, U>> operator*(MVec2d<T> const& A,
+                                                            Vec2d<U> const& b)
 {
     using ctype = std::common_type_t<T, U>;
     return MVec2d<ctype>(A.c1 * b.x + A.c2 * b.y, A.c0 * b.x + A.c3 * b.y,
                          -A.c3 * b.x + A.c0 * b.y, -A.c2 * b.x + A.c1 * b.y);
 }
 
-// define geometric multiplication with operator*(A,b) as an alias for gpr(A,b)
-template <typename T, typename U>
-    requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr MVec2d<std::common_type_t<T, U>> operator*(MVec2d<T> const& A,
-                                                            Vec2d<U> const& b)
-{
-    return gpr(A, b);
-}
-
-// geometric product aB for a full 2d vector a with a multivector from
-// the even subalgebra b (only gr0 and gr2 components, i.e. a MVec2d_E)
-// => product with MVec2d_E from the right
-template <typename T, typename U>
-    requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr Vec2d<std::common_type_t<T, U>> gpr(Vec2d<T> const& a,
-                                                     MVec2d_E<U> const& b)
-{
-    using ctype = std::common_type_t<T, U>;
-    return Vec2d<ctype>(a.x * b.c0 - a.y * b.c1, a.x * b.c1 + a.y * b.c0);
-}
-
-// define geometric multiplication with operator*(a,b) as an alias for gpr(a,b)
+// geometric product a*B of a vector a with an even grade multivector B
+// vector * even grade multivector => vector
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
 inline constexpr Vec2d<std::common_type_t<T, U>> operator*(Vec2d<T> const& a,
-                                                           MVec2d_E<U> const& b)
-{
-    return gpr(a, b);
-}
-
-// geometric product ab for two multivectors from the even subalgebra (2d case)
-// a  = gr0(a)  + gr2(a)  (scalar + bivector)
-// b  = gr0(b)  + gr2(b)  (scalar + bivector)
-// ab = gr0(ab) + gr2(ab) (scalar + bivector)
-template <typename T, typename U>
-    requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr MVec2d_E<std::common_type_t<T, U>> gpr(MVec2d_E<T> const& a,
-                                                        MVec2d_E<U> const& b)
+                                                           MVec2d_E<U> const& B)
 {
     using ctype = std::common_type_t<T, U>;
-    return MVec2d_E<ctype>(a.c0 * b.c0 - a.c1 * b.c1, a.c0 * b.c1 + a.c1 * b.c0);
+    return Vec2d<ctype>(a.x * B.c0 - a.y * B.c1, a.x * B.c1 + a.y * B.c0);
 }
 
-// define complex multiplication with operator*(a,b) as an alias for gpr(a,b)
+// geometric product A*B for two multivectors from the even subalgebra (2d case)
+// even grade multivector * even grade multivector => even grade multivector
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
-inline constexpr MVec2d_E<std::common_type_t<T, U>> operator*(MVec2d_E<T> const& a,
-                                                              MVec2d_E<U> const& b)
+inline constexpr MVec2d_E<std::common_type_t<T, U>> operator*(MVec2d_E<T> const& A,
+                                                              MVec2d_E<U> const& B)
 {
     using ctype = std::common_type_t<T, U>;
-    return gpr<ctype>(a, b);
+    return MVec2d_E<ctype>(A.c0 * B.c0 - A.c1 * B.c1, A.c0 * B.c1 + A.c1 * B.c0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

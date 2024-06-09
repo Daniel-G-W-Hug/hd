@@ -543,8 +543,8 @@ TEST_SUITE("Geometric Algebra")
         MVec2d<double> mv0;
         MVec2d mv1{0.0, 1.0, 2.0, 0.0};
         MVec2d mv2{0.0, 0.5, 3.0, 0.0};
-        auto wdp_mv12 = 0.5 * (gpr(mv1, mv2) + gpr(mv2, mv1));
-        auto wdm_mv12 = 0.5 * (gpr(mv1, mv2) - gpr(mv2, mv1));
+        auto wdp_mv12 = 0.5 * (mv1 * mv2 + mv2 * mv1);
+        auto wdm_mv12 = 0.5 * (mv1 * mv2 - mv2 * mv1);
 
         // fmt::println("   v1 = {}", v1);
         // fmt::println("   v2 = {}", v2);
@@ -553,8 +553,8 @@ TEST_SUITE("Geometric Algebra")
         // fmt::println("");
         // fmt::println("   mv1 = {}", mv1);
         // fmt::println("   mv2 = {}", mv2);
-        // fmt::println("   wdp_mv12 = 0.5*(mv1 mv2 + mv2 mv1) = {}", wdp_mv12);
-        // fmt::println("   wdm_mv12 = 0.5*(mv1 mv2 - mv2 mv1) = {}", wdm_mv12);
+        // fmt::println("   wdp_mv12 = 0.5*(mv1 * mv2 + mv2 * mv1) = {}", wdp_mv12);
+        // fmt::println("   wdm_mv12 = 0.5*(mv1 * mv2 - mv2 * mv1) = {}", wdm_mv12);
         // fmt::println("");
         // fmt::println("   gr0(wdp_mv12) = {}", gr0(wdp_mv12));
         // fmt::println("   gr1(wdp_mv12) = {}", gr1(wdp_mv12));
@@ -579,7 +579,7 @@ TEST_SUITE("Geometric Algebra")
         //  gr0(mv2)==0 && gr1(mv2) != 0 && gr2(mv2)==0 )
         //
         // They are multiplied by the geometric product to form a multivector C
-        // C = mv1(v1) mv2(v2) = gpr(mv1,mv2)
+        // C = mv1(v1) * mv2(v2) = mv1 * mv2
         //
         // C contains a scalar part and a bivector part exclusively,
         // the remaining components are zero.
@@ -600,7 +600,7 @@ TEST_SUITE("Geometric Algebra")
 
         auto d12 = dot(v1, v2);
         auto w12 = wdg(v1, v2);
-        auto mv12 = gpr(mv1, mv2);
+        auto mv12 = mv1 * mv2;
         MVec2d mv12a{Scalar<double>(d12), PScalar2d<double>(w12)};
 
         auto v2i = inv(v2);
@@ -617,7 +617,7 @@ TEST_SUITE("Geometric Algebra")
         // fmt::println("");
         // fmt::println("   dot(v1,v2)   = {}", d12);
         // fmt::println("   wdg(v1,v2)   = {}", w12);
-        // fmt::println("   gpr(mv1,mv2) = {}", mv12);
+        // fmt::println("   mv1 * mv2    = {}", mv12);
         // fmt::println("   mv12a        = {}", mv12a);
         // fmt::println("");
         // fmt::println("   nv2  = {}", nv2);
@@ -625,25 +625,25 @@ TEST_SUITE("Geometric Algebra")
         // fmt::println("   nv2i = {}", nv2i);
         // fmt::println("   mv2i = {}", mv2i);
         // fmt::println("");
-        // fmt::println("   gpr(mv12,mv2i) = {}", gpr(mv12, mv2i));
-        // fmt::println("   gpr(mv1i,mv12) = {}", gpr(mv1i, mv12));
+        // fmt::println("   mv12 * mv2i = {}", mv12 * mv2i);
+        // fmt::println("   mv1i * mv12 = {}", mv1i * mv12);
         // fmt::println("");
 
         // shorter version w/o intermediate results
         Vec2d a{1.0, 2.0};
         Vec2d b{0.5, 3.0};
         MVec2d C{Scalar<double>(dot(a, b)), PScalar2d<double>(wdg(a, b))};
-        MVec2d gpr_right = gpr(C, MVec2d{inv(b)});
-        MVec2d gpr_left = gpr(MVec2d{inv(a)}, C);
+        MVec2d gpr_right = C * MVec2d{inv(b)};
+        MVec2d gpr_left = MVec2d{inv(a)} * C;
 
         // fmt::println("   a  = {}", a);
         // fmt::println("   b  = {}", b);
-        // fmt::println("   C = gpr(a,b) = {}", C);
+        // fmt::println("   C = a * b = {}", C);
         // fmt::println("");
-        // fmt::println("   gpr(C,bi) = gpr_right = {}", gpr_right);
-        // fmt::println("   gpr(ai,C) = gpr_left = {}", gpr_left);
+        // fmt::println("   C * bi = gpr_right = {}", gpr_right);
+        // fmt::println("   ai * C = gpr_left  = {}", gpr_left);
         // fmt::println("   gr1(gpr_right) = a = {}", gr1(gpr_right));
-        // fmt::println("   gr1(gpr_left) = b = {}", gr1(gpr_left));
+        // fmt::println("   gr1(gpr_left)  = b = {}", gr1(gpr_left));
 
         CHECK(a == gr1(gpr_right));
         CHECK(b == gr1(gpr_left));
@@ -661,16 +661,16 @@ TEST_SUITE("Geometric Algebra")
         auto dot_ab = dot(a, b);
         auto wdg_ab = wdg(a, b);
 
-        MVec2d ab = gpr(a, b);
-        MVec2d abm = gpr(mva, mvb);
+        MVec2d ab = a * b;
+        MVec2d abm = mva * mvb;
         MVec2d abd{Scalar<double>(dot_ab), wdg_ab};
 
         // fmt::println("   a                                = {}", a);
         // fmt::println("   mva                              = {}", mva);
         // fmt::println("   b                                = {}", b);
         // fmt::println("   mvb                              = {}", mvb);
-        // fmt::println("   ab  = gpr(a,b)                   = {}", ab);
-        // fmt::println("   abm = gpr(mva,mvb)               = {}", abm);
+        // fmt::println("   ab  = a * b                      = {}", ab);
+        // fmt::println("   abm = mva * mvb                  = {}", abm);
         // fmt::println("   abd = MVec2d(dot(a,b), wdg(a,b)) = {}", abd);
 
         CHECK(ab == abm);
@@ -729,31 +729,31 @@ TEST_SUITE("Geometric Algebra")
         // multiplying with e1 from the left should make it a complex number
         // i.e. a multivector with a scalar (=Re) and a bivector part (=Im)
         // (for test purposes here, the even subalgebra would be sufficient)
-        auto vc = gpr(e1_2d, v1);
-        auto vcm = gpr(e1m_2d, v1m); // full gpr
+        auto vc = e1_2d * v1;
+        auto vcm = e1m_2d * v1m; // full gpr
 
         // multiplying with I2 from the right should rotate by +90°
-        auto vr = gpr(vc, I_2d);
-        auto vrm = gpr(vcm, Im_2d); // full gpr
+        auto vr = vc * I_2d;
+        auto vrm = vcm * Im_2d; // full gpr
 
         // multiplying with I2 from the left should rotate by -90°
-        auto vl = gpr(I_2d, vc);
-        auto vlm = gpr(Im_2d, vcm); // full gpr
+        auto vl = I_2d * vc;
+        auto vlm = Im_2d * vcm; // full gpr
 
         // defining a complex number in all three forms
         auto u = Vec2d{1.0, 0.0};
         auto v = Vec2d{std::cos(pi / 6.0), std::sin(pi / 6.0)}; // unit vec +30%
         auto angle_uv = angle(u, v);
 
-        auto uv = gpr(u, v); // complex number with real part and bivector part
+        auto uv = u * v; // complex number with real part and bivector part
         auto a = gr0(uv);
         auto b = gr2(uv);
         auto r = sqrt(a * a + b * b);
 
-        // fmt::println("   I_2d             = {}", I_2d);
-        // fmt::println("   Im_2d            = {}", Im_2d);
-        // fmt::println("   grp(I_2d,I_2d)   = {}", gpr(I_2d, I_2d));
-        // fmt::println("   grp(Im_2d,Im_2d) = {}", gpr(Im_2d, Im_2d));
+        // fmt::println("   I_2d          = {}", I_2d);
+        // fmt::println("   Im_2d         = {}", Im_2d);
+        // fmt::println("   I_2d * I_2d   = {}", I_2d * I_2d);
+        // fmt::println("   Im_2d * Im_2d = {}", Im_2d * Im_2d);
         // fmt::println("");
         // fmt::println("   e1_2d  = {}", e1_2d);
         // fmt::println("   e1m_2d = {}", e1m_2d);
@@ -767,9 +767,9 @@ TEST_SUITE("Geometric Algebra")
         // fmt::println("   vl   = {}", vl);
         // fmt::println("   vlm  = {}", vlm);
         // fmt::println("");
-        // fmt::println("   v1            = {}", v1);
-        // fmt::println("   gpr(v1,I_2d)  = {}", gpr(v1, I_2d));
-        // fmt::println("   gpr(I_2d,v1)  = {}", gpr(I_2d, v1));
+        // fmt::println("   v1         = {}", v1);
+        // fmt::println("   v1 * I_2d  = {}", v1 * I_2d);
+        // fmt::println("   I_2d * v1  = {}", I_2d * v1);
         // fmt::println("");
         // fmt::println("   u        = {}", u);
         // fmt::println("   v        = {}", v);
@@ -791,10 +791,10 @@ TEST_SUITE("Geometric Algebra")
         CHECK(gr2(vr) == gr2(vrm));
         CHECK(gr0(vl) == gr0(vlm));
         CHECK(gr2(vl) == gr2(vlm));
-        CHECK(v1.x == gpr(v1, I_2d).y); // rotation +90°
-        CHECK(v1.y == -gpr(v1, I_2d).x);
-        CHECK(v1.x == -gpr(I_2d, v1).y); // rotation -90°
-        CHECK(v1.y == gpr(I_2d, v1).x);
+        CHECK(v1.x == (v1 * I_2d).y); // rotation +90°
+        CHECK(v1.y == -(v1 * I_2d).x);
+        CHECK(v1.x == -(I_2d * v1).y); // rotation -90°
+        CHECK(v1.y == (I_2d * v1).x);
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -811,7 +811,7 @@ TEST_SUITE("Geometric Algebra")
 
         auto angle_uv = angle(u, v);
 
-        auto uv = gpr(u, v); // complex number with real part and bivector part
+        auto uv = u * v; // complex number with real part and bivector part
         auto v2 = exp(I_2d, angle_uv);
         auto re = gr0(uv);
         auto im = gr2(uv);
@@ -825,11 +825,10 @@ TEST_SUITE("Geometric Algebra")
         MVec2d_E f{b * 2.0};
         MVec2d_E g{-e};
         MVec2d_E h{0.0, 1.0};
-        MVec2d_E as = gpr(a, a);
-        MVec2d_E hs = gpr(h, h);
+        MVec2d_E as = a * a;
+        MVec2d_E hs = h * h;
 
-        MVec2d_E i = gpr(b, c);
-        MVec2d_E j = b * c; // defined operator*(MVec2d_E,MVec2d_E) as gpr(a,b)
+        MVec2d_E j = b * c;
         auto k = I_2d;
         MVec2d_E l = exp(I_2d, pi / 2);
         MVec2d_E m = Im_2d_E;
@@ -838,7 +837,7 @@ TEST_SUITE("Geometric Algebra")
         // fmt::println("   u                     = {}", u);
         // fmt::println("   v                     = {}", v);
         // fmt::println("   angle(u,v)            = {:.3}°", angle_uv * 180 / pi);
-        // fmt::println("   uv = gpr(u,v)         = {}", uv);
+        // fmt::println("   uv = u * v            = {}", uv);
         // fmt::println("   re = gr0(uv)          = {}", re);
         // fmt::println("   im = gr2(uv)          = {}", im);
         // fmt::println("   r = sqrt(re^2 + im^2) = {}", r);
@@ -860,20 +859,17 @@ TEST_SUITE("Geometric Algebra")
         // fmt::println("   f = b*2.0 = {}", f);
         // fmt::println("   g = -e    = {}", g);
         // fmt::println("");
-        // fmt::println("   h =            = {}", h);
-        // fmt::println("   as = gpr(a,a)  = {}", as);
-        // fmt::println("   hs = gpr(h,h)  = {}", hs);
-        // fmt::println("   b*h = gpr(b,h) = {}", gpr(b, h));
-        // fmt::println("   h*b = gpr(h,b) = {}", gpr(h, b));
-        // fmt::println("   b*h = b*h      = {}", b * h);
-        // fmt::println("   h*b = h*b      = {}", h * b);
+        // fmt::println("   h =           = {}", h);
+        // fmt::println("   as = a * a    = {}", as);
+        // fmt::println("   hs = h * h    = {}", hs);
+        // fmt::println("   b * h         = {}", b * h);
+        // fmt::println("   h * b         = {}", h * b);
         // fmt::println("");
-        // fmt::println("   i = gpr(b,c) = {}", i);
-        // fmt::println("   j = b*c      = {}", j);
+        // fmt::println("   j = b * c     = {}", j);
         // fmt::println("");
         // fmt::println("   k = I_2d                         = {}", k);
         // fmt::println("   l = exp(PScalar2d<double>(pi/2)) = {:.3f}", l);
-        // fmt::println("   m = Im_2d_E                        = {}", m);
+        // fmt::println("   m = Im_2d_E                      = {}", m);
         // fmt::println("   n = Im_2d                        = {}", n);
 
         CHECK(c == a + b);
@@ -885,10 +881,8 @@ TEST_SUITE("Geometric Algebra")
         CHECK(hs == MVec2d_E(-1.0, 0.0));
         CHECK(v.x == v2.c0);
         CHECK(v.y == v2.c1);
-        CHECK(gpr(b, h) ==
-              gpr(h,
-                  b)); // in 2d the pseudoscalar commutes commutes with complex numbers
-        CHECK(i == j);
+        CHECK(b * h ==
+              h * b); // the 2d pseudoscalar commutes commutes with complex numbers
         CHECK(l == m);
         CHECK(rev(b + c) == rev(b) + rev(c));
         CHECK(rev(b * c) == rev(b) * rev(c));
@@ -1041,21 +1035,21 @@ TEST_SUITE("Geometric Algebra")
         // fmt::println("   Im_2d   = {}", Im_2d);
         // fmt::println("   Im_2d_E = {}", Im_2d_E);
         // fmt::println("");
-        // fmt::println("   vm            = {}", vm);
-        // fmt::println("   Im_2d*vm      = {}", vm_dual_manual);
+        // fmt::println("   vm              = {}", vm);
+        // fmt::println("   Im_2d*vm        = {}", vm_dual_manual);
         // fmt::println("   dual2d(vm)      = {}", vm_dual);
         // fmt::println("");
-        // fmt::println("   vm_even       = {}", vm_even);
-        // fmt::println("   Im_2d*vm_even = {}", vm_dual_even_manual);
+        // fmt::println("   vm_even         = {}", vm_even);
+        // fmt::println("   Im_2d*vm_even   = {}", vm_dual_even_manual);
         // fmt::println("   dual2d(vm_even) = {}", vm_dual_even);
         // fmt::println("");
         // fmt::println("   vm_E          = {}", vm_E);
         // fmt::println("   Im_2d_E*vm_E  = {}", vm_dual_manual_E);
-        // fmt::println("   dual2d(vm_E)    = {}", vm_dual_E);
+        // fmt::println("   dual2d(vm_E)  = {}", vm_dual_E);
         // fmt::println("");
         // fmt::println("   v             = {}", v);
         // fmt::println("   I_2d * v      = {}", v_dual_manual);
-        // fmt::println("   dual2d(v)       = {}", v_dual);
+        // fmt::println("   dual2d(v)     = {}", v_dual);
 
         CHECK(vm_dual == vm_dual_manual);
         CHECK(vm_dual_even == vm_dual_even_manual);
@@ -1444,7 +1438,7 @@ TEST_SUITE("Geometric Algebra")
         // auto i = inv(v2);
         // fmt::println("wdg(v1,v2)         = {: .4f}", w);
         // fmt::println("inv(v2)            = {: .4f}", i);
-        // fmt::println("wdg(v1,v2)*inv(v2) = {: .4f}", gpr(w, i));
+        // fmt::println("wdg(v1,v2)*inv(v2) = {: .4f}", w * i);
         // fmt::println("");
 
         vec3d v{4.0, 1.0, 1.0};
@@ -1694,9 +1688,9 @@ TEST_SUITE("Geometric Algebra")
     // MVec3d<T> operations test cases
     ////////////////////////////////////////////////////////////////////////////////
 
-    TEST_CASE("MVec3d: geometric product tests - gpr(vec,vec)")
+    TEST_CASE("MVec3d: geometric product tests - vec * vec")
     {
-        fmt::println("MVec3d: geometric product tests - gpr(vec,vec)");
+        fmt::println("MVec3d: geometric product tests - vec * vec");
 
         // ab = dot(a,b) + wdg(a,b) = gr0(ab) + gr2(ab)
         //
@@ -1710,20 +1704,20 @@ TEST_SUITE("Geometric Algebra")
 
         MVec3d mva{a};
         MVec3d mvb{b};
-        auto mvab = gpr(mva, mvb);
-        auto mvab_sym = 0.5 * (gpr(mva, mvb) + gpr(mvb, mva));
-        auto mvab_asym = 0.5 * (gpr(mva, mvb) - gpr(mvb, mva));
+        auto mvab = mva * mvb;
+        auto mvab_sym = 0.5 * (mva * mvb + mvb * mva);
+        auto mvab_asym = 0.5 * (mva * mvb - mvb * mva);
 
         // fmt::println("   a = {}", a);
         // fmt::println("   b = {}", b);
         // fmt::println("   dot(a,b) = {}", dot_ab);
         // fmt::println("   wdg(a,b) = {}", wdg_ab);
         // fmt::println("");
-        // fmt::println("   mva = {}", mva);
-        // fmt::println("   mvb = {}", mvb);
+        // fmt::println("   mva  = {}", mva);
+        // fmt::println("   mvb  = {}", mvb);
         // fmt::println("   mvab = {}", mvab);
-        // fmt::println("   mvab_sym = 0.5*(mva mvb + mvb mva) = {}", mvab_sym);
-        // fmt::println("   mvab_asym = 0.5*(mva mvb - mvb mva) = {}", mvab_asym);
+        // fmt::println("   mvab_sym  = 0.5*(mva * mvb + mvb * mva) = {}", mvab_sym);
+        // fmt::println("   mvab_asym = 0.5*(mva * mvb - mvb * mva) = {}", mvab_asym);
         // fmt::println("");
         // fmt::println("   gr0(mvab) = {}", gr0(mvab));
         // fmt::println("   gr1(mvab) = {}", gr1(mvab));
@@ -1736,9 +1730,9 @@ TEST_SUITE("Geometric Algebra")
         CHECK(wdg_ab == gr2(mvab_asym));
     }
 
-    TEST_CASE("MVec3d: geometric product tests - gpr(bivec,vec)")
+    TEST_CASE("MVec3d: geometric product tests - bivec * vec")
     {
-        fmt::println("MVec3d: geometric product tests - gpr(bivec,vec)");
+        fmt::println("MVec3d: geometric product tests - bivec * vec");
 
         // Ab = dot(A,b) + wdg(A,b) = gr1(Ab) + gr3(Ab)
         //
@@ -1752,20 +1746,20 @@ TEST_SUITE("Geometric Algebra")
 
         MVec3d mva{a};
         MVec3d mvb{b};
-        auto mvab = gpr(mva, mvb);
-        auto mvab_sym = 0.5 * (gpr(mva, mvb) + gpr(mvb, mva));
-        auto mvab_asym = 0.5 * (gpr(mva, mvb) - gpr(mvb, mva));
+        auto mvab = mva * mvb;
+        auto mvab_sym = 0.5 * (mva * mvb + mvb * mva);
+        auto mvab_asym = 0.5 * (mva * mvb - mvb * mva);
 
         // fmt::println("   a = {}", a);
         // fmt::println("   b = {}", b);
         // fmt::println("   dot(a,b) = {}", dot_ab);
         // fmt::println("   wdg(a,b) = {}", wdg_ab);
         // fmt::println("");
-        // fmt::println("   mva = {}", mva);
-        // fmt::println("   mvb = {}", mvb);
+        // fmt::println("   mva  = {}", mva);
+        // fmt::println("   mvb  = {}", mvb);
         // fmt::println("   mvab = {}", mvab);
-        // fmt::println("   mvab_sym = 0.5*(mva mvb + mvb mva) = {}", mvab_sym);
-        // fmt::println("   mvab_asym = 0.5*(mva mvb - mvb mva) = {}", mvab_asym);
+        // fmt::println("   mvab_sym  = 0.5*(mva * mvb + mvb * mva) = {}", mvab_sym);
+        // fmt::println("   mvab_asym = 0.5*(mva * mvb - mvb * mva) = {}", mvab_asym);
         // fmt::println("");
         // fmt::println("   gr0(mvab) = {}", gr0(mvab));
         // fmt::println("   gr1(mvab) = {}", gr1(mvab));
@@ -1778,11 +1772,11 @@ TEST_SUITE("Geometric Algebra")
         CHECK(wdg_ab == gr3(mvab_sym));
     }
 
-    TEST_CASE("MVec3d: geometric product tests - gpr(vec,bivec)")
+    TEST_CASE("MVec3d: geometric product tests - vec * bivec")
     {
-        fmt::println("MVec3d: geometric product tests - gpr(vec,bivec)");
+        fmt::println("MVec3d: geometric product tests - vec * bivec");
 
-        // aB = dot(a,B) + wdg(a,B) = gr1(aB) + gr3(aB)
+        // a*B = dot(a,B) + wdg(a,B) = gr1(aB) + gr3(aB)
         //
         // dot(a,B) = 0.5*(aB - Ba)   (antisymmetric part)
         // wdg(a,B) = 0.5*(aB + Ba)   (symmetric part)
@@ -1794,20 +1788,20 @@ TEST_SUITE("Geometric Algebra")
 
         MVec3d mva{a};
         MVec3d mvb{b};
-        auto mvab = gpr(mva, mvb);
-        auto mvab_sym = 0.5 * (gpr(mva, mvb) + gpr(mvb, mva));
-        auto mvab_asym = 0.5 * (gpr(mva, mvb) - gpr(mvb, mva));
+        auto mvab = mva * mvb;
+        auto mvab_sym = 0.5 * (mva * mvb + mvb * mva);
+        auto mvab_asym = 0.5 * (mva * mvb - mvb * mva);
 
         // fmt::println("   a = {}", a);
         // fmt::println("   b = {}", b);
         // fmt::println("   dot(a,b) = {}", dot_ab);
         // fmt::println("   wdg(a,b) = {}", wdg_ab);
         // fmt::println("");
-        // fmt::println("   mva = {}", mva);
-        // fmt::println("   mvb = {}", mvb);
+        // fmt::println("   mva  = {}", mva);
+        // fmt::println("   mvb  = {}", mvb);
         // fmt::println("   mvab = {}", mvab);
-        // fmt::println("   mvab_sym = 0.5*(mva mvb + mvb mva) = {}", mvab_sym);
-        // fmt::println("   mvab_asym = 0.5*(mva mvb - mvb mva) = {}", mvab_asym);
+        // fmt::println("   mvab_sym  = 0.5*(mva * mvb + mvb * mva) = {}", mvab_sym);
+        // fmt::println("   mvab_asym = 0.5*(mva * mvb - mvb * mva) = {}", mvab_asym);
         // fmt::println("");
         // fmt::println("   gr0(mvab) = {}", gr0(mvab));
         // fmt::println("   gr1(mvab) = {}", gr1(mvab));
@@ -1831,7 +1825,7 @@ TEST_SUITE("Geometric Algebra")
         //  gr0(mv2)==0 && gr1(mv2) != 0 && gr2(mv2)==0 )
         //
         // They are multiplied by the geometric product to form a multivector C
-        // C = mv1(v1) mv2(v2) = gpr(mv1,mv2)
+        // C = mv1(v1) * mv2(v2) = mv1 * mv2
         //
         // C contains a scalar part and a bivector part exclusively,
         // the remaining components are zero.
@@ -1852,23 +1846,23 @@ TEST_SUITE("Geometric Algebra")
 
         auto dot_ab = dot(a, b);
         auto wdg_ab = wdg(a, b);
-        MVec3d C = gpr(a, b);
-        MVec3d Cm = gpr(mva, mvb);
+        MVec3d C = a * b;
+        MVec3d Cm = mva * mvb;
         MVec3d Cd{Scalar<double>(dot_ab), wdg_ab};
 
-        MVec3d gpr_right = gpr(C, MVec3d{inv(b)});
-        MVec3d gpr_left = gpr(MVec3d{inv(a)}, C);
+        MVec3d gpr_right = C * MVec3d{inv(b)};
+        MVec3d gpr_left = MVec3d{inv(a)} * C;
 
         // fmt::println("   a                           = {}", a);
         // fmt::println("   b                           = {}", b);
-        // fmt::println("   C  = gpr(a,b)               = {}", C);
-        // fmt::println("   Cm = gpr(mva,mvb)           = {}", Cm);
+        // fmt::println("   C  = a * b                  = {}", C);
+        // fmt::println("   Cm = mva * mvb              = {}", Cm);
         // fmt::println("   Cd = mv(dot(a,b), wdg(a,b)) = {}", Cd);
         // fmt::println("");
-        // fmt::println("   gpr(C,bi) = gpr_right = {}", gpr_right);
-        // fmt::println("   gpr(ai,C) = gpr_left = {}", gpr_left);
+        // fmt::println("   C * bi = gpr_right = {}", gpr_right);
+        // fmt::println("   ai * C = gpr_left  = {}", gpr_left);
         // fmt::println("   gr1(gpr_right) = a = {}", gr1(gpr_right));
-        // fmt::println("   gr1(gpr_left) = b = {}", gr1(gpr_left));
+        // fmt::println("   gr1(gpr_left)  = b = {}", gr1(gpr_left));
 
         CHECK(C == Cm);
         CHECK(C == Cd);
@@ -1905,40 +1899,40 @@ TEST_SUITE("Geometric Algebra")
         auto dot_aB = dot(a, B);
         auto wdg_aB = wdg(a, B);
 
-        MVec3d_E ab = gpr(a, b);
-        MVec3d abm = gpr(mva, mvb);
+        MVec3d_E ab = a * b;
+        MVec3d abm = mva * mvb;
         MVec3d abd{Scalar<double>(dot_ab), wdg_ab};
 
-        MVec3d_U Ab = gpr(A, b);
-        MVec3d Abm = gpr(mvA, mvb);
+        MVec3d_U Ab = A * b;
+        MVec3d Abm = mvA * mvb;
         MVec3d Abd{dot_Ab, wdg_Ab};
 
-        MVec3d_U aB = gpr(a, B);
-        MVec3d aBm = gpr(mva, mvB);
+        MVec3d_U aB = a * B;
+        MVec3d aBm = mva * mvB;
         MVec3d aBd{dot_aB, wdg_aB};
 
         // fmt::println("   a                                = {}", a);
         // fmt::println("   mva                              = {}", mva);
         // fmt::println("   b                                = {}", b);
         // fmt::println("   mvb                              = {}", mvb);
-        // fmt::println("   ab  = MVec3d_E(gpr(a,b))         = {}", ab);
-        // fmt::println("   abm = gpr(mva,mvb)               = {}", abm);
+        // fmt::println("   ab  = MVec3d_E(a * b)            = {}", ab);
+        // fmt::println("   abm = mva * mvb                  = {}", abm);
         // fmt::println("   abd = MVec3d(dot(a,b), wdg(a,b)) = {}", abd);
         // fmt::println("");
         // fmt::println("   A                                = {}", A);
         // fmt::println("   mvA                              = {}", mvA);
         // fmt::println("   b                                = {}", b);
         // fmt::println("   mvb                              = {}", mvb);
-        // fmt::println("   Ab  = MVec3d_U(gpr(A,b))         = {}", Ab);
-        // fmt::println("   Abm = gpr(mvA,mvb)               = {}", Abm);
+        // fmt::println("   Ab  = MVec3d_U(A * b)            = {}", Ab);
+        // fmt::println("   Abm = mvA * mvb                  = {}", Abm);
         // fmt::println("   Abd = MVec3d(dot(A,b), wdg(A,b)) = {}", Abd);
         // fmt::println("");
         // fmt::println("   a                                = {}", a);
         // fmt::println("   mva                              = {}", mva);
         // fmt::println("   B                                = {}", B);
         // fmt::println("   mvB                              = {}", mvB);
-        // fmt::println("   aB  = MVec3d_U(gpr(a,B))         = {}", aB);
-        // fmt::println("   aBm = gpr(mva,mvB)               = {}", aBm);
+        // fmt::println("   aB  = MVec3d_U(a * B)            = {}", aB);
+        // fmt::println("   aBm = mva * mvB                  = {}", aBm);
         // fmt::println("   aBd = MVec3d(dot(a,B), wdg(a,B)) = {}", aBd);
         // fmt::println("");
 
@@ -2055,13 +2049,13 @@ TEST_SUITE("Geometric Algebra")
         auto b21_dot = dot(b2, b1);
         auto b21_cmt = cmt(b2, b1);
 
-        auto gpr12_m = gpr(mb1, mb2);
-        auto gpr21_m = gpr(mb2, mb1);
+        auto gpr12_m = mb1 * mb2;
+        auto gpr21_m = mb2 * mb1;
         auto gpr12_m_sym = 0.5 * (gpr12_m + gpr21_m);
         auto gpr12_m_asym = 0.5 * (gpr12_m - gpr21_m);
 
-        auto gpr12_d = gpr(b1, b2);
-        auto gpr21_d = gpr(b2, b1);
+        auto gpr12_d = b1 * b2;
+        auto gpr21_d = b2 * b1;
         auto gpr12_d_sym = 0.5 * (gpr12_d + gpr21_d);
         auto gpr12_d_asym = 0.5 * (gpr12_d - gpr21_d);
 
@@ -2075,15 +2069,16 @@ TEST_SUITE("Geometric Algebra")
         // fmt::println("   b21_dot = {}", b21_dot);
         // fmt::println("   b21_cmt = {}", b21_cmt);
         // fmt::println("");
-        // fmt::println("   gpr12_m = gpr(mb1, mb2) = {}", gpr12_m);
-        // fmt::println("   gpr21_m = gpr(mb2, mb1) = {}", gpr21_m);
-        // fmt::println("   gpr12_m_sym  = 0.5 * (gpr12_d + gpr21_d) = {}",
-        // gpr12_m_sym); fmt::println("   gpr12_m_asym = 0.5 * (gpr12_m - gpr21_m) =
-        // {}", gpr12_m_asym); fmt::println(""); fmt::println("   gpr12_d = gpr(b1,
-        // b2) = {}", gpr12_d); fmt::println("   gpr21_d = gpr(b2, b1) = {}",
-        // gpr21_d); fmt::println("   gpr12_d_sym  = 0.5 * (gpr12_d + gpr21_d) = {}",
-        // gpr12_d_sym); fmt::println("   gpr12_d_asym = 0.5 * (gpr12_d - gpr21_d) =
-        // {}", gpr12_d_asym); fmt::println("");
+        // fmt::println("   gpr12_m = mb1 * mb2 = {}", gpr12_m);
+        // fmt::println("   gpr21_m = mb2 * mb1 = {}", gpr21_m);
+        // fmt::println("   gpr12_m_sym  = 0.5*(gpr12_d + gpr21_d) = {}", gpr12_m_sym);
+        // fmt::println("   gpr12_m_asym = 0.5*(gpr12_m - gpr21_m) = {}", gpr12_m_asym);
+        // fmt::println("");
+        // fmt::println("   gpr12_d = b1 * b2 = {} ", gpr12_d);
+        // fmt::println("   gpr21_d = b2 * b1) = {} ", gpr21_d);
+        // fmt::println("   gpr12_d_sym  = 0.5*(gpr12_d + gpr21_d) = {}", gpr12_d_sym);
+        // fmt::println("   gpr12_d_asym = 0.5*(gpr12_d - gpr21_d) = {}", gpr12_d_asym);
+        // fmt::println("");
 
         CHECK(gr2(mb1) == b1);
     }

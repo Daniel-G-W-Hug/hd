@@ -155,7 +155,7 @@ inline constexpr BiVec3d<std::common_type_t<T, U>> operator/(BiVec3d<T> const& v
 ////////////////////////////////////////////////////////////////////////////////
 
 // return dot product of two bivectors A and B (= a scalar)
-// dot(A,B) = gr0( gpr(A,B) )
+// dot(A,B) = gr0(A * B)
 template <typename T, typename U>
     requires(std::floating_point<T> && std::floating_point<U>)
 inline constexpr std::common_type_t<T, U> dot(BiVec3d<T> const& A, BiVec3d<U> const& B)
