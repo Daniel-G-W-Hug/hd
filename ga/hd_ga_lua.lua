@@ -633,3 +633,16 @@ vu = v ^ u
 print("wdg(bivec3d.new(2,3,4),vec3d.new(-3,5,7)):", wdg(bivec3d.new(2, 3, 4), vec3d.new(-3, 5, 7)))
 print("u:", u, "v:", v, "v^u:", vu)
 print()
+
+-- small test for projection and rejections
+u = vec2d.new(3, 0)
+v = vec2d.new(2, 1)
+
+v_par = dot(v, u) * inv(u)
+v_perp = (v ^ u) * inv(u)
+
+print("u=", u, "v=", v)
+print("dot(v, u)=", dot(v, u), "wdg(v, u)=", v ^ u)
+print("inv(u)", inv(u))
+print("v_par=", v_par, "v_perp=", v_perp)
+print("project_onto(v,u)=", project_onto(v, u), "reject_from(v,u)=", reject_from(v, u))

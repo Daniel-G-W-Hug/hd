@@ -780,7 +780,7 @@ inline constexpr MVec3d_E<std::common_type_t<T, U>> exp(BiVec3d<T> const& I, U t
 //////////////////////////////////////////////////////////////////////////////////////////
 //
 // for a rotation about an axis n (n = unitized vector) choose the ansatz n*B = I_3d
-// an multiply both sides with n from the left (remember n*n = |n|^2 = 1)
+// and multiply both sides with n from the left (remember n*n = |n|^2 = 1)
 //
 // => choose: B = n*I_3d
 //
