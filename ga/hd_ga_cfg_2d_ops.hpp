@@ -21,6 +21,27 @@
 namespace hd::ga {
 
 ////////////////////////////////////////////////////////////////////////////////
+// Vec2d<T> & PScalar2d<T> mixed geometric operations
+////////////////////////////////////////////////////////////////////////////////
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline constexpr Vec2d<std::common_type_t<T, U>> dot(PScalar2d<T> A, Vec2d<U> const& b)
+{
+    // the dot product is identical with the geometric product in this case (A^b = 0)
+    // ATTENTION: the dot-product in NOT symmetric in G^n as it is in R^n
+    return A * b;
+}
+
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline constexpr Vec2d<std::common_type_t<T, U>> dot(Vec2d<T> const& a, PScalar2d<U> B)
+{
+    // the dot product is identical with the geometric product in this case (a^B = 0)
+    // ATTENTION: the dot-product in NOT symmetric in G^n as it is in R^n
+    return a * B;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // Vec2d<T> projections, rejections and reflections
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -41,6 +62,15 @@ inline constexpr Vec2d<std::common_type_t<T, U>> project_onto_unitized(Vec2d<T> 
 {
     // requires v2 to be unitized
     return dot(v1, v2) * v2;
+}
+
+// projection of v onto ps (returns the vector directly)
+template <typename T, typename U>
+    requires(std::floating_point<T> && std::floating_point<U>)
+inline constexpr Vec2d<std::common_type_t<T, U>> project_onto(Vec2d<T> const& v,
+                                                              PScalar2d<U> ps)
+{
+    return dot(v, ps) * inv(ps);
 }
 
 // rejection of v1 from v2

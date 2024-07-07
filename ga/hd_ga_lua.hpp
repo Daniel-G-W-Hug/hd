@@ -276,6 +276,8 @@ void register_functions(sol::state& lua)
 
     lua.set_function(
         "dot", sol::overload(sol::resolve<value_t(vec2d const&, vec2d const&)>(dot),
+                             sol::resolve<vec2d(pscalar2d, vec2d const&)>(dot),
+                             sol::resolve<vec2d(vec2d const&, pscalar2d)>(dot),
                              sol::resolve<value_t(vec3d const&, vec3d const&)>(dot),
                              sol::resolve<value_t(bivec3d const&, bivec3d const&)>(dot),
                              sol::resolve<vec3d(bivec3d const&, vec3d const&)>(dot),
@@ -349,6 +351,7 @@ void register_functions(sol::state& lua)
     lua.set_function(
         "project_onto",
         sol::overload(sol::resolve<vec2d(vec2d const&, vec2d const&)>(project_onto),
+                      sol::resolve<vec2d(vec2d const&, pscalar2d)>(project_onto),
                       sol::resolve<vec3d(vec3d const&, vec3d const&)>(project_onto),
                       sol::resolve<vec3d(vec3d const&, bivec3d const&)>(project_onto)));
 

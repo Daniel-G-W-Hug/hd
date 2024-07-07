@@ -21,7 +21,7 @@ if v4 == v1 + v2 and v1 == v4 - v2 then
 	print("v4 == v1 + v2", "comparison, addition and subtraction")
 end
 
-v5 = 3 * v4
+local v5 = 3 * v4
 assert(3 * v4 == v4 * 3)
 assert(v5 / 3 == v4)
 print("3 * v4:", 3 * v4, "scalar multiplication")
@@ -82,7 +82,7 @@ if mve4 == mve1 + mve2 and mve1 == mve4 - mve2 then
 	print("mve4 == mve1 + mve2", "comparison, addition and subtraction")
 end
 
-mve5 = 3 * mve4
+local mve5 = 3 * mve4
 assert(3 * mve4 == mve4 * 3)
 assert(mve5 / 3 == mve4)
 print("mv5 = 3 * mve4:", 3 * mve4, "scalar multiplication")
@@ -98,8 +98,8 @@ print("angle_to_re(mve2) - (rad, deg):", angle_to_re(mve2), rad_to_deg(angle_to_
 
 -- inverses
 print("\ninverses:\n")
-v = vec2d.new(13, 5)
-vi = inv(v)
+local v = vec2d.new(13, 5)
+local vi = inv(v)
 print("v:", v)
 print("vi:", vi)
 print("v*vi:", v * vi)
@@ -107,8 +107,8 @@ assert(math.abs(to_val(gr0(v * vi)) - 1) < eps)
 assert(math.abs(to_val(gr2(v * vi)) - 0) < eps)
 print()
 
-vc = mvec2d_e.new(13, 5)
-vci = inv(vc)
+local vc = mvec2d_e.new(13, 5)
+local vci = inv(vc)
 print("vc:", vc)
 print("vci:", vci)
 print("vc*vci:", vc * vci)
@@ -116,8 +116,8 @@ assert(math.abs(to_val(gr0(vc * vci)) - 1) < eps)
 assert(math.abs(to_val(gr2(vc * vci)) - 0) < eps)
 print()
 
-vm = mvec2d.new(13, -27, 3, 5)
-vmi = inv(vm)
+local vm = mvec2d.new(13, -27, 3, 5)
+local vmi = inv(vm)
 print("vm:", vm)
 print("vmi:", vmi)
 print("vm*vmi:", vm * vmi)
@@ -157,7 +157,7 @@ if mv4 == mv1 + mv2 and mv1 == mv4 - mv2 then
 	print("mv4 == mv1 + mv2", "comparison, addition and subtraction")
 end
 
-mv5 = 3 * mv4
+local mv5 = 3 * mv4
 assert(3 * mv4 == mv4 * 3)
 assert(mv5 / 3 == mv4)
 print("mv5 = 3 * mv4:", 3 * mv4, "scalar multiplication")
@@ -177,7 +177,7 @@ print("inv(mv2), mv2*inv(mv2)", inv(mv2), mv2 * inv(mv2))
 
 -- handling of pscalar2d
 print("I_2d*I_2d:", I_2d * I_2d, "sq_nrm(I_2d):", sq_nrm(I_2d), "nrm(I_2d):", nrm(I_2d))
-I = pscalar2d.new(3)
+local I = pscalar2d.new(3)
 print("I:", I, "I*inv(I):", I * inv(I))
 assert(I * inv(I) == 1)
 
@@ -284,7 +284,7 @@ if v4 == v1 + v2 and v1 == v4 - v2 then
 	print("v4 == v1 + v2", "comparison, addition and subtraction")
 end
 
-v5 = 3 * v4
+local v5 = 3 * v4
 assert(3 * v4 == v4 * 3)
 assert(v5 / 3 == v4)
 print("3 * v4:", 3 * v4, "scalar multiplication")
@@ -318,7 +318,7 @@ local bv3 = wdg(vec3d.new(1, 0, 0), vec3d.new(0, 1, 0))
 print("bv3 = wdg(vec3d.new(1,0,0),vec3d.new(0,1,0)):", bv3, "dual3d(bv3):", dual3d(bv3))
 print()
 
-vc = cross(vec3d.new(1, 0, 0), vec3d.new(0, 1, 0))
+local vc = cross(vec3d.new(1, 0, 0), vec3d.new(0, 1, 0))
 print("vc = (1,0,0)x(0,1,0):", vc)
 print("(1,0,0)x(0,1,0) = -dual3d(bv3):", -dual3d(bv3))
 assert(vc == -dual3d(bv3))
@@ -362,7 +362,7 @@ if mve4 == mve1 + mve2 and mve1 == mve4 - mve2 then
 	print("mve4 == mve1 + mve2", "comparison, addition and subtraction")
 end
 
-mve5 = 3 * mve4
+local mve5 = 3 * mve4
 assert(3 * mve4 == mve4 * 3)
 assert(mve5 / 3 == mve4)
 print("mv5 = 3 * mve4:", 3 * mve4, "scalar multiplication")
@@ -378,8 +378,8 @@ print("angle(v1, bv1) - (rad, deg):", angle(v1, bv1), rad_to_deg(angle(v1, bv1))
 
 -- inverses
 print("\ninverses:\n")
-v = vec3d.new(13, 5, -4)
-vi = inv(v)
+local v = vec3d.new(13, 5, -4)
+local vi = inv(v)
 print("v:", v)
 print("vi:", vi)
 print("v*vi:", v * vi)
@@ -422,7 +422,7 @@ if mv4 == mv1 + mv2 and mv1 == mv4 - mv2 then
 	print("mv4 == mv1 + mv2", "comparison, addition and subtraction")
 end
 
-mv5 = 3 * mv4
+local mv5 = 3 * mv4
 assert(3 * mv4 == mv4 * 3)
 assert(mv5 / 3 == mv4)
 print("mv5 = 3 * mv4:", 3 * mv4, "scalar multiplication")
@@ -447,7 +447,7 @@ print()
 
 -- handling of pscalar3d
 print("I_3d*I_3d:", I_3d * I_3d, "sq_nrm(I_3d):", sq_nrm(I_3d), "nrm(I_3d):", nrm(I_3d))
-I = pscalar3d.new(3)
+local I = pscalar3d.new(3)
 print("I:", I, "I*inv(I):", I * inv(I))
 assert(I * inv(I) == 1)
 
@@ -594,55 +594,67 @@ for i = 0, 10 do
 end
 print()
 
-u = vec2d.new(4.5, 3)
-v = vec2d.new(2.5, 4)
-v_par = project_onto(v, u)
-v_perp = reject_from(v, u)
+local u = vec2d.new(4.5, 3)
+local v = vec2d.new(2.5, 4)
+local v_par = project_onto(v, u)
+local v_perp = reject_from(v, u)
 print("v =  ", v)
 print("u = ", u)
 print("v_par =  ", v_par)
 print("v_perp = ", v_perp)
 print("v = v_par + v_perp ", v_par + v_perp)
 
-mv = mvec3d.new(0, 0, 0, 0, 1, 2, 3, 0)
+local mv = mvec3d.new(0, 0, 0, 0, 1, 2, 3, 0)
 print("mv:", mv, "dual3d(mv):", dual3d(mv))
 
 -- wegde as operator
-u = vec2d.new(-3, 5)
-v = vec2d.new(2, -5)
-uv = u ^ v
+local u = vec2d.new(-3, 5)
+local v = vec2d.new(2, -5)
+local uv = u ^ v
 print("wdg(vec2d.new(-3,5),vec2d.new(2,-5)):", wdg(vec2d.new(-3, 5), vec2d.new(2, -5)))
 print("u:", u, "v:", v, "u^v:", uv)
 print()
 
-u = vec3d.new(-3, 5, 7)
-v = vec3d.new(2, -5, 12)
-uv = u ^ v
+local u = vec3d.new(-3, 5, 7)
+local v = vec3d.new(2, -5, 12)
+local uv = u ^ v
 print("wdg(vec3d.new(-3,5,7),vec3d.new(2,-5,12)):", wdg(vec3d.new(-3, 5, 7), vec3d.new(2, -5, 12)))
 print("u:", u, "v:", v, "u^v:", uv)
 print()
 
-u = vec3d.new(-3, 5, 7)
-v = bivec3d.new(2, 3, 4)
-uv = u ^ v
+local u = vec3d.new(-3, 5, 7)
+local v = bivec3d.new(2, 3, 4)
+local uv = u ^ v
 print("wdg(vec3d.new(-3,5,7),bivec3d.new(2,3,4)):", wdg(vec3d.new(-3, 5, 7), bivec3d.new(2, 3, 4)))
 print("u:", u, "v:", v, "u^v:", uv)
 print()
 
-vu = v ^ u
+local vu = v ^ u
 print("wdg(bivec3d.new(2,3,4),vec3d.new(-3,5,7)):", wdg(bivec3d.new(2, 3, 4), vec3d.new(-3, 5, 7)))
 print("u:", u, "v:", v, "v^u:", vu)
 print()
 
 -- small test for projection and rejections
-u = vec2d.new(3, 0)
-v = vec2d.new(2, 1)
+local u = vec2d.new(3, 0)
+local v = vec2d.new(2, 1)
 
-v_par = dot(v, u) * inv(u)
-v_perp = (v ^ u) * inv(u)
+local v_par = dot(v, u) * inv(u)
+local v_perp = (v ^ u) * inv(u)
 
 print("u=", u, "v=", v)
 print("dot(v, u)=", dot(v, u), "wdg(v, u)=", v ^ u)
 print("inv(u)", inv(u))
 print("v_par=", v_par, "v_perp=", v_perp)
 print("project_onto(v,u)=", project_onto(v, u), "reject_from(v,u)=", reject_from(v, u))
+print()
+
+print("dot(v,I_2d)*inv(I_2d)=", dot(v, I_2d) * inv(I_2d))
+print()
+
+print("v*I_2d=", v * I_2d, "I_2d*v=", I_2d * v)
+print("dot(v,I_2d)=", dot(v, I_2d), "dot(I_2d,v)=", dot(I_2d, v))
+print("0.5*(v*I_2d-I_2d*v)=", 0.5 * (v * I_2d - I_2d * v))
+print("0.5*(I_2d*v-v*I_2d)=", 0.5 * (I_2d * v - v * I_2d))
+print("0.5*(v*I_2d+I_2d*v)=", 0.5 * (v * I_2d + I_2d * v))
+print("0.5*(I_2d*v+v*I_2d)=", 0.5 * (I_2d * v + v * I_2d))
+print("project_onto(v,I_2d)=", project_onto(v, I_2d))
