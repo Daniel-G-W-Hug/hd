@@ -49,7 +49,4 @@ find_package(fmt CONFIG REQUIRED)
 add_executable(hd_functions_test hd_functions_test.cpp)   #dep: doctest
 target_link_libraries(hd_functions_test PRIVATE doctest::doctest)
 
-# add the geometric algebra headers
-add_subdirectory(ga)
-
 #target_link_libraries(xyz_test PRIVATE date::date)
