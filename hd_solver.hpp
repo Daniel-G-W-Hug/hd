@@ -35,12 +35,7 @@
 #include <vector>
 
 // make mdspan less verbose
-using Kokkos::dextents;
-using Kokkos::dynamic_extent;
-using Kokkos::extents;
-using Kokkos::layout_left;
-using Kokkos::layout_right;
-using Kokkos::mdspan;
+using namespace Kokkos;
 
 namespace hd { // Namespace hd to define my types for numerical computation
 
