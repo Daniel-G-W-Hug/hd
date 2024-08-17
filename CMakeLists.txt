@@ -32,14 +32,12 @@ if(NOT CMAKE_BUILD_TYPE)
   message(STATUS "Build type not specified: use Debug mode by default.")
 endif()
 
-if(CMAKE_BUILD_TYPE EQUAL "Debug")
-  if(MSVC)
-    # warning level 4 and all warnings as errors
-    add_compile_options(/W4 /WX)
-  else()
-    # lots of warnings and all warnings as errors
-    add_compile_options(-Wall -Wextra -pedantic -Werror)
-  endif()
+if(MSVC)
+  # warning level 4 and all warnings as errors
+  add_compile_options(/W4 /WX)
+else()
+  # lots of warnings and all warnings as errors
+  add_compile_options(-Wall -Wextra -pedantic -Werror)
 endif()
 
 find_package(doctest REQUIRED)
