@@ -161,7 +161,7 @@ void lu_backsubs(mdspan<double const, dextents<size_t, 2>> a,
                          "or right hand side size incompatible.");
     };
 
-    int ubound = a.extent(0) - 1; // highest valid index (=upper boundary)
+    size_t ubound = a.extent(0) - 1; // highest valid index (=upper boundary)
 
     double sum;
     int ll;
