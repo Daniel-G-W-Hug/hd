@@ -67,10 +67,10 @@ struct stencil_t {
     double trunc_err; // truncation error as factor in front of highest neglected term
 
     // helpers for number of points
-    int nf0() const { return xf0.size(); }          // number of points for f
-    int nf1() const { return xf1.size(); }          // number of points for f'
-    int nf2() const { return xf2.size(); }          // number of points for f''
-    int n() const { return nf0() + nf1() + nf2(); } // total number of points
+    size_t nf0() const { return xf0.size(); }          // number of points for f
+    size_t nf1() const { return xf1.size(); }          // number of points for f'
+    size_t nf2() const { return xf2.size(); }          // number of points for f''
+    size_t n() const { return nf0() + nf1() + nf2(); } // total number of points
 
   private:
 
@@ -91,7 +91,7 @@ void stencil_t::calc_stencil()
     mdspan rhs{mem_rhs.data(), n()};
 
     // setup column indices (i.e. begin/end indices for f, f', f'')
-    int j0b, j0e, j1b, j1e, j2b, j2e, col;
+    size_t j0b, j0e, j1b, j1e, j2b, j2e, col;
 
     // f
     j0b = 0;

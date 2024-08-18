@@ -79,9 +79,9 @@ void lu_decomp(mdspan<double, dextents<size_t, 2>> a,
     std::vector<double> vv(a.extent(0));
 
     // fill in scaling vector
-    for (size_t i = 0; i <= ubound; ++i) {
+    for (int i = 0; i <= ubound; ++i) {
         double aamax = 0.;
-        for (size_t j = 0; j <= ubound; ++j) {
+        for (int j = 0; j <= ubound; ++j) {
             if (abs(a[i, j]) > aamax) aamax = abs(a[i, j]);
         }
         if (aamax == 0.) solver_error_msg("hd::lu_decomp(): singular matrix.");
@@ -91,22 +91,22 @@ void lu_decomp(mdspan<double, dextents<size_t, 2>> a,
     // LU decomposition
     double sum, aamax, dum;
     int imax;
-    for (size_t j = 0; j <= ubound; ++j) {
+    for (int j = 0; j <= ubound; ++j) {
         if (j > 0) {
-            for (size_t i = 0; i <= j - 1; ++i) {
+            for (int i = 0; i <= j - 1; ++i) {
                 sum = a[i, j];
                 if (i > 0) {
-                    for (size_t k = 0; k <= i - 1; ++k)
+                    for (int k = 0; k <= i - 1; ++k)
                         sum -= a[i, k] * a[k, j];
                     a[i, j] = sum;
                 }
             }
         }
         aamax = 0.;
-        for (size_t i = j; i <= ubound; ++i) {
+        for (int i = j; i <= ubound; ++i) {
             sum = a[i, j];
             if (j > 0) {
-                for (size_t k = 0; k <= j - 1; ++k)
+                for (int k = 0; k <= j - 1; ++k)
                     sum -= a[i, k] * a[k, j];
                 a[i, j] = sum;
             }
@@ -117,7 +117,7 @@ void lu_decomp(mdspan<double, dextents<size_t, 2>> a,
             }
         }
         if (j != imax) {
-            for (size_t k = 0; k <= ubound; ++k) {
+            for (int k = 0; k <= ubound; ++k) {
                 dum = a[imax, k];
                 a[imax, k] = a[j, k];
                 a[j, k] = dum;
@@ -128,7 +128,7 @@ void lu_decomp(mdspan<double, dextents<size_t, 2>> a,
         if (j != ubound) {
             if (a[j, j] == 0.) a[j, j] = TINY;
             dum = 1. / a[j, j];
-            for (size_t i = j + 1; i <= ubound; ++i)
+            for (int i = j + 1; i <= ubound; ++i)
                 a[i, j] *= dum;
         }
     }
@@ -161,28 +161,28 @@ void lu_backsubs(mdspan<double const, dextents<size_t, 2>> a,
                          "or right hand side size incompatible.");
     };
 
-    size_t ubound = a.extent(0) - 1; // highest valid index (=upper boundary)
+    int ubound = a.extent(0) - 1; // highest valid index (=upper boundary)
 
     double sum;
     int ll;
 
     int ii = -1; // never occurring index as indicator for first loop
-    for (size_t i = 0; i <= ubound; ++i) {
+    for (int i = 0; i <= ubound; ++i) {
         ll = perm[i];
         sum = b[ll];
         b[ll] = b[i];
         if (ii != -1) {
-            for (size_t j = ii; j <= i - 1; ++j)
+            for (int j = ii; j <= i - 1; ++j)
                 sum -= a[i, j] * b[j];
         }
         else if (sum != 0.) ii = i;
         b[i] = sum;
     }
 
-    for (size_t i = ubound; i >= 0; --i) {
+    for (int i = ubound; i >= 0; --i) {
         sum = b[i];
         if (i < ubound) {
-            for (size_t j = i + 1; j <= ubound; ++j)
+            for (int j = i + 1; j <= ubound; ++j)
                 sum -= a[i, j] * b[j];
         }
         b[i] = sum / a[i, i];
