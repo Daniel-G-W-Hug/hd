@@ -22,7 +22,8 @@ enum class stencil_lhs {
 
 struct stencil_t {
     // after calling the ctor, the "output values" can be used
-    stencil_t(double x0, stencil_lhs lhs_t, std::vector<double> xf0, std::vector<double> xf1, std::vector<double> xf2) :
+    stencil_t(double x0, stencil_lhs lhs_t, std::vector<double> xf0,
+              std::vector<double> xf1, std::vector<double> xf2) :
         x0{x0}, lhs_t{lhs_t}, xf0{xf0}, xf1{xf1}, xf2{xf2}
     {
 
@@ -30,7 +31,8 @@ struct stencil_t {
         if ((nf1() == 0 && nf2() == 0) || n() < 3 ||
             (nf1() == 0 && lhs_t == stencil_lhs::f1) ||
             (nf2() == 0 && lhs_t == stencil_lhs::f2)) {
-            throw std::invalid_argument("Inconsistent specification of stencil in ctor of hd::stencil_t.");
+            throw std::invalid_argument(
+                "Inconsistent specification of stencil in ctor of hd::stencil_t.");
         }
 
         // reserve space for weights (does not change wfx.size())
@@ -47,9 +49,10 @@ struct stencil_t {
     }
 
     // input values provided by ctor
-    const double x0;         // development point of stencil
-                             // (should be within or at least close to coordinates of points)
-    const stencil_lhs lhs_t; // either f1 or f2 terms on lhs, all other terms considered to be on rhs
+    const double x0; // development point of stencil
+                     // (should be within or at least close to coordinates of points)
+    const stencil_lhs
+        lhs_t; // either f1 or f2 terms on lhs, all other terms considered to be on rhs
 
     const std::vector<double> xf0; // coordinates of points for f
     const std::vector<double> xf1; // coordinates of points for f'
@@ -64,12 +67,13 @@ struct stencil_t {
     double trunc_err; // truncation error as factor in front of highest neglected term
 
     // helpers for number of points
-    int nf0() const { return xf0.size(); }          // number of points for f
-    int nf1() const { return xf1.size(); }          // number of points for f'
-    int nf2() const { return xf2.size(); }          // number of points for f''
-    int n() const { return nf0() + nf1() + nf2(); } // total number of points
+    size_t nf0() const { return xf0.size(); }          // number of points for f
+    size_t nf1() const { return xf1.size(); }          // number of points for f'
+    size_t nf2() const { return xf2.size(); }          // number of points for f''
+    size_t n() const { return nf0() + nf1() + nf2(); } // total number of points
 
   private:
+
     void calc_stencil();
 };
 
@@ -87,7 +91,7 @@ void stencil_t::calc_stencil()
     mdspan rhs{mem_rhs.data(), n()};
 
     // setup column indices (i.e. begin/end indices for f, f', f'')
-    int j0b, j0e, j1b, j1e, j2b, j2e, col;
+    size_t j0b, j0e, j1b, j1e, j2b, j2e, col;
 
     // f
     j0b = 0;
@@ -109,15 +113,16 @@ void stencil_t::calc_stencil()
     }
 
     // fmt::print("nf0()={}, nf1()={}, nf2()={}, n()={}\n", nf0(), nf1(), nf2(), n());
-    // fmt::print("j0b={}, j0e={}, j1b={}, j1e={}, j2b={}, j2e={}\n", j0b, j0e, j1b, j1e, j2b, j2e);
+    // fmt::print("j0b={}, j0e={}, j1b={}, j1e={}, j2b={}, j2e={}\n", j0b, j0e, j1b, j1e,
+    // j2b, j2e);
 
     // setup standard matrix columnwise
     // unwanted terms of series expansion of lhs are moved to rhs (sfact)
 
     // f
-    for (int j = j0b; j <= j0e; ++j) {
+    for (size_t j = j0b; j <= j0e; ++j) {
         matrix[0, j] = 1.0;
-        for (int i = 1; i < n(); ++i)
+        for (size_t i = 1; i < n(); ++i)
             matrix[i, j] = std::pow(xf0[j - j0b] - x0, i) / hd::fact(i);
     }
 
@@ -133,11 +138,12 @@ void stencil_t::calc_stencil()
             // put terms on rhs
             sfact = 1.0;
         }
-        for (int j = j1b; j <= j1e; ++j) {
+        for (size_t j = j1b; j <= j1e; ++j) {
             matrix[0, j] = 0.0;
             matrix[1, j] = 1.0;
-            for (int i = 2; i < n(); ++i)
-                matrix[i, j] = sfact * std::pow(xf1[j - j1b] - x0, i - 1) / hd::fact(i - 1);
+            for (size_t i = 2; i < n(); ++i)
+                matrix[i, j] =
+                    sfact * std::pow(xf1[j - j1b] - x0, i - 1) / hd::fact(i - 1);
         }
     }
 
@@ -151,12 +157,13 @@ void stencil_t::calc_stencil()
             // put terms on rhs
             sfact = 1.0;
         }
-        for (int j = j2b; j <= j2e; ++j) {
+        for (size_t j = j2b; j <= j2e; ++j) {
             matrix[0, j] = 0.0;
             matrix[1, j] = 0.0;
             matrix[2, j] = 1.0;
-            for (int i = 3; i < n(); ++i)
-                matrix[i, j] = sfact * std::pow(xf2[j - j2b] - x0, i - 2) / hd::fact(i - 2);
+            for (size_t i = 3; i < n(); ++i)
+                matrix[i, j] =
+                    sfact * std::pow(xf2[j - j2b] - x0, i - 2) / hd::fact(i - 2);
         }
     }
 
@@ -169,23 +176,24 @@ void stencil_t::calc_stencil()
         rhs[2] = 1.0;
     }
 
-    // normalization: replace last equation with normalization condition (sum of coefficients on lhs = 1)
-    //                i.e. set coefficients of primary derivative to 1.0 in the last equation (normalization)
-    //                and set them to 0.0 in the corresponding matrix line
-    //                (remove them from the rhs of the standard system)
-    for (int j = 0; j < n(); ++j)
+    // normalization: replace last equation with normalization condition (sum of
+    // coefficients on lhs = 1)
+    //                i.e. set coefficients of primary derivative to 1.0 in the last
+    //                equation (normalization) and set them to 0.0 in the corresponding
+    //                matrix line (remove them from the rhs of the standard system)
+    for (size_t j = 0; j < n(); ++j)
         matrix[n() - 1, j] = 0.0;
 
     rhs[n() - 1] = 1.0;
 
     if (lhs_t == stencil_lhs::f1) {
-        for (int j = j1b; j <= j1e; ++j) {
+        for (size_t j = j1b; j <= j1e; ++j) {
             matrix[n() - 1, j] = 1.0;
             matrix[1, j] = 0.0;
         }
     }
     if (lhs_t == stencil_lhs::f2) {
-        for (int j = j2b; j <= j2e; ++j) {
+        for (size_t j = j2b; j <= j2e; ++j) {
             matrix[n() - 1, j] = 1.0;
             matrix[2, j] = 0.0;
         }
@@ -197,25 +205,25 @@ void stencil_t::calc_stencil()
 
     // assign weights to output vectors
     // f
-    for (int j = j0b; j <= j0e; ++j)
+    for (size_t j = j0b; j <= j0e; ++j)
         wf0.push_back(rhs[j]);
     // f'
     if (nf1() > 0) {
-        for (int j = j1b; j <= j1e; ++j)
+        for (size_t j = j1b; j <= j1e; ++j)
             wf1.push_back(rhs[j]);
     }
     // f''
     if (nf2() > 0) {
-        for (int j = j2b; j <= j2e; ++j)
+        for (size_t j = j2b; j <= j2e; ++j)
             wf2.push_back(rhs[j]);
     }
 
     // compute order and truncation error
 
     // f
-    for (int i = nf0(); i <= n(); ++i) {
+    for (size_t i = nf0(); i <= n(); ++i) {
         double sumte = 0.0;
-        for (int j = j0b; j <= j0e; ++j)
+        for (size_t j = j0b; j <= j0e; ++j)
             sumte += std::pow(xf0[j - j0b] - x0, i) / hd::fact(i) * rhs[j];
 
         // f'
@@ -228,7 +236,7 @@ void stencil_t::calc_stencil()
                 // put terms on rhs
                 sfact = 1.0;
             }
-            for (int j = j1b; j <= j1e; ++j)
+            for (size_t j = j1b; j <= j1e; ++j)
                 sumte += std::pow(xf1[j - j1b] - x0, i - 1) / hd::fact(i - 1) * rhs[j];
         }
 
@@ -242,7 +250,7 @@ void stencil_t::calc_stencil()
                 // put terms on rhs
                 sfact = 1.0;
             }
-            for (int j = j2b; j <= j2e; ++j)
+            for (size_t j = j2b; j <= j2e; ++j)
                 sumte += std::pow(xf2[j - j2b] - x0, i - 2) / hd::fact(i - 2) * rhs[j];
         }
 

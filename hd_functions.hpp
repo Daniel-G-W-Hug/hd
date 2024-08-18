@@ -20,10 +20,7 @@ double fact(int n);
 double log_fact(int n);
 double bico(int n, int k);
 
-enum class split_t {
-    geometric,
-    arithmetic
-};
+enum class split_t { geometric, arithmetic };
 int oo_magnitude(double x, split_t s = split_t::geometric);
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -85,15 +82,15 @@ double smoother_step(double low_x, double high_x, double x)
 double log_gamma(double xx)
 {
     double x, y, tmp, ser;
-    static const double cof[6] = {76.18009172947146, -86.50532032941677,
-                                  24.01409824083091, -1.231739572450155,
+    static const double cof[6] = {76.18009172947146,     -86.50532032941677,
+                                  24.01409824083091,     -1.231739572450155,
                                   0.1208650973866179e-2, -0.5395239384953e-5};
     y = x = xx;
     tmp = x + 5.5;
     tmp -= (x + 0.5) * std::log(tmp);
     ser = 1.000000000190015;
 
-    for (int j = 0; j <= 5; ++j) {
+    for (size_t j = 0; j <= 5; ++j) {
         ser += cof[j] / ++y;
     }
     return -tmp + std::log(2.5066282746310005 * ser / x);
@@ -179,15 +176,13 @@ double bico(int n, int k)
 int oo_magnitude(double x, split_t s)
 {
 
-    if (abs(x) <= std::numeric_limits<double>::min())
-        return 0;
+    if (abs(x) <= std::numeric_limits<double>::min()) return 0;
 
     if (s == split_t::geometric) // geometric split (default)
         return std::floor(std::log10(std::abs(x)) + 0.5);
     else if (s == split_t::arithmetic) //  arithmetric split
         return std::log10(std::abs(x) / 0.5);
-    else
-        throw std::invalid_argument("hd::oo_magnitude: case in split_t not handled.");
+    else throw std::invalid_argument("hd::oo_magnitude: case in split_t not handled.");
 }
 
 } // namespace hd

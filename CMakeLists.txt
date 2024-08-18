@@ -9,7 +9,7 @@
 #]]
 #[[ hint: backet comment will not be formated by cmake-format]]
 
-cmake_minimum_required(VERSION 3.27)
+cmake_minimum_required(VERSION 3.29)
 
 #
 # for trial of new features, libs or system values"
@@ -32,22 +32,24 @@ if(NOT CMAKE_BUILD_TYPE)
   message(STATUS "Build type not specified: use Debug mode by default.")
 endif()
 
-if(CMAKE_BUILD_TYPE EQUAL "Debug")
-  if(MSVC)
-    # warning level 4 and all warnings as errors
-    add_compile_options(/W4 /WX)
-  else()
-    # lots of warnings and all warnings as errors
-    add_compile_options(-Wall -Wextra -pedantic -Werror)
-  endif()
+if(MSVC)
+  # warning level 4 and all warnings as errors
+  add_compile_options(/W4 /WX)
+else()
+  # lots of warnings and all warnings as errors
+  #add_compile_options(-Wall -Wextra -pedantic -Werror)
+  add_compile_options(-Wall -Wextra -pedantic)
 endif()
 
 find_package(doctest REQUIRED)
 #find_package(date REQUIRED)
+find_package(fmt CONFIG REQUIRED)
 
-
-# incrementally add test files needed
-add_executable(hd_functions_test hd_functions_test.cpp)     #dep: ...
-
+add_executable(hd_functions_test hd_functions_test.cpp)   #dep: doctest
 target_link_libraries(hd_functions_test PRIVATE doctest::doctest)
-#target_link_libraries(xyz_test PRIVATE date::date)
+
+add_executable(hd_solver_test hd_solver_test.cpp)   #dep: doctest
+target_link_libraries(hd_solver_test PRIVATE doctest::doctest)
+target_include_directories(hd_solver_test PRIVATE ${CMAKE_SOURCE_DIR}/../../include/mdspan/include)
+target_compile_definitions(hd_solver_test PUBLIC MDSPAN_USE_BRACKET_OPERATOR=1 MDSPAN_CXX_STANDARD=23)
+target_link_libraries(hd_solver_test PRIVATE fmt::fmt-header-only)

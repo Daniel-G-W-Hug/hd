@@ -1,7 +1,8 @@
 #ifndef HD_SOLVER_H
 #define HD_SOLVER_H
 
-// implementation of solvers for small systems a*x = b (gaussian elimination by LU factorization of a)
+// implementation of solvers for small systems a*x = b (gaussian elimination by LU
+// factorization of a)
 //
 // Usage:
 //
@@ -34,48 +35,41 @@
 #include <vector>
 
 // make mdspan less verbose
-using Kokkos::dextents;
-using Kokkos::dynamic_extent;
-using Kokkos::extents;
-using Kokkos::layout_left;
-using Kokkos::layout_right;
-using Kokkos::mdspan;
+using namespace Kokkos;
 
 namespace hd { // Namespace hd to define my types for numerical computation
 
-void lu_decomp(mdspan<double, dextents<std::size_t, 2>> a,
-               mdspan<int, dextents<std::size_t, 1>> perm);
-void lu_backsubs(mdspan<double const, dextents<std::size_t, 2>> a,
-                 mdspan<int const, dextents<std::size_t, 1>> perm,
-                 mdspan<double, dextents<std::size_t, 1>> b);
+void lu_decomp(mdspan<double, dextents<size_t, 2>> a,
+               mdspan<int, dextents<size_t, 1>> perm);
+void lu_backsubs(mdspan<double const, dextents<size_t, 2>> a,
+                 mdspan<int const, dextents<size_t, 1>> perm,
+                 mdspan<double, dextents<size_t, 1>> b);
 
 //-----------------------------------------------------------------------------
 // Solver error handling
 //-----------------------------------------------------------------------------
 struct Solver_error {
     std::string name;
-    Solver_error(const char* q) :
-        name(q) {}
-    Solver_error(std::string n) :
-        name(n) {}
+    Solver_error(const char* q) : name(q) {}
+    Solver_error(std::string n) : name(n) {}
 };
 
 //-----------------------------------------------------------------------------
 
 inline void solver_error_msg(const char* p) { throw Solver_error(p); }
 
-void lu_decomp(mdspan<double, dextents<std::size_t, 2>> a,
-               mdspan<int, dextents<std::size_t, 1>> perm)
+void lu_decomp(mdspan<double, dextents<size_t, 2>> a,
+               mdspan<int, dextents<size_t, 1>> perm)
 {
     /* LU decomposition of matrix a (handed back on a)
        perm is the permutation vector in case of line exchange (pivot elements)
     */
 
     // check fitness of matrix and permutation vector
-    if (a.extent(0) != a.extent(1) ||
-        a.extent(0) != perm.extent(0)) {
+    if (a.extent(0) != a.extent(1) || a.extent(0) != perm.extent(0)) {
 
-        solver_error_msg("hd::lu_decomp(): unsymmetric matrix or permututation vector size incompatible.");
+        solver_error_msg("hd::lu_decomp(): unsymmetric matrix or permututation vector "
+                         "size incompatible.");
     };
 
     constexpr double TINY = 1.e-20;
@@ -88,11 +82,9 @@ void lu_decomp(mdspan<double, dextents<std::size_t, 2>> a,
     for (int i = 0; i <= ubound; ++i) {
         double aamax = 0.;
         for (int j = 0; j <= ubound; ++j) {
-            if (abs(a[i, j]) > aamax)
-                aamax = abs(a[i, j]);
+            if (abs(a[i, j]) > aamax) aamax = abs(a[i, j]);
         }
-        if (aamax == 0.)
-            solver_error_msg("hd::lu_decomp(): singular matrix.");
+        if (aamax == 0.) solver_error_msg("hd::lu_decomp(): singular matrix.");
         vv[i] = 1. / aamax;
     }
 
@@ -134,21 +126,19 @@ void lu_decomp(mdspan<double, dextents<std::size_t, 2>> a,
         }
         perm[j] = imax;
         if (j != ubound) {
-            if (a[j, j] == 0.)
-                a[j, j] = TINY;
+            if (a[j, j] == 0.) a[j, j] = TINY;
             dum = 1. / a[j, j];
             for (int i = j + 1; i <= ubound; ++i)
                 a[i, j] *= dum;
         }
     }
-    if (a[ubound, ubound] == 0.)
-        a[ubound, ubound] = TINY;
+    if (a[ubound, ubound] == 0.) a[ubound, ubound] = TINY;
 
 } // ludecomp()
 
-void lu_backsubs(mdspan<double const, dextents<std::size_t, 2>> a,
-                 mdspan<int const, dextents<std::size_t, 1>> perm,
-                 mdspan<double, dextents<std::size_t, 1>> b)
+void lu_backsubs(mdspan<double const, dextents<size_t, 2>> a,
+                 mdspan<int const, dextents<size_t, 1>> perm,
+                 mdspan<double, dextents<size_t, 1>> b)
 {
     /*
     backward substitution: a is the LU-decomposed matrix as provided by lu_decomp()
@@ -164,11 +154,11 @@ void lu_backsubs(mdspan<double const, dextents<std::size_t, 2>> a,
     */
 
     // check fitness of matrix, permutation vector and right hand side
-    if (a.extent(0) != a.extent(1) ||
-        a.extent(0) != perm.extent(0) ||
+    if (a.extent(0) != a.extent(1) || a.extent(0) != perm.extent(0) ||
         a.extent(0) != b.extent(0)) {
 
-        solver_error_msg("hd::lu_decomp(): unsymmetric matrix, permututation vector size or right hand side size incompatible.");
+        solver_error_msg("hd::lu_decomp(): unsymmetric matrix, permututation vector size "
+                         "or right hand side size incompatible.");
     };
 
     int ubound = a.extent(0) - 1; // highest valid index (=upper boundary)
@@ -185,8 +175,7 @@ void lu_backsubs(mdspan<double const, dextents<std::size_t, 2>> a,
             for (int j = ii; j <= i - 1; ++j)
                 sum -= a[i, j] * b[j];
         }
-        else if (sum != 0.)
-            ii = i;
+        else if (sum != 0.) ii = i;
         b[i] = sum;
     }
 
