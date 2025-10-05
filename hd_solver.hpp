@@ -73,7 +73,7 @@ void lu_decomp(mdspan<double, dextents<size_t, 2>> a,
     };
 
     constexpr double TINY = 1.e-20;
-    int ubound = a.extent(0) - 1; // highest valid index (=upper boundary)
+    int ubound = static_cast<int>(a.extent(0)) - 1; // highest valid index (=upper boundary)
 
     // helper for scaling the matrix rows
     std::vector<double> vv(a.extent(0));
@@ -90,7 +90,7 @@ void lu_decomp(mdspan<double, dextents<size_t, 2>> a,
 
     // LU decomposition
     double sum, aamax, dum;
-    int imax;
+    int imax = 0; // Initialize to avoid MSVC warning
     for (int j = 0; j <= ubound; ++j) {
         if (j > 0) {
             for (int i = 0; i <= j - 1; ++i) {
@@ -161,7 +161,7 @@ void lu_backsubs(mdspan<double const, dextents<size_t, 2>> a,
                          "or right hand side size incompatible.");
     };
 
-    int ubound = a.extent(0) - 1; // highest valid index (=upper boundary)
+    int ubound = static_cast<int>(a.extent(0)) - 1; // highest valid index (=upper boundary)
 
     double sum;
     int ll;

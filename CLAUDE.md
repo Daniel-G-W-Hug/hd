@@ -176,13 +176,45 @@ double value = matrix[i, j];  // NOT matrix(i, j)
 
 ## Building and Testing
 
+### Prerequisites
+
+**Windows with vcpkg:**
+
+```bash
+# Install dependencies
+vcpkg install doctest:x64-windows fmt:x64-windows
+```
+
+**macOS with brew:**
+
+```bash
+# Install dependencies
+brew install doctest fmt
+```
+
 ### Build Commands
+
+**Windows (with vcpkg):**
+
+```bash
+cd build
+cmake .. -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
+cmake --build .
+```
+
+**macOS (with brew):**
 
 ```bash
 cd build
 cmake ..              # Or: cmake .. -GNinja
 ninja                 # Or: make
 ```
+
+**Notes:**
+
+- Replace `C:/vcpkg/` with your actual vcpkg installation path if different
+- The build system automatically detects vcpkg vs traditional dependencies
+- mdspan uses local copy at `../../include/mdspan/include` (Kokkos single-header)
 
 ### Running Tests
 

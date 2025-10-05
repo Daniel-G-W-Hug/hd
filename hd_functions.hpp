@@ -179,9 +179,9 @@ int oo_magnitude(double x, split_t s)
     if (abs(x) <= std::numeric_limits<double>::min()) return 0;
 
     if (s == split_t::geometric) // geometric split (default)
-        return std::floor(std::log10(std::abs(x)) + 0.5);
+        return static_cast<int>(std::floor(std::log10(std::abs(x)) + 0.5));
     else if (s == split_t::arithmetic) //  arithmetric split
-        return std::log10(std::abs(x) / 0.5);
+        return static_cast<int>(std::log10(std::abs(x) / 0.5));
     else throw std::invalid_argument("hd::oo_magnitude: case in split_t not handled.");
 }
 
@@ -254,8 +254,8 @@ template <IntegerIndex... Args> auto eps(Args... args)
 
     // product of all differences of positions (j > i)
     int denominator = 1;
-    for (std::size_t i = 0; i < n; ++i) {
-        for (std::size_t j = i + 1; j < n; ++j) {
+    for (int i = 0; i < static_cast<int>(n); ++i) {
+        for (int j = i + 1; j < static_cast<int>(n); ++j) {
             denominator *= (j - i);
         }
     }
