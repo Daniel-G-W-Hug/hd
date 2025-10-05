@@ -2,7 +2,9 @@
 
 ## Executive Summary
 
-The LU decomposition implementation in `hd_solver.hpp` (from Numerical Recipes) is **near-optimal** for general-purpose use. No modifications are recommended for typical use cases with matrices up to size ~100.
+The LU decomposition implementation in `hd_solver.hpp` (from Numerical Recipes) is
+**near-optimal** for general-purpose use. No modifications are recommended for typical use
+cases with matrices up to size ~100.
 
 ## Implementation Analysis
 
@@ -140,7 +142,9 @@ void lu_solve_refined(A, b, x, max_iter=3) {
 
 ## Conclusion
 
-The Numerical Recipes LU decomposition with scaled partial pivoting is a **gold standard implementation**. The test results confirm it maintains excellent numerical accuracy across a wide range of conditions, including:
+The Numerical Recipes LU decomposition with scaled partial pivoting is a **gold standard
+implementation**. The test results confirm it maintains excellent numerical accuracy
+across a wide range of conditions, including:
 
 - ✅ Well-conditioned systems: full machine precision (~15 digits)
 - ✅ Moderately ill-conditioned (κ ~ 10⁶): ~9-10 digits
