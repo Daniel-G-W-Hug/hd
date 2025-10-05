@@ -12,15 +12,16 @@
 
 namespace hd {
 
-template <typename T>
-class thrdsf_queue {
+template <typename T> class thrdsf_queue {
 
   private:
+
     mutable std::mutex mtx;
     std::queue<T> data_queue;
     std::condition_variable data_cond;
 
   public:
+
     thrdsf_queue() {}
 
     void push(T new_value)
@@ -43,8 +44,7 @@ class thrdsf_queue {
     bool try_pop(T& value)
     {
         std::lock_guard<std::mutex> lk(mtx);
-        if (data_queue.empty())
-            return false;
+        if (data_queue.empty()) return false;
         value = std::move(*data_queue.front());
         data_queue.pop();
         return true;
@@ -62,8 +62,7 @@ class thrdsf_queue {
     std::shared_ptr<T> try_pop()
     {
         std::lock_guard<std::mutex> lk(mtx);
-        if (data_queue.empty())
-            return std::shared_ptr<T>(); //  return nullptr
+        if (data_queue.empty()) return std::shared_ptr<T>(); //  return nullptr
         std::shared_ptr<T> value = data_queue.front();
         data_queue.pop();
         return value;

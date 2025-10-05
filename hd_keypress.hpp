@@ -18,8 +18,7 @@ void cmdl_wait_for_enter();
 void cmdl_wait_for_enter()
 {
     do {
-        std::cout << '\n'
-                  << "Press ENTER to continue...";
+        std::cout << '\n' << "Press ENTER to continue...";
     } while (std::cin.get() != '\n');
 }
 

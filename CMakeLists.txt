@@ -53,3 +53,9 @@ target_link_libraries(hd_solver_test PRIVATE doctest::doctest)
 target_include_directories(hd_solver_test PRIVATE ${CMAKE_SOURCE_DIR}/../../include/mdspan/include)
 target_compile_definitions(hd_solver_test PUBLIC MDSPAN_USE_BRACKET_OPERATOR=1 MDSPAN_CXX_STANDARD=23)
 target_link_libraries(hd_solver_test PRIVATE fmt::fmt-header-only)
+
+add_executable(hd_determinant_test hd_determinant_test.cpp)   #dep: doctest
+target_link_libraries(hd_determinant_test PRIVATE doctest::doctest)
+target_include_directories(hd_determinant_test PRIVATE ${CMAKE_SOURCE_DIR}/../../include/mdspan/include)
+target_compile_definitions(hd_determinant_test PUBLIC MDSPAN_USE_BRACKET_OPERATOR=1 MDSPAN_CXX_STANDARD=23)
+target_link_libraries(hd_determinant_test PRIVATE fmt::fmt-header-only)

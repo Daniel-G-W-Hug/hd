@@ -46,8 +46,7 @@ std::string wstring_to_string(const std::wstring& ws)
 {
     // does only work for subset of wchar_t
     std::string outstr;
-    std::transform(ws.begin(), ws.end(),
-                   std::back_inserter(outstr),
+    std::transform(ws.begin(), ws.end(), std::back_inserter(outstr),
                    [](wchar_t c) { return (char)c; });
     return outstr;
 }
@@ -55,8 +54,7 @@ std::string wstring_to_string(const std::wstring& ws)
 std::wstring string_to_wstring(const std::string& s)
 {
     std::wstring outwstr;
-    std::transform(s.begin(), s.end(),
-                   std::back_inserter(outwstr),
+    std::transform(s.begin(), s.end(), std::back_inserter(outwstr),
                    [](char c) { return (wchar_t)c; });
     return outwstr;
 }

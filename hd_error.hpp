@@ -42,9 +42,7 @@ enum class Error_code // individual errors
 }; // (extend as required)
 
 // names of individual errors
-std::string error_code_name[]{
-    "range error"s,
-    "length error"s}; // (extend as required)
+std::string error_code_name[]{"range error"s, "length error"s}; // (extend as required)
 
 //
 // usage: pass condition via lambda to expect
@@ -59,27 +57,24 @@ std::string error_code_name[]{
 //
 
 template <Error_action action = default_Error_action, class C>
-constexpr void expect(C cond,
-                      Error_code x,
-                      const std::source_location location = std::source_location::current())
+constexpr void
+expect(C cond, Error_code x,
+       const std::source_location location = std::source_location::current())
 // take "action" if the expected condition "cond" doesn't hold
 // if constexpr tests done at compile time depending on Error_action
 // at most one runtime test of cond() is performed for each call of expect
 {
     if constexpr (action == Error_action::logging)
         if (!cond)
-            std::cerr
-                << "file: "
-                << location.file_name() << '\n'
-                << "(line " << location.line() << ", column " << location.column()
-                << ") in function '" << location.function_name() << "':\n"
-                << "expect() failure (#" << int(x) << ", " << error_code_name[int(x)] << ")\n";
+            std::cerr << "file: " << location.file_name() << '\n'
+                      << "(line " << location.line() << ", column " << location.column()
+                      << ") in function '" << location.function_name() << "':\n"
+                      << "expect() failure (#" << int(x) << ", "
+                      << error_code_name[int(x)] << ")\n";
     if constexpr (action == Error_action::throwing)
-        if (!cond)
-            throw x;
+        if (!cond) throw x;
     if constexpr (action == Error_action::terminating)
-        if (!cond)
-            std::terminate();
+        if (!cond) std::terminate();
     // or no action (in case of Error_action::ignore)
 }
 

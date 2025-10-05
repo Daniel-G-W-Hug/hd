@@ -18,14 +18,15 @@ struct empty_stack : std::exception {
     const char* what() const throw() { return "HD::thrdsf_stack: Empty stack!"; }
 };
 
-template <typename T>
-class thrdsf_stack {
+template <typename T> class thrdsf_stack {
 
   private:
+
     std::stack<T> data;
     mutable std::mutex m;
 
   public:
+
     thrdsf_stack() {}
 
     thrdsf_stack(const thrdsf_stack& other)

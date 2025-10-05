@@ -8,5 +8,6 @@
   cmake and corresponding CMakeLists.txt is just used to complile test cases, otherwise "header only" for usage.
 
 Dependencies:
-  - doctest (e.g. brew install doctest)
-  - date (e.g. brew install howard-hinnant-date)
+
+- doctest (e.g. brew install doctest)
+- date (e.g. brew install howard-hinnant-date)

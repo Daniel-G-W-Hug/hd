@@ -185,6 +185,85 @@ int oo_magnitude(double x, split_t s)
     else throw std::invalid_argument("hd::oo_magnitude: case in split_t not handled.");
 }
 
+// Kronecker delta function
+template <typename T = double>
+    requires std::same_as<T, double> || std::same_as<T, float> || std::same_as<T, int> ||
+             std::same_as<T, long> || std::same_as<T, long long> ||
+             std::same_as<T, std::size_t>
+constexpr T kronecker(size_t i, size_t j)
+{
+    return (i == j) ? T(1) : T(0);
+}
+
+// concept to restrict templates to int or size_t
+template <typename T>
+concept IntegerIndex = std::same_as<T, int> || std::same_as<T, std::size_t>;
+
+// eps is the Levi-Civita symbol (permutation symbol) for n indices
+// eps(i,j,...) = +1 for even permutations
+//              = -1 for odd permutations
+//              =  0 if any index is repeated
+template <IntegerIndex... Args> auto eps(Args... args)
+{
+    constexpr std::size_t n = sizeof...(Args);
+
+    // store arguments in arrary
+    int indices[] = {static_cast<int>(args)...};
+
+#ifndef _HD_SKIP_EPS_INDEX_RANGE_TEST
+    // check if indices are a permissible permutation
+    int sorted[n];
+    std::copy(std::begin(indices), std::end(indices), sorted);
+    std::sort(std::begin(sorted), std::end(sorted));
+
+    // Either {0,1,2,...,n-1} or {1,2,3,...,n} is permissible
+
+    // check for duplicate indices first
+    bool has_duplicates = false;
+    for (std::size_t i = 0; i < n - 1; ++i) {
+        if (sorted[i] == sorted[i + 1]) {
+            has_duplicates = true;
+            break;
+        }
+    }
+
+    // only if there are NO duplicates, check if permissible permutation
+    if (!has_duplicates) {
+        bool valid_from_zero = true;
+        bool valid_from_one = true;
+
+        for (std::size_t i = 0; i < n; ++i) {
+            if (sorted[i] != static_cast<int>(i)) valid_from_zero = false;
+            if (sorted[i] != static_cast<int>(i + 1)) valid_from_one = false;
+        }
+
+        if (!valid_from_zero && !valid_from_one) {
+            throw std::invalid_argument("eps: Indices must be a permutation of "
+                                        "consecutive integers starting from 0 or 1");
+        }
+    }
+#endif
+
+    // product of all pair differences for (j > i)
+    int numerator = 1;
+    for (std::size_t i = 0; i < n; ++i) {
+        for (std::size_t j = i + 1; j < n; ++j) {
+            numerator *= (indices[j] - indices[i]);
+        }
+    }
+
+    // product of all differences of positions (j > i)
+    int denominator = 1;
+    for (std::size_t i = 0; i < n; ++i) {
+        for (std::size_t j = i + 1; j < n; ++j) {
+            denominator *= (j - i);
+        }
+    }
+
+    // normalize to +1 or -1
+    return numerator / denominator;
+}
+
 } // namespace hd
 
 #endif // HD_FUNCTIONS_H

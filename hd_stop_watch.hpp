@@ -129,8 +129,7 @@ int stop_watch::elapsed_time(time_in t_in)
                 break;
         }
     }
-    else
-        return 0; // otherwise return 0
+    else return 0; // otherwise return 0
 }
 
 void stop_watch::reset()
