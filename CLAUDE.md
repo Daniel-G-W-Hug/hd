@@ -126,10 +126,11 @@ hd/
 
 ### External Libraries
 
-- **mdspan**: C++23 mdspan implementation (Kokkos::mdspan)
-  - Location: `../../include/mdspan/include`
-  - Used for: Multi-dimensional array views
-  - **Important**: Uses `MDSPAN_USE_BRACKET_OPERATOR=1` for `a[i,j]` syntax
+- **mdspan**: C++23 multi-dimensional array views
+  - **Auto-detection**: Uses `std::mdspan` if available (C++23), falls back to Kokkos::mdspan
+  - Kokkos fallback location: `../../include/mdspan/include`
+  - Types available in `hd::` namespace: `mdspan`, `extents`, `dextents`
+  - **Important**: Uses `MDSPAN_USE_BRACKET_OPERATOR=1` for `a[i,j]` syntax (Kokkos only)
 
 - **doctest**: Testing framework (tests only)
   - Install: `brew install doctest`
@@ -146,15 +147,23 @@ hd/
 ### Namespace Usage
 
 ```cpp
-// At file scope (before namespace hd):
-using namespace Kokkos;  // Makes mdspan less verbose
-
 namespace hd {
-    // Library code
+    // mdspan, extents, dextents are available via hd_solver.hpp
+    // No need for explicit using declarations in dependent headers
 }
 ```
 
-**Rationale**: Consistent with `hd_solver.hpp`, improves readability
+**For test files or code outside namespace hd**:
+
+```cpp
+#include "hd_solver.hpp"
+
+using hd::extents;
+using hd::mdspan;
+// Now use mdspan<double, extents<size_t, 3, 3>> etc.
+```
+
+**Rationale**: `hd_solver.hpp` handles mdspan selection (std vs Kokkos) and exports types to `hd::`
 
 ### mdspan Syntax
 
@@ -163,10 +172,15 @@ namespace hd {
 double value = matrix[i, j];  // NOT matrix(i, j)
 ```
 
-**Compile Flags**:
+**Compile Flags** (for Kokkos mdspan fallback):
 
 - `MDSPAN_USE_BRACKET_OPERATOR=1`
 - `MDSPAN_CXX_STANDARD=23`
+
+**mdspan Selection Flags** (optional, to force specific implementation):
+
+- `HD_SOLVER_USE_KOKKOS_MDSPAN` - Force Kokkos mdspan
+- `HD_SOLVER_USE_STD_MDSPAN` - Force std::mdspan (fails if not available)
 
 ### Error Handling
 
@@ -214,7 +228,8 @@ ninja                 # Or: make
 
 - Replace `C:/vcpkg/` with your actual vcpkg installation path if different
 - The build system automatically detects vcpkg vs traditional dependencies
-- mdspan uses local copy at `../../include/mdspan/include` (Kokkos single-header)
+- mdspan is auto-detected: uses `std::mdspan` if available, otherwise Kokkos fallback
+- To force a specific mdspan: `cmake .. -DHD_SOLVER_USE_KOKKOS_MDSPAN=1` or `-DHD_SOLVER_USE_STD_MDSPAN=1`
 
 ### Running Tests
 
@@ -259,11 +274,16 @@ ninja                 # Or: make
 - For κ > 10¹⁰, consider iterative refinement (not currently implemented)
 - See `SOLVER_ANALYSIS.md` for detailed analysis
 
-### mdspan Version
+### mdspan Selection
 
-- Uses Kokkos single-header mdspan (branch: single-header)
-- Ensure `MDSPAN_USE_BRACKET_OPERATOR=1` is set in compile flags
-- Location: `../../include/mdspan/include`
+- **Auto-detection**: Checks for `__cpp_lib_mdspan >= 202207L` via `<version>` header
+- **std::mdspan**: Used when available (GCC 14+, Clang 18+, MSVC 19.39+)
+- **Kokkos fallback**: Used for older compilers
+  - Location: `../../include/mdspan/include`
+  - Requires: `MDSPAN_USE_BRACKET_OPERATOR=1` compile flag
+- **Override via CMake**:
+  - `cmake .. -DHD_SOLVER_USE_KOKKOS_MDSPAN=1` (force Kokkos)
+  - `cmake .. -DHD_SOLVER_USE_STD_MDSPAN=1` (force std, may fail)
 
 ### Platform-Specific
 
@@ -310,7 +330,7 @@ ninja                 # Or: make
 
 1. Create header file `hd_newfeature.hpp`
 2. Add to `namespace hd`
-3. Add `using namespace Kokkos;` if using mdspan
+3. If using mdspan: include `hd_solver.hpp` (provides `mdspan`, `extents`, `dextents`)
 4. Create test file `hd_newfeature_test.cpp`
 5. Update `CMakeLists.txt` with new test executable
 6. Update this file (CLAUDE.md) with new component info
@@ -342,6 +362,11 @@ Current uncommitted changes:
 **Add a new test to solver**:
 
 ```cpp
+#include "hd_solver.hpp"
+
+using hd::extents;
+using hd::mdspan;
+
 SUBCASE("My new test") {
     std::array<double, 9> m_s{...};  // Matrix data
     std::array<double, 3> rhs_s{...}; // RHS
@@ -380,6 +405,7 @@ print(f"Solution: {x}")
 - **2024/07**: GA moved to separate project
 - **2024/08**: Tests for solver added
 - **2024/10**: Comprehensive determinant & solver tests, numerical analysis, namespace cleanup
+- **2025/01**: mdspan auto-detection (std::mdspan vs Kokkos fallback), unified namespace via `hd::`
 
 ---
 

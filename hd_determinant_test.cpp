@@ -121,21 +121,21 @@ TEST_SUITE("Determinant calculations:")
         SUBCASE("Identity matrix")
         {
             double data[] = {1.0, 0.0, 0.0, 1.0};
-            Kokkos::mdspan<double, Kokkos::dextents<size_t, 2>> I(data, 2, 2);
+            mdspan<double, dextents<size_t, 2>> I(data, 2, 2);
             CHECK(det<double>(I) == doctest::Approx(1.0));
         }
 
         SUBCASE("Simple 2x2 matrix")
         {
             double data[] = {1.0, 2.0, 3.0, 4.0};
-            Kokkos::mdspan<double, Kokkos::dextents<size_t, 2>> A(data, 2, 2);
+            mdspan<double, dextents<size_t, 2>> A(data, 2, 2);
             CHECK(det<double>(A) == doctest::Approx(-2.0));
         }
 
         SUBCASE("Singular 2x2 matrix")
         {
             double data[] = {1.0, 2.0, 2.0, 4.0};
-            Kokkos::mdspan<double, Kokkos::dextents<size_t, 2>> A(data, 2, 2);
+            mdspan<double, dextents<size_t, 2>> A(data, 2, 2);
             CHECK(det<double>(A) == doctest::Approx(0.0));
         }
     }
@@ -145,21 +145,21 @@ TEST_SUITE("Determinant calculations:")
         SUBCASE("Identity matrix")
         {
             double data[] = {1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0};
-            Kokkos::mdspan<double, Kokkos::dextents<size_t, 2>> I(data, 3, 3);
+            mdspan<double, dextents<size_t, 2>> I(data, 3, 3);
             CHECK(det<double>(I) == doctest::Approx(1.0));
         }
 
         SUBCASE("Simple 3x3 matrix")
         {
             double data[] = {1.0, 2.0, 3.0, 0.0, 1.0, 4.0, 5.0, 6.0, 0.0};
-            Kokkos::mdspan<double, Kokkos::dextents<size_t, 2>> A(data, 3, 3);
+            mdspan<double, dextents<size_t, 2>> A(data, 3, 3);
             CHECK(det<double>(A) == doctest::Approx(1.0));
         }
 
         SUBCASE("Integer 3x3 matrix from user example")
         {
             double data[] = {0.0, 2.0, 6.0, 1.0, 8.0, 4.0, 5.0, 2.0, 7.0};
-            Kokkos::mdspan<double, Kokkos::dextents<size_t, 2>> A(data, 3, 3);
+            mdspan<double, dextents<size_t, 2>> A(data, 3, 3);
             CHECK(det<double>(A) == doctest::Approx(-202.0));
         }
     }
@@ -170,7 +170,7 @@ TEST_SUITE("Determinant calculations:")
         {
             double data[] = {1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0,
                              0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0};
-            Kokkos::mdspan<double, Kokkos::dextents<size_t, 2>> I(data, 4, 4);
+            mdspan<double, dextents<size_t, 2>> I(data, 4, 4);
             CHECK(det<double>(I) == doctest::Approx(1.0));
         }
 
@@ -178,7 +178,7 @@ TEST_SUITE("Determinant calculations:")
         {
             double data[] = {2.0, 0.0, 0.0, 0.0, 0.0, 3.0, 0.0, 0.0,
                              0.0, 0.0, 4.0, 0.0, 0.0, 0.0, 0.0, 5.0};
-            Kokkos::mdspan<double, Kokkos::dextents<size_t, 2>> D(data, 4, 4);
+            mdspan<double, dextents<size_t, 2>> D(data, 4, 4);
             CHECK(det<double>(D) == doctest::Approx(120.0));
         }
 
@@ -186,7 +186,7 @@ TEST_SUITE("Determinant calculations:")
         {
             double data[] = {1.0, 2.0, 0.0, 1.0, 3.0, 1.0, 2.0, 0.0,
                              0.0, 1.0, 1.0, 2.0, 2.0, 0.0, 1.0, 1.0};
-            Kokkos::mdspan<double, Kokkos::dextents<size_t, 2>> A(data, 4, 4);
+            mdspan<double, dextents<size_t, 2>> A(data, 4, 4);
             CHECK(det<double>(A) == doctest::Approx(-14.0));
         }
     }

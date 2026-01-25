@@ -31,6 +31,35 @@ project(
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 
+##################################################################
+# mdspan selection logic (handled in hd_solver.hpp via preprocessor):
+#
+# By default, the library auto-detects std::mdspan availability:
+#   - If __cpp_lib_mdspan >= 202207L is defined, uses C++23 std::mdspan
+#   - Otherwise, falls back to Kokkos::mdspan (local copy)
+#
+# To force a specific implementation, define one of these:
+#
+#   Force Kokkos mdspan (e.g., for compatibility testing):
+#     cmake .. -DHD_SOLVER_USE_KOKKOS_MDSPAN=1
+#
+#   Force std::mdspan (will fail if compiler doesn't support it):
+#     cmake .. -DHD_SOLVER_USE_STD_MDSPAN=1
+#
+# The selection applies to: hd_solver.hpp, hd_determinant.hpp, hd_stencil.hpp
+##################################################################
+
+# Pass user-defined mdspan selection to compiler
+if(DEFINED HD_SOLVER_USE_KOKKOS_MDSPAN)
+  add_compile_definitions(HD_SOLVER_USE_KOKKOS_MDSPAN)
+  message(STATUS "mdspan: Forcing Kokkos::mdspan (user-defined)")
+elseif(DEFINED HD_SOLVER_USE_STD_MDSPAN)
+  add_compile_definitions(HD_SOLVER_USE_STD_MDSPAN)
+  message(STATUS "mdspan: Forcing std::mdspan (user-defined)")
+else()
+  message(STATUS "mdspan: Auto-detecting (std::mdspan if available, else Kokkos)")
+endif()
+
 # set a default build type: Debug | RelWithDebInfo | Release | MinSizeRel
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Debug")

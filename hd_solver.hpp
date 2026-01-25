@@ -14,52 +14,62 @@
 //     (can be repeated with many different rhs vectors for the same matrix)
 //
 // hd::lu_backsubs(m, m_perm, rhs);
-
-// use branch "single-header" from mdspan github
 //
-// To try using subscript operator comment in macro below
-// the header will by default also check for the feature macro, and enable it
-// defining the macro to 0 will overwrite the automatic setting
-// x86-64 clang (experimental auto NSDMI) supports the operator, but you need
-// to explicitly comment in below macro
-// #define MDSPAN_USE_BRACKET_OPERATOR 1
+// mdspan selection:
+// - By default, uses C++23 standard <mdspan> if available (__cpp_lib_mdspan)
+// - Define HD_SOLVER_USE_KOKKOS_MDSPAN to force use of Kokkos mdspan implementation
+// - Define HD_SOLVER_USE_STD_MDSPAN to force use of C++23 standard <mdspan>
 
-// To force enable operator() comment in the macro below
-// You can enable both at the same time.
-// #define MDSPAN_USE_PAREN_OPERATOR 1
+// Include <version> for feature test macros (C++20+)
+#if __has_include(<version>)
+    #include <version>
+#endif
 
-#include "mdspan/mdspan.hpp"
+// mdspan selection logic
+#if defined(HD_SOLVER_USE_KOKKOS_MDSPAN)
+    // User explicitly requested Kokkos mdspan
+    #include "mdspan/mdspan.hpp"
+    #define HD_SOLVER_MDSPAN_NS Kokkos
+#elif defined(HD_SOLVER_USE_STD_MDSPAN) || (defined(__cpp_lib_mdspan) && __cpp_lib_mdspan >= 202207L)
+    // Use C++23 standard mdspan (explicitly requested or auto-detected)
+    #include <mdspan>
+    #define HD_SOLVER_MDSPAN_NS std
+#else
+    // Fallback to Kokkos mdspan for older compilers
+    #include "mdspan/mdspan.hpp"
+    #define HD_SOLVER_MDSPAN_NS Kokkos
+#endif
 
 #include <cmath>
-#include <iostream>
+#include <stdexcept>
 #include <vector>
-
-// make mdspan less verbose
-using namespace Kokkos;
 
 namespace hd { // Namespace hd to define my types for numerical computation
 
-void lu_decomp(mdspan<double, dextents<size_t, 2>> a,
-               mdspan<int, dextents<size_t, 1>> perm);
-void lu_backsubs(mdspan<double const, dextents<size_t, 2>> a,
-                 mdspan<int const, dextents<size_t, 1>> perm,
-                 mdspan<double, dextents<size_t, 1>> b);
+// Use selected mdspan namespace
+using HD_SOLVER_MDSPAN_NS::dextents;
+using HD_SOLVER_MDSPAN_NS::extents;
+using HD_SOLVER_MDSPAN_NS::mdspan;
 
 //-----------------------------------------------------------------------------
 // Solver error handling
 //-----------------------------------------------------------------------------
 struct Solver_error {
     std::string name;
-    Solver_error(const char* q) : name(q) {}
+    Solver_error(char const* q) : name(q) {}
     Solver_error(std::string n) : name(n) {}
 };
 
 //-----------------------------------------------------------------------------
 
-inline void solver_error_msg(const char* p) { throw Solver_error(p); }
+inline void solver_error_msg(char const* p) { throw Solver_error(p); }
 
-void lu_decomp(mdspan<double, dextents<size_t, 2>> a,
-               mdspan<int, dextents<size_t, 1>> perm)
+//-----------------------------------------------------------------------------
+// LU decomposition
+//-----------------------------------------------------------------------------
+
+inline void lu_decomp(mdspan<double, dextents<size_t, 2>> a,
+                      mdspan<int, dextents<size_t, 1>> perm)
 {
     /* LU decomposition of matrix a (handed back on a)
        perm is the permutation vector in case of line exchange (pivot elements)
@@ -82,7 +92,7 @@ void lu_decomp(mdspan<double, dextents<size_t, 2>> a,
     for (int i = 0; i <= ubound; ++i) {
         double aamax = 0.;
         for (int j = 0; j <= ubound; ++j) {
-            if (abs(a[i, j]) > aamax) aamax = abs(a[i, j]);
+            if (std::abs(a[i, j]) > aamax) aamax = std::abs(a[i, j]);
         }
         if (aamax == 0.) solver_error_msg("hd::lu_decomp(): singular matrix.");
         vv[i] = 1. / aamax;
@@ -110,7 +120,7 @@ void lu_decomp(mdspan<double, dextents<size_t, 2>> a,
                     sum -= a[i, k] * a[k, j];
                 a[i, j] = sum;
             }
-            dum = vv[i] * abs(sum);
+            dum = vv[i] * std::abs(sum);
             if (dum >= aamax) {
                 imax = i;
                 aamax = dum;
@@ -134,11 +144,15 @@ void lu_decomp(mdspan<double, dextents<size_t, 2>> a,
     }
     if (a[ubound, ubound] == 0.) a[ubound, ubound] = TINY;
 
-} // ludecomp()
+} // lu_decomp()
 
-void lu_backsubs(mdspan<double const, dextents<size_t, 2>> a,
-                 mdspan<int const, dextents<size_t, 1>> perm,
-                 mdspan<double, dextents<size_t, 1>> b)
+//-----------------------------------------------------------------------------
+// Backward substitution
+//-----------------------------------------------------------------------------
+
+inline void lu_backsubs(mdspan<double const, dextents<size_t, 2>> a,
+                        mdspan<int const, dextents<size_t, 1>> perm,
+                        mdspan<double, dextents<size_t, 1>> b)
 {
     /*
     backward substitution: a is the LU-decomposed matrix as provided by lu_decomp()
@@ -157,8 +171,8 @@ void lu_backsubs(mdspan<double const, dextents<size_t, 2>> a,
     if (a.extent(0) != a.extent(1) || a.extent(0) != perm.extent(0) ||
         a.extent(0) != b.extent(0)) {
 
-        solver_error_msg("hd::lu_decomp(): unsymmetric matrix, permututation vector size "
-                         "or right hand side size incompatible.");
+        solver_error_msg("hd::lu_backsubs(): unsymmetric matrix, permututation vector "
+                         "size or right hand side size incompatible.");
     };
 
     int ubound = static_cast<int>(a.extent(0)) - 1; // highest valid index (=upper boundary)
@@ -188,7 +202,7 @@ void lu_backsubs(mdspan<double const, dextents<size_t, 2>> a,
         b[i] = sum / a[i, i];
     }
 
-} // lubacksubs()
+} // lu_backsubs()
 
 } // namespace hd
 

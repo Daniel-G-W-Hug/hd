@@ -6,6 +6,9 @@
 
 #include "hd_solver.hpp"
 
+using hd::extents;
+using hd::mdspan;
+
 // Test cases generated with generate_test_solver.py using NumPy as reference
 
 double const eps{1.e-15};

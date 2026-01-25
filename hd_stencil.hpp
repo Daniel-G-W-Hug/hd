@@ -4,8 +4,6 @@
 #include "hd/hd_functions.hpp" // hd::fact()
 #include "hd/hd_solver.hpp"    // hd::lu_decomp(), hd::lu_backsubs()
 
-#include "mdspan/mdspan.hpp"
-
 #include "fmt/format.h"
 #include "fmt/ranges.h"
 
@@ -14,6 +12,8 @@
 #include <vector>
 
 namespace hd { // Namespace hd to define my types for numerical computation
+
+// mdspan, dextents, extents are available via hd_solver.hpp
 
 enum class stencil_lhs {
     f1, // f'  terms considered to be on lhs of finite difference

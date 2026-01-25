@@ -6,10 +6,9 @@
 #include <stdexcept>
 #include <vector>
 
-// make mdspan less verbose
-using namespace Kokkos;
-
 namespace hd {
+
+// mdspan, dextents, extents are available via hd_solver.hpp
 
 // Determinant using vector of vectors with LU decomposition
 template <typename T> T det(const std::vector<std::vector<T>>& A)
