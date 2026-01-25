@@ -5,6 +5,7 @@ This document explains how to configure various IDEs to use vcpkg with the hd li
 ## Quick Start
 
 The project now includes:
+
 - **CMakePresets.json** - Modern CMake configuration (recommended)
 - **.vscode/settings.json** - VS Code specific settings
 
@@ -64,9 +65,11 @@ Create `CMakeSettings.json` in the project root:
 
 1. Go to: **File** → **Settings** → **Build, Execution, Deployment** → **CMake**
 2. In **CMake options**, add:
-   ```
+
+   ```text
    -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
    ```
+
 3. Click **OK** and let CLion reconfigure
 
 ### Using CMakePresets.json
@@ -92,6 +95,7 @@ cmake --build .
 **Problem**: IDE shows "Could not find fmt" error
 
 **Solutions**:
+
 1. **Delete build directory completely**
 2. **Restart IDE** (important!)
 3. **Verify vcpkg path**: Make sure `C:/vcpkg/scripts/buildsystems/vcpkg.cmake` exists
@@ -102,6 +106,7 @@ cmake --build .
 **Problem**: Multiple vcpkg installations causing conflicts
 
 **Solution**: Update the toolchain file path in:
+
 - `CMakePresets.json` (line with `CMAKE_TOOLCHAIN_FILE`)
 - `.vscode/settings.json` (line with `CMAKE_TOOLCHAIN_FILE`)
 
@@ -112,6 +117,7 @@ Replace `C:/vcpkg/` with your actual vcpkg installation path.
 **Problem**: IDE keeps using old configuration
 
 **Solution**:
+
 1. Delete `build` directory
 2. Delete `.vs` directory (Visual Studio)
 3. Delete `cmake-build-*` directories (CLion)
@@ -121,7 +127,8 @@ Replace `C:/vcpkg/` with your actual vcpkg installation path.
 ## Verifying Configuration
 
 After configuration, CMake output should show:
-```
+
+```text
 -- Detected vcpkg toolchain on Windows
 -- ✓ Found vcpkg doctest
 -- ✓ Found vcpkg fmt: 11.2.0
@@ -133,10 +140,12 @@ If you see these messages, vcpkg is working correctly!
 ## Platform-Specific Notes
 
 ### Windows
+
 - Must use vcpkg toolchain file
 - Presets: `windows-vcpkg-debug` or `windows-vcpkg-release`
 
 ### macOS
+
 - Uses Homebrew (no toolchain file needed)
 - Presets: `macos-debug` or `macos-release`
 - Dependencies: `brew install doctest fmt`

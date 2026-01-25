@@ -29,13 +29,13 @@ cases with matrices up to size ~100.
 Based on theoretical analysis and empirical testing:
 
 | Condition Number (κ) | Expected Digits of Accuracy | Test Results |
-|----------------------|------------------------------|--------------|
-| κ < 100              | ~15 (machine precision)      | ✅ Pass      |
-| κ ~ 10⁴              | ~11-12                       | ✅ Pass      |
-| κ ~ 10⁶              | ~9-10                        | ✅ Pass      |
-| κ ~ 10⁸              | ~7-8                         | ✅ Pass      |
-| κ ~ 10¹⁰             | ~5-6                         | ✅ Pass      |
-| κ > 10¹²             | Unreliable                   | Not tested   |
+| --- | --- | --- |
+| κ < 100 | ~15 (machine precision) | ✅ Pass |
+| κ ~ 10⁴ | ~11-12 | ✅ Pass |
+| κ ~ 10⁶ | ~9-10 | ✅ Pass |
+| κ ~ 10⁸ | ~7-8 | ✅ Pass |
+| κ ~ 10¹⁰ | ~5-6 | ✅ Pass |
+| κ > 10¹² | Unreliable | Not tested |
 
 ## Test Suite Results
 
@@ -69,14 +69,12 @@ Based on theoretical analysis and empirical testing:
 
 ### 1. Iterative Refinement
 
-**Impact:**
-   Could gain 2-3 digits for κ > 10⁷
+**Impact:** Could gain 2-3 digits for κ > 10⁷
 
-**Cost:**
-   ~2x solve time
+**Cost:** ~2x solve time
 
-**Recommendation:**
-   ❌ Not needed unless you regularly solve extremely ill-conditioned systems (κ > 10⁸)
+**Recommendation:** ❌ Not needed unless you regularly solve extremely ill-conditioned
+systems (κ > 10⁸)
 
 **Implementation sketch:**
 
@@ -98,26 +96,22 @@ void lu_solve_refined(A, b, x, max_iter=3) {
 
 ### 2. Complete Pivoting
 
-**Impact:** Marginal improvement
-**Cost:** 2-3x slower
-**Recommendation:** ❌ Not worth it
+**Impact:** Marginal improvement **Cost:** 2-3x slower **Recommendation:** ❌ Not worth it
 
 ### 3. Block/Recursive LU
 
-**Impact:** Better cache performance for n > 1000
-**Cost:** More complex code
+**Impact:** Better cache performance for n > 1000 **Cost:** More complex code
 **Recommendation:** ❌ Not relevant for small systems
 
 ### 4. Extended Precision Accumulation
 
-**Impact:** Minimal for n < 100
-**Cost:** Platform-dependent, slower
-**Recommendation:** ❌ Modern hardware has good double precision
+**Impact:** Minimal for n < 100 **Cost:** Platform-dependent, slower **Recommendation:** ❌
+Modern hardware has good double precision
 
 ## Comparison with Alternatives
 
 | Method | Accuracy | Speed | Memory | Use Case |
-|--------|----------|-------|--------|----------|
+| --- | --- | --- | --- | --- |
 | Current LU (partial pivot) | Excellent | Fast | O(1) | **General purpose** ✅ |
 | LU + refinement | Better | Medium | O(n²) | κ > 10⁸ |
 | Complete pivoting | Slightly better | Slow | O(1) | Academic |
