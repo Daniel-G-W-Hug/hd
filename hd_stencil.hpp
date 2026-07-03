@@ -1,8 +1,8 @@
 #ifndef HD_STENCIL_H
 #define HD_STENCIL_H
 
-#include "hd/hd_functions.hpp" // hd::fact()
-#include "hd/hd_solver.hpp"    // hd::lu_decomp(), hd::lu_backsubs()
+#include "hd_functions.hpp" // hd::fact()
+#include "hd_solver.hpp"    // hd::lu_decomp(), hd::lu_backsubs()
 
 #include "fmt/format.h"
 #include "fmt/ranges.h"
@@ -63,8 +63,8 @@ struct stencil_t {
     std::vector<double> wf1; // weights of points for f'
     std::vector<double> wf2; // weights of points for f''
 
-    int order;        // order of fd stencil
-    double trunc_err; // truncation error as factor in front of highest neglected term
+    int order{0};          // order of fd stencil
+    double trunc_err{0.0}; // truncation error as factor in front of highest neglected term
 
     // helpers for number of points
     size_t nf0() const { return xf0.size(); }          // number of points for f
@@ -237,7 +237,8 @@ void stencil_t::calc_stencil()
                 sfact = 1.0;
             }
             for (size_t j = j1b; j <= j1e; ++j)
-                sumte += std::pow(xf1[j - j1b] - x0, i - 1) / hd::fact(i - 1) * rhs[j];
+                sumte +=
+                    sfact * std::pow(xf1[j - j1b] - x0, i - 1) / hd::fact(i - 1) * rhs[j];
         }
 
         // f''
@@ -251,7 +252,8 @@ void stencil_t::calc_stencil()
                 sfact = 1.0;
             }
             for (size_t j = j2b; j <= j2e; ++j)
-                sumte += std::pow(xf2[j - j2b] - x0, i - 2) / hd::fact(i - 2) * rhs[j];
+                sumte +=
+                    sfact * std::pow(xf2[j - j2b] - x0, i - 2) / hd::fact(i - 2) * rhs[j];
         }
 
         double eps = 1.0e-6;
@@ -264,6 +266,7 @@ void stencil_t::calc_stencil()
             if (lhs_t == stencil_lhs::f2) {
                 order = i - 2;
             }
+            break; // first non-vanishing term is the leading truncation term
         }
     }
 }

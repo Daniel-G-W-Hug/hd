@@ -15,3 +15,20 @@
 - Verified solver handles condition numbers up to 10¹⁰ with appropriate accuracy
 - Unified namespace handling (using namespace Kokkos) across solver and determinant
 - Developer guide (CLAUDE.md) for future development and AI assistant integration
+
+2026/07: stencil fixes and test suite (backport from the ga project)
+
+- Fixed leading-truncation-term detection in hd_stencil.hpp: the residual scan kept
+  overwriting order/trunc_err, so the LAST non-vanishing Taylor order was reported
+  instead of the first (a one-sided 2-point f' stencil came out as order 2 instead
+  of 1); the scan now stops at the first non-vanishing term
+- Fixed lhs sign in the truncation residual: lhs terms (compact/implicit schemes) now
+  enter with the same sfact sign convention used to build the Taylor-matching matrix
+- Initialized order/trunc_err members (were left undefined when every residual term
+  stayed below the detection threshold)
+- Normalized hd_stencil.hpp includes to sibling style ("hd_functions.hpp" instead of
+  "hd/hd_functions.hpp") so the header also compiles inside this repo's own test builds
+- New stencil test suite (hd_stencil_test.cpp, 36 assertions): closed-form
+  weight/order/truncation gates for central f'/f'', one-sided f' (pins the leading-term
+  fix), the classic 4th-order compact Pade f' scheme (pins the sfact fix,
+  trunc_err = -h^4/180), a measured-convergence-rate check, and ctor validation
